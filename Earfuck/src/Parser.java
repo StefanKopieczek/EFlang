@@ -85,7 +85,10 @@ class Parser {
 	 * The performers *love* playing changes in rhythm.
 	 * In fact they love it so much, that they will play each double-time 
 	 * section until the audience gets bored (that is, until the ambiance is 
-	 * zero for the 
+	 * zero for the current memory state).
+	 * In order to do this, we need to keep track of the successive '(' 
+	 * characters' positions so that we can return to that position in the code
+	 * when we want to replay a section.
 	 */
 	Stack<Integer> mBrackets;
 	
