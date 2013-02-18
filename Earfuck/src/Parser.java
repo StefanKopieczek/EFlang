@@ -12,7 +12,7 @@ class Parser {
 	 * The performer understands the musical notation we use, and is able to
 	 * output audio (either to a MIDI file or to a current MIDI stream).
 	 */	
-	Performer mPerformer = new Performer();
+	MidiStreamPerformer mPerformer = new MidiStreamPerformer();
 	
 	/**
 	 * Either 'numeric' or 'ascii' - this determines how we render characters
@@ -102,7 +102,7 @@ class Parser {
 	Scanner sc;
 	
 	public Parser() {
-		mOutputMode = "numeric";
+		mOutputMode = "ascii";
 		refreshState();
 	}
 	
@@ -138,7 +138,7 @@ class Parser {
 		
 		if (isNote(command)) {
 			// The first command is a musical note, so let's play it.
-			mPerformer.enqueue(command, mNoteDuration);
+			mPerformer.addNote(command, mNoteDuration);
 		}
 		
 		Integer place = 0;
@@ -206,7 +206,8 @@ class Parser {
 			
 			if (command.equals("r")) {	
 				// We've hit a rest - so add it to the play queue.
-				mPerformer.enqueue("R", mNoteDuration);
+				mPerformer.addNote("R", mNoteDuration);
+				mPerformer.onRest();
 
 				if (mOptimism < 0) {
 					// When the audience are pessimistic on a rest, we ask for
@@ -255,11 +256,11 @@ class Parser {
 			// Calculate how excited the performers are, and then queue the
 			// note to be played.
 			getExcited();
-			mPerformer.enqueue(command, mNoteDuration, mExcitement);	
+			mPerformer.addNote(command, mNoteDuration, mExcitement);	
 		}
 		
 		//mPerformer.outputQueueToFile();
-		mPerformer.playQueue();
+		mPerformer.onPieceEnd();
 		sc.close();
 	}
 	
