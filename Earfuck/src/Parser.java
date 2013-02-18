@@ -102,7 +102,7 @@ class Parser {
 	Scanner sc;
 	
 	public Parser() {
-		mOutputMode = "ascii";
+		mOutputMode = "numeric";
 		refreshState();
 	}
 	
@@ -206,8 +206,6 @@ class Parser {
 			
 			if (command.equals("r")) {	
 				// We've hit a rest - so add it to the play queue.
-				mPerformer.addNote("R", mNoteDuration);
-				mPerformer.onRest();
 
 				if (mOptimism < 0) {
 					// When the audience are pessimistic on a rest, we ask for
@@ -231,6 +229,8 @@ class Parser {
 						System.out.print((char)(mAmbiance.get(mMentalState).intValue()));
 					}
 				}
+				mPerformer.addNote("R", mNoteDuration);
+				mPerformer.onRest();
 				continue;
 			}
 			
@@ -259,7 +259,6 @@ class Parser {
 			mPerformer.addNote(command, mNoteDuration, mExcitement);	
 		}
 		
-		//mPerformer.outputQueueToFile();
 		mPerformer.onPieceEnd();
 		sc.close();
 	}

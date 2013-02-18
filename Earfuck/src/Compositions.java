@@ -23,7 +23,7 @@ class Compositions {
 	        					"( e4 g4 c4 ) b3 a3 " + //Move right until you find a 0, then back one
 	        					") c4 r"; //Else output answer
 	public static String factorial = 	"c4 e4 g4 e4 c4 r " + //Takes input into first cell
-	        							"( ( c4 d4 d4 e4 e4 d4 c4 ) ) " + //Duplicates it into the next two cells
+	        							"( ( c4 e4 e4 g4 g4 e4 c4 ) ) " + //Duplicates it into the next two cells
 	        							" e4 g4 c4 c4 " + //Moves along one and decrements
 	        							"( d4 e4 ( e4 c4 d4 e4 ) e4 ( d4 c4 g4 ) a4 c5 c4 c4 ) " + //Creates decending list
 	        							"d4 ( e4 g4 c4 ) " + //Move to the end of the list
@@ -36,11 +36,11 @@ class Compositions {
 										"g4 c5 g4 c4 c6 r"; //output answer
 										
 	public static String salutations = "c5 b4 c5 c5 c5 c5 c5 c5 c5 c5 c5 c5 c5 " +
-					                   "( ( d5 d5 d5 d5 d5 d5 d5 d5 " +
+					                   "( ( ( ( d5 d5 d5 d5 d5 d5 d5 d5 " +
 			                           "e5 e5 e5 e5 e5 e5 e5 e5 e5 e5 e5 " +
 					                   "f5 f5 f5 f5 " +
 			                           "g5 g5 " +
-					                   "f5 e5 d5 c5 c5 ) ) " +
+					                   "f5 e5 d5 c5 c5 ) ) ) ) " +
 			                           "d5 d5 d5 r " +
 					                   "e5 e5 r " +
 			                           "e5 e5 e5 e5 e5 e5 e5 r " +
