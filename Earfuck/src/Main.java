@@ -4,6 +4,6 @@ class Main {
 	public static void main(String args[]) {
 		Parser parser = new Parser();
 		
-		parser.perform(Compositions.factorial);
+		parser.perform(Compositions.ryan_division);
 	}
 }
