@@ -80,12 +80,15 @@ class Compositions {
 			                              "( c4 d4 e4 e4 d4 c4 ) " +
                                           "d4 e4 ( f4 e4 e4 d4 c4 b3 c4 c4 d4 d4 e4 ) " +
 			                              "d4 c4 d4 r )";
-	public static String ryan_division = "c4 d4 c4 r d4 e4 f4 e4 r " +
-			                              "d4 c4 ( ( c4 d4 d4 e4 f4 e4 e4 " +
-			                              "( c5 b4 a4 g4 f4 e4 d4 ) f4 g4 a4 b4 c5 " +
-			                              "d4 c4 ) " +
-			                              "d4 ( ( e4 d4 d4 c4 b3 c4 c4 d4 ) " +
-			                              "e4 f4 f4 e4 d4 ) c4 ) "+
+	public static String ryan_division = "c4 d4 c4 r d4 e4 f4 e4 r d4 c4 " + //a->[0], b->[2] p=[0]
+			                              "( ( c4 d4 d4 c4 " + //[0]-1, [1]+1 p=[0]
+			                              "( d4 e4 f4 g4 f4 f4 e4 d4 c4 b3 a3 ) d4 ( c4 b3 ) e4 f4 g4 c5 c5 g4 e4 c4 " + //maybe [3]+1 p=[0]
+			                              "d4 e4 f4 e4 e4 " + //[2]-1 p=[2]
+			                              "( c5 b4 a4 g4 f4 e4 d4 ) f4 g4 a4 b4 c5 " + //if [2]==0, p=[7], else p=[2]
+			                              "d4 c4 ) " + //p=[5]&exit or p=[0]&repeat/exit
+			                              "d4 " + //p=[6] or p=[1]
+			                              "( e4 d4 d4 c4 b3 c4 c4 d4 ) " + //n/a or [1]->[0] p=[1]
+			                              "c4 ) " + //p=[5] or p=[0]
 			                              "c5 g4 e4 c4 b3 c4 r";
 	
 	public static String ryan_division_old = "c4 d4 c4 r d4 e4 f4 e4 r " +
