@@ -91,13 +91,13 @@ class Compositions {
 			                              "c4 ) " + //p=[5] or p=[0]
 			                              "c5 g4 e4 c4 b3 c4 r";
 	
-	public static String ryan_division_old = "c4 d4 c4 r d4 e4 f4 e4 r " +
-            "d4 c4 ( ( c4 d4 d4 e4 f4 e4 e4 " +
-            "( c5 b4 a4 g4 f4 e4 d4 ) f4 g4 a4 b4 c5 " +
-            "d4 c4 ) " +
-            "d4 ( ( e4 d4 d4 c4 b3 c4 c4 d4 ) " +
-            "e4 f4 f4 e4 d4 ) c4 ) " +
-            "c5 g4 e4 c4 b3 c4 r";
+	public static String better_division = "c4 d4 c4 r d4 e4 d4 r " +//a->[0], b->[1], p=[1]
+											"( d4 c4 c4 b3 a3 b3 b3 c4 " +//[0]--, [-1]++, p=[0]
+											"( b3 a3 ) g3 " + //if [0]==0, p=[-1] (else p=[-3])
+											"( a3 b3 c4 c4 b3 a3 g3 " + //[2]++, p=[-1]
+											"( g3 c4 c4 g3 ) f3 e3 " + //[-1]->[0], p=[-3]
+											") g3 c4 e4 g4 c5 d4 ) " + //rejoin, p=[1], repeat
+											"e4 g4 c5 g4 e4 c4 c5 r"; //output
 	
 	public static String stefan_fibonacci = "c4 b3 c4 c4 r e4 e4 r c4 " +
 			                                "( g4 ( c5 e4 e4 g4 g4 a4 a4 f4 c4 ) " +
