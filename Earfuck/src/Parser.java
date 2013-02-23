@@ -1,9 +1,6 @@
-import java.io.Console;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Stack;
-
-import org.jfugue.*;
 
 class Parser {	
 	private static Integer INITIAL_ATTACK_VALUE = 63;
