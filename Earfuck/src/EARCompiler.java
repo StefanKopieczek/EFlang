@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Stack;
 
 
 public class EARCompiler {
@@ -34,6 +35,9 @@ public class EARCompiler {
 	private EarfuckMemory memory;
 	private Note currentNote;
 	private int optimism;
+	private Stack<Integer> branchLocStack;
+	private Stack<Note> branchNoteStack;
+	private Stack<Integer> branchOptimismStack;
 	
 	public EARCompiler() {
 		p=0;
@@ -41,6 +45,9 @@ public class EARCompiler {
 		currentNote = STARTING_NOTE;
 		optimism = 0;
 		instructionSet = getInstructionSet();
+		branchLocStack = new Stack<Integer>();
+		branchNoteStack = new Stack<Note>();
+		branchOptimismStack = new Stack<Integer>();
 	}
 	
 	private HashMap<String,EARInstruction> getInstructionSet() {
@@ -51,20 +58,30 @@ public class EARCompiler {
 		instructions.put("OUT", OUT);
 		instructions.put("ADD", ADD);
 		instructions.put("IF", IF);
-		instructions.put("RETIF", RETIF);
+		instructions.put("REPIF", REPIF);
+		instructions.put("ZERO", ZERO);
 		
 		return instructions;
 	}
 	
+	/**
+	 * Compiles provided EARCode into an EF program
+	 * @param EARCode
+	 * @return String containing EF program
+	 */
 	public String compile(String EARCode) {
 		String output = "";
+		
+		EARCode = EARCode.replaceAll("; *",";");
 		String[] instructions = EARCode.split(";");
 		
 		
 		output += currentNote.toString()+" ";
 		
 		for (String instruction : instructions) {
+			instruction = instruction.replaceAll("(\n)? +(\n)?", " ");
 			String[] parsedInstruction = instruction.split(" ");
+			
 			String[] args = Arrays.copyOfRange(parsedInstruction, 1, 
 											parsedInstruction.length);
 			String opcode = parsedInstruction[0];
@@ -152,6 +169,66 @@ public class EARCompiler {
 				" " + currentNote.toString() + " ";
 	}
 	
+	/**
+	 * Changes current note to specified target note
+	 * without changing the pointer/optimism
+	 * @param target
+	 * @return
+	 */
+	private String changeNoteTo(Note target) {
+		String output = "";
+		int tempOptimism = 0;
+		if (currentNote==target) {
+			return output;
+		}
+		//Move note away from ends
+		if (currentNote.ordinal()==0) {
+			currentNote = currentNote.getNext().getNext();
+			output += currentNote.toString()+" ";
+			currentNote = currentNote.getPrev();
+			output += currentNote.toString()+" ";
+		}
+		if (currentNote.ordinal()==Note.values().length-1) {
+			currentNote = currentNote.getPrev().getPrev();
+			output += currentNote.toString()+" ";
+			currentNote = currentNote.getNext();
+			output += currentNote.toString()+" ";
+		}
+		
+		if (currentNote.ordinal()<target.ordinal()) {
+			output += currentNote.getPrev().toString()+" ";
+			tempOptimism = 1;
+		}
+		if (currentNote.ordinal()>target.ordinal()) {
+			output += currentNote.getNext().toString()+" ";
+			tempOptimism = -1;
+		}
+		
+		output += target.toString()+" ";
+		currentNote = target;
+		
+		//Now we're at target, but may have changed the optimism
+		//here we restore optimism
+		//Note, optimism may be impossible if the target note is the highest/lowest
+		//in this case, we should throw an exception
+		if (tempOptimism < optimism) {
+			if (currentNote.ordinal()==Note.values().length-1) {
+				//Throw Exception!!
+			}
+			output += moveLeft();
+			output += moveRight();
+		}
+		if (tempOptimism > optimism) {
+			if (currentNote.ordinal()==0) {
+				//Throw Exception!!
+			}
+			output += moveRight();
+			output += moveLeft();
+		}
+		
+		return output;
+	}
+	
 	public class EARInstruction{
 		public String compile(String[] args){
 			return "";
@@ -163,20 +240,13 @@ public class EARCompiler {
 	/**
 	 * Moves the pointer to specified cell.
 	 * e.g.
-	 * GOTO 5
+	 * GOTO 5;
 	 */
 	public EARInstruction GOTO = new EARInstruction() {
 		public String compile(String[] args) {
-			int destination;
+			int destination = Integer.parseInt(args[0]);
 			String output = "";
-			
-			if (args[0].charAt(0)=='~') {
-				destination = Integer.parseInt(args[0].substring(1))+p;
-			}
-			else {
-				destination = Integer.parseInt(args[0]);
-			}
-			
+
 			while (p<destination) {
 				output += moveRight();
 			}
@@ -187,6 +257,32 @@ public class EARCompiler {
 		}
 	};
 	
+	/**
+	 * Resets target cell to zero
+	 * e.g.
+	 * ZERO 5;
+	 */
+	public EARInstruction ZERO = new EARInstruction() {
+		public String compile(String[] args) {
+			String output = "";
+
+			output += GOTO.compile(args);
+			//Ensure pessimism (this way the loop can just be 1 instruction)
+			if (optimism != -1) {
+				output += moveRight() + moveLeft();
+			}
+			output += "( ";
+			output += decrement();
+			output += ") ";
+			return output;
+		}
+	};
+	
+	/**
+	 * Takes input to target cell
+	 * e.g.
+	 * IN 5;
+	 */
 	public EARInstruction IN = new EARInstruction() {
 		public String compile(String[] args) {
 			String output = "";
@@ -207,6 +303,11 @@ public class EARCompiler {
 		}
 	};
 	
+	/**
+	 * Outputs target cell.
+	 * e.g.
+	 * OUT 5;
+	 */
 	public EARInstruction OUT = new EARInstruction() {
 		public String compile(String[] args) {
 			String output = "";
@@ -227,6 +328,12 @@ public class EARCompiler {
 		}
 	};
 	
+	/**
+	 * Begins a loop conditional on the target cell.
+	 * Should be matched with an REPIF
+	 * e.g.
+	 * IF 5;
+	 */
 	public EARInstruction IF = new EARInstruction() {
 		public String compile(String[] args) {
 			String output = "";
@@ -237,24 +344,57 @@ public class EARCompiler {
 			
 			output += "( ";
 			
+			//Store where we were when we came in
+			branchLocStack.push(p);
+			branchNoteStack.push(currentNote);
+			branchOptimismStack.push(optimism);
+			
 			return output;
 		}
 	};
 	
-	public EARInstruction RETIF = new EARInstruction() {
+	/**
+	 * Returns to start of loop if conditioned cell is non-0
+	 * Conditioned cell chosen by previous maching IF.
+	 * e.g.
+	 * REPIF;
+	 */
+	public EARInstruction REPIF = new EARInstruction() {
 		public String compile(String[] args) {
 			String output = "";
-			if (args.length!=0){
-				//goto cell
-				output += GOTO.compile(args);
+			int branchExitPoint = branchLocStack.pop();
+
+			//return to branch exit point
+			output += GOTO.compile(new String[]{String.valueOf(branchExitPoint)});
+			//ensure optimism same as start of loop
+			int branchEntryOptimism = branchOptimismStack.pop();
+			if (branchEntryOptimism<optimism) {
+				output += moveRight();
+				output += moveLeft();
 			}
+			if (branchEntryOptimism>optimism) {
+				output += moveLeft();
+				output += moveRight();
+			}
+			//ensure on same note as start of loop
+			//(to ensure same behaviour in each loop)
+			Note branchEntryNote = branchNoteStack.pop();
+			output += changeNoteTo(branchEntryNote);
 			
+			//exit branch
 			output += ") ";
 			
 			return output;
 		}
 	};
 	
+	/**
+	 * Adds the value of the first argument (use @ for a pointer)
+	 * to the cells given by the remaining arguments (as many as you like)
+	 * e.g.
+	 * ADD @5 2 3 4;
+	 * Adds the value in cell 5 to cells 2, 3 and 4.
+	 */
 	public EARInstruction ADD = new EARInstruction() {
 		public String compile(String[] args) {
 			String output = "";
@@ -271,9 +411,14 @@ public class EARCompiler {
 			if (args[0].charAt(0)=='@') { //If pointer
 				//Goto summand cell
 				output += GOTO.compile(new String[]{args[0].substring(1)});
+				//Ensure pessimism
+				if (optimism!=-1) {
+					output += currentNote.getNext().toString()+" ";
+					output += currentNote.toString()+" ";
+				}
 				//Until cell is 0
 				output += "( ";
-				output += decrement();
+				output += currentNote.toString()+" ";
 				
 				//for each target cell
 				for (int index : targets) {
@@ -283,6 +428,11 @@ public class EARCompiler {
 				}
 				//Return to summand cell
 				output += GOTO.compile(new String[]{args[0].substring(1)});
+				//Ensure pessimism
+				if (optimism!=-1) {
+					output += currentNote.getNext().toString()+" ";
+					output += currentNote.toString()+" ";
+				}
 				//end loop
 				output += ") ";
 			}
