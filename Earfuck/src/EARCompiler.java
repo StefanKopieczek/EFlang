@@ -451,4 +451,39 @@ public class EARCompiler {
 			return output;
 		}
 	};
+	
+	/**
+	 * Multiplies two values into the given cell.
+	 * The final argument specifies a working cell
+	 * e.g.
+	 * MUL @5 @3 1 0
+	 * Multiplies cell 5 with cell 3, stores the answer in cell 1, 
+	 * and uses cell 0 for working.
+	 */
+	public EARInstruction MUL = new EARInstruction() {
+		public String compile(String[] args) {
+			String output = "";
+			if (args[0].charAt(0)=='@') {
+				if (args[1].charAt(0)=='@') {
+					//BOTH REFERENCES - HARD CASE
+					return output;
+				}
+				else {
+					
+				}
+			}
+			else {
+				if (args[1].charAt(0)=='@') {
+
+				}
+				else {
+					//If both absolute, just do it and add
+					int a = Integer.parseInt(args[0]);
+					int b = Integer.parseInt(args[1]);
+					output += ADD.compile(new String[]{String.valueOf(a*b),args[2]});
+				}
+			}
+			return output;
+		}
+	};
 }

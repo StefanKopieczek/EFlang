@@ -80,6 +80,7 @@ class Compositions {
 			                              "( c4 d4 e4 e4 d4 c4 ) " +
                                           "d4 e4 ( f4 e4 e4 d4 c4 b3 c4 c4 d4 d4 e4 ) " +
 			                              "d4 c4 d4 r )";
+
 	public static String ryan_division = "c4 d4 c4 r d4 e4 f4 e4 r d4 c4 " + //a->[0], b->[2] p=[0]
 			                              "( ( c4 d4 d4 c4 " + //[0]-1, [1]+1 p=[0]
 			                              "( d4 e4 f4 g4 f4 f4 e4 d4 c4 b3 a3 ) d4 ( c4 b3 ) e4 f4 g4 c5 c5 g4 e4 c4 " + //maybe [3]+1 p=[0]
