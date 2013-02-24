@@ -28,7 +28,7 @@ class Parser {
 	 * audience's current mental state, depending on whether the last change of
 	 * state was an optimistic or a pessimistic one. 
 	 */
-	ParserMemory mAmbiance;
+	EarfuckMemory mAmbiance;
 	
 	/**
 	 * The 'mental state' of the audience represents which mental state in the 
@@ -107,7 +107,7 @@ class Parser {
 	 * Clear all stateful data ready for a new run of code.
 	 */
 	private void refreshState() {		
-		mAmbiance = new ParserMemory();
+		mAmbiance = new EarfuckMemory();
 		mOptimism = 0;
 		mMentalState = 0;
 		mExcitement = INITIAL_ATTACK_VALUE;
@@ -151,7 +151,7 @@ class Parser {
 			command = mComposition[place];			
 			
 			if (command.equals("(")) {
-				if (mAmbiance.get() == 0) {
+				if (mAmbiance.get(mMentalState) == 0) {
 					// We skip this double-time section because the audience is
 					// bored.
 					// We record how many brackets we pass so that we can stop
@@ -184,7 +184,7 @@ class Parser {
 					// again!
 					Integer startPlace = mBrackets.pop();
 					mNoteDuration *= 2;
-					if (mAmbiance.get() != 0) {
+					if (mAmbiance.get(mMentalState) != 0) {
 						// Skip back to just before the opening bracket at the
 						// start of this section - we increment by one at the 
 						// start of the loop anyway.
@@ -209,7 +209,7 @@ class Parser {
 					// a value from the user to cheer them up.
 					System.out.print(":> ");					
 					Integer x = sc.nextInt();		
-					mAmbiance.set(x);
+					mAmbiance.put(mMentalState,x);
 				}
 				else if (mOptimism > 0) {
 					// When the audience are optimistic on a rest, they want to
@@ -218,7 +218,7 @@ class Parser {
 					if (mOutputMode.equals("numeric")) {
 						// In numeric mode, we display the ambiance value as an
 						// integer, and add a newline when outputting.
-						System.out.println(mAmbiance.get());
+						System.out.println(mAmbiance.get(mMentalState));
 					}
 					else if (mOutputMode.equals("ascii")) {
 						// In ascii mode, we display the ambiance value as an
@@ -237,7 +237,7 @@ class Parser {
 				// We just played a repeated note.
 				// We increase the ambiance value in this mental state if the
 				// audience are optimistic, and decrease if we're pessimistic.
-				mAmbiance.set(mAmbiance.get() + mOptimism);
+				mAmbiance.put(mMentalState,mAmbiance.get(mMentalState) + mOptimism);
 			}
 			else if (previousNote != null) {
 				// We just played a note that wasn't the same as the previous
@@ -308,64 +308,4 @@ class Parser {
 	 * @author Stefan Kopieczek
 	 *
 	 */
-	private class ParserMemory {
-		
-		/**
-		 * We store the cell data as a HashMap of indices against values.
-		 * We use Integers rather than ints to avoid autoboxing errors.
-		 */
-		private HashMap<Integer, Integer> memory;
-		
-		public ParserMemory() {
-			 memory = new HashMap<Integer, Integer>();
-		}
-		
-		private Integer get() {
-			return(get(mMentalState));
-		}
-		
-		private void set(Integer value) {
-			set(mMentalState, value);
-		}
-		
-		private Integer get(Integer idx) {
-			if (memory.containsKey(idx)) {
-				return memory.get(idx);
-			}
-			else {
-				return 0;
-			}
-		}
-		
-		private void set(Integer idx, Integer value) {
-			memory.put(idx, value);
-		}
-		
-		private void inc() {
-			inc(mMentalState);
-		}
-		
-		private void dec() {
-			dec(mMentalState);
-		}
-		
-		private void inc(Integer idx) {
-			Integer current = get(idx);
-			set(idx, current + 1);
-		}
-		
-		private void dec(Integer idx) {
-			Integer current = get(idx);
-			set(idx, current - 1);
-		}
-				
-		private void dump(Integer left, Integer right) {
-			Integer i = left;
-			while (i <= right) {
-				System.out.print(get(i)+" ");
-				i += 1;
-			}
-			System.out.print("\n");
-		}
-	}	
 }
