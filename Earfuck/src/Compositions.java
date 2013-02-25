@@ -101,5 +101,5 @@ class Compositions {
 			                                "e4 a4 c5 f4 " +
 			                                "( f4 e4 d4 c4 d4 d4 f4 g4 c5 f4 ) " +
 			                                "e4 d4 c4 " +
-			                                "( c4 f4 a4 a4 f4 c4 ) d4 e4 r d4 )";
+			                                "( c4 f4 a4 a4 f4 c4 ) d4 e4 r c4 )";
 }

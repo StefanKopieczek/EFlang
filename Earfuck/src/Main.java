@@ -4,6 +4,6 @@ class Main {
 	public static void main(String args[]) {
 		Parser parser = new Parser();
 		
-		parser.perform(Compositions.ryan_division);
+		parser.perform(Compositions.stefan_fibonacci);
 	}
 }
