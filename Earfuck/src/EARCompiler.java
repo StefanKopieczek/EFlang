@@ -57,9 +57,10 @@ public class EARCompiler {
 		instructions.put("IN", IN);
 		instructions.put("OUT", OUT);
 		instructions.put("ADD", ADD);
+		instructions.put("SUB", SUB);
 		instructions.put("MUL", MUL);
-		instructions.put("IF", IF);
-		instructions.put("REPIF", REPIF);
+		instructions.put("WHILE", WHILE);
+		instructions.put("ENDWHILE", ENDWHILE);
 		instructions.put("ZERO", ZERO);
 		
 		return instructions;
@@ -335,7 +336,7 @@ public class EARCompiler {
 	 * e.g.
 	 * IF 5;
 	 */
-	public EARInstruction IF = new EARInstruction() {
+	public EARInstruction WHILE = new EARInstruction() {
 		public String compile(String[] args) {
 			String output = "";
 			if (args.length!=0){
@@ -360,7 +361,7 @@ public class EARCompiler {
 	 * e.g.
 	 * REPIF;
 	 */
-	public EARInstruction REPIF = new EARInstruction() {
+	public EARInstruction ENDWHILE = new EARInstruction() {
 		public String compile(String[] args) {
 			String output = "";
 			int branchExitPoint = branchLocStack.pop();
@@ -454,6 +455,70 @@ public class EARCompiler {
 	};
 	
 	/**
+	 * Subtracts the value of the first argument (use @ for a pointer)
+	 * from the cells given by the remaining arguments (as many as you like)
+	 * e.g.
+	 * SUB @5 2 3 4;
+	 * Subtracts the value in cell 5 from cells 2, 3 and 4.
+	 */
+	public EARInstruction SUB = new EARInstruction() {
+		public String compile(String[] args) {
+			String output = "";
+			int amount;
+			
+			//Parse & sort list of target cells
+			ArrayList<Integer> targets = new ArrayList<Integer>();
+			for (String s : Arrays.copyOfRange(args, 1, args.length)) {
+				targets.add(Integer.parseInt(s));
+			}
+			Collections.sort(targets);
+			
+			//If given pointer
+			if (args[0].charAt(0)=='@') { //If pointer
+				//Goto summand cell
+				output += GOTO.compile(new String[]{args[0].substring(1)});
+				//Ensure pessimism
+				if (optimism!=-1) {
+					output += currentNote.getNext().toString()+" ";
+					output += currentNote.toString()+" ";
+				}
+				//Until cell is 0
+				output += "( ";
+				output += currentNote.toString()+" ";
+				
+				//for each target cell
+				for (int index : targets) {
+					//Goto target cell
+					output += GOTO.compile(new String[]{String.valueOf(index)});
+					output += decrement();
+				}
+				//Return to summand cell
+				output += GOTO.compile(new String[]{args[0].substring(1)});
+				//Ensure pessimism
+				if (optimism!=-1) {
+					output += currentNote.getNext().toString()+" ";
+					output += currentNote.toString()+" ";
+				}
+				//end loop
+				output += ") ";
+			}
+			else { //If given absolute
+				amount = Integer.parseInt(args[0]);
+				//for each target cell
+				for (int index : targets) {
+					//Goto target cell
+					output += GOTO.compile(new String[]{String.valueOf(index)});
+					for (int i=0;i<amount;i++) {
+						output += decrement();
+					}
+					
+				}
+			}
+			return output;
+		}
+	};
+	
+	/**
 	 * Multiplies two values into the given cell.
 	 * The final argument specifies a working cell
 	 * e.g.
@@ -481,7 +546,7 @@ public class EARCompiler {
 					tempB = args[1].substring(1);
 					
 					//loop on tempA
-					output += IF.compile(new String[]{tempA});
+					output += WHILE.compile(new String[]{tempA});
 					
 					//subtract one from tempA
 					output += decrement();
@@ -494,7 +559,7 @@ public class EARCompiler {
 					output += ADD.compile(new String[]{"@"+workingCell,tempB});
 					
 					//end loop
-					output += REPIF.compile(new String[]{});
+					output += ENDWHILE.compile(new String[]{});
 					
 					//DONE!
 					return output;

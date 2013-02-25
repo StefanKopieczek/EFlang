@@ -7,7 +7,7 @@ public class EarfuckMemory {
 		 * We store the cell data as a HashMap of indices against values.
 		 * We use Integers rather than ints to avoid autoboxing errors.
 		 */
-		private HashMap<Integer, Integer> memory;
+		public HashMap<Integer, Integer> memory;
 		
 		public EarfuckMemory() {
 			 memory = new HashMap<Integer, Integer>();

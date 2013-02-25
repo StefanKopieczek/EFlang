@@ -238,6 +238,8 @@ class Parser {
 				// We increase the ambiance value in this mental state if the
 				// audience are optimistic, and decrease if we're pessimistic.
 				mAmbiance.put(mMentalState,mAmbiance.get(mMentalState) + mOptimism);
+				
+				System.out.println(mAmbiance.memory);
 			}
 			else if (previousNote != null) {
 				// We just played a note that wasn't the same as the previous
