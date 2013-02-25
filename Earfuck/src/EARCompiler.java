@@ -111,7 +111,8 @@ public class EARCompiler {
 		output += currentNote.getPrev().toString()+" ";
 		if (currentNote.ordinal()<currentNote.getPrev().ordinal()) {
 			output += currentNote.getPrev().getPrev().toString()+" ";
-			currentNote = currentNote.getPrev().getPrev();
+			output += currentNote.getPrev().getPrev().getPrev().toString()+" ";
+			currentNote = currentNote.getPrev().getPrev().getPrev();
 		} else {
 			currentNote = currentNote.getPrev();
 		}
@@ -135,7 +136,8 @@ public class EARCompiler {
 		output += currentNote.getNext().toString()+" ";
 		if (currentNote.ordinal()>currentNote.getNext().ordinal()) {
 			output += currentNote.getNext().getNext().toString()+" ";
-			currentNote = currentNote.getNext().getNext();
+			output += currentNote.getNext().getNext().getNext().toString()+" ";
+			currentNote = currentNote.getNext().getNext().getNext();
 		} else {
 			currentNote = currentNote.getNext();
 		}
@@ -148,13 +150,14 @@ public class EARCompiler {
 	 * @return The EF code to make it happen
 	 */
 	private String increment() {
+		String output = "";
 		memory.put(p, memory.get(p) + 1);
-		if (optimism==1) {
-			return currentNote.toString()+" ";
+		if (optimism!=1) {
+			output += moveLeft() + moveRight();
 		}
 		optimism = 1;
-		return currentNote.getPrev().toString() + " " + currentNote.toString() +
-				" " + currentNote.toString() + " ";
+		output += currentNote.toString()+" ";
+		return output;
 	}
 	
 	/**
@@ -162,13 +165,14 @@ public class EARCompiler {
 	 * @return The EF code to make it happen
 	 */
 	private String decrement() {
-		memory.put(p, memory.get(p) - 1);
-		if (optimism==-1) {
-			return currentNote.toString()+" ";
+		String output = "";
+		memory.put(p, memory.get(p) + 1);
+		if (optimism!=-1) {
+			output += moveRight() + moveLeft();
 		}
 		optimism = -1;
-		return currentNote.getNext().toString() + " " + currentNote.toString() +
-				" " + currentNote.toString() + " ";
+		output += currentNote.toString()+" ";
+		return output;
 	}
 	
 	/**
@@ -415,12 +419,11 @@ public class EARCompiler {
 				output += GOTO.compile(new String[]{args[0].substring(1)});
 				//Ensure pessimism
 				if (optimism!=-1) {
-					output += currentNote.getNext().toString()+" ";
-					output += currentNote.toString()+" ";
+					output += moveRight() + moveLeft();
 				}
 				//Until cell is 0
-				output += "( ";
-				output += currentNote.toString()+" ";
+				output += WHILE.compile(new String[]{args[0].substring(1)});
+				output += decrement();
 				
 				//for each target cell
 				for (int index : targets) {
@@ -432,11 +435,10 @@ public class EARCompiler {
 				output += GOTO.compile(new String[]{args[0].substring(1)});
 				//Ensure pessimism
 				if (optimism!=-1) {
-					output += currentNote.getNext().toString()+" ";
-					output += currentNote.toString()+" ";
+					output += moveRight() + moveLeft();
 				}
 				//end loop
-				output += ") ";
+				output += ENDWHILE.compile(new String[]{});
 			}
 			else { //If given absolute
 				amount = Integer.parseInt(args[0]);
@@ -479,12 +481,11 @@ public class EARCompiler {
 				output += GOTO.compile(new String[]{args[0].substring(1)});
 				//Ensure pessimism
 				if (optimism!=-1) {
-					output += currentNote.getNext().toString()+" ";
-					output += currentNote.toString()+" ";
+					output += moveRight() + moveLeft();
 				}
 				//Until cell is 0
-				output += "( ";
-				output += currentNote.toString()+" ";
+				output += WHILE.compile(new String[]{args[0].substring(1)});
+				output += decrement();
 				
 				//for each target cell
 				for (int index : targets) {
@@ -496,11 +497,10 @@ public class EARCompiler {
 				output += GOTO.compile(new String[]{args[0].substring(1)});
 				//Ensure pessimism
 				if (optimism!=-1) {
-					output += currentNote.getNext().toString()+" ";
-					output += currentNote.toString()+" ";
+					output += moveRight() + moveLeft();
 				}
 				//end loop
-				output += ") ";
+				output += ENDWHILE.compile(new String[]{});
 			}
 			else { //If given absolute
 				amount = Integer.parseInt(args[0]);
@@ -547,16 +547,23 @@ public class EARCompiler {
 					
 					//loop on tempA
 					output += WHILE.compile(new String[]{tempA});
-					
 					//subtract one from tempA
 					output += decrement();
+					
+					//move tempB back where it was
+					//Note, this doesn't really make sense in the first
+					//iteration, however it won't do anything the first time round
+					//(except move to the workingCell)
+					//Having it at the start of the loop means it won't move
+					//one of the arguments back into it's original cell after we're done
+					//this is always a time-improvement.
+					//This also makes behaviour consistent, in that
+					//both argument cells are destroyed after the algorithm is done.
+					output += ADD.compile(new String[]{"@"+workingCell,tempB});
 					
 					//add tempB to target & working space
 					output += ADD.compile(new String[]
 							{"@"+tempB,targetCell,workingCell});
-					
-					//move tempB back where it was
-					output += ADD.compile(new String[]{"@"+workingCell,tempB});
 					
 					//end loop
 					output += ENDWHILE.compile(new String[]{});

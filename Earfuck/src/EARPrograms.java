@@ -21,10 +21,10 @@ public class EARPrograms {
 									"ADD @0 1 2; " +
 									"SUB 1 2;" +
 									"WHILE 2; " +
+									"ZERO 4;" +
 									"ADD @2 4;" +
 									"ADD @4 3 2;" +
 									"MUL @3 @1 0 4;"+
-									"ZERO 1;" +
 									"ADD @0 1; " +
 									"SUB 1 2; " +
 									"ENDWHILE; " +
