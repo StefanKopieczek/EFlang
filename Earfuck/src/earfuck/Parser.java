@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Stack;
 
-class Parser {	
+public class Parser {	
 	private static Integer INITIAL_ATTACK_VALUE = 63;
 	
 	/**
