@@ -1,3 +1,4 @@
+package earfuck;
 class Compositions {
 	public static String test = "c4 b3 c4 r c4 d4 c4 b3 c4 r c4 d4 e4 d4 c4 b3 c4 r c4 d4 e4 f4 e4 d4 c4 b3 c4 r c4 d4 e4 f4 g4 f4 e4 d4 c4 b3 c4 r c4 d4 e4 f4 g4 c5 g4 f4 e4 d4 c4 b3 c4 r";
 	public static String test2 = "c4 b3 c4 c4 c4 ( d4 c4 c4 )";

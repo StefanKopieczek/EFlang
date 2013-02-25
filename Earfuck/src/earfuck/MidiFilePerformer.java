@@ -1,3 +1,4 @@
+package earfuck;
 import java.io.File;
 import java.io.IOException;
 
@@ -16,7 +17,6 @@ public class MidiFilePerformer implements Performer {
 		mPlayer = new Player();
 		refreshQueue();
 	}
-	
 	
 	public void outputQueueToFile() {
 		try {

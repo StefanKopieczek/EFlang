@@ -1,3 +1,4 @@
+package earfuck;
 
 public interface Performer {
 	public void onPieceStart();

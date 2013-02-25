@@ -1,3 +1,4 @@
+package earfuck;
 import java.util.HashMap;
 
 
