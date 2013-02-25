@@ -7,6 +7,10 @@ public class EARPrograms {
 									"IN 1;" +
 									"REPIF;" +
 									"OUT 0;";
+	public static String mulTest = 	"IN 1;" +
+									"IN 2;" +
+									"MUL @1 @2 3 0;" +
+									"OUT 3;";
 	public static String destroyer = "IN 0; OUT 0; ZERO 0; OUT 0;";
 	public static String fibonacci_broken = "ADD 1 0; IF 0; ADD @0 1 2; OUT 1; " +
 									"ADD @1 2 0; OUT 2; ADD 2 1; REPIF;";

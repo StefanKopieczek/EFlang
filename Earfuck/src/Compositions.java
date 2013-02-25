@@ -15,6 +15,7 @@ class Compositions {
 	        "d4 ( g4 eb4 eb4 c4 bb3 c4 c4 f4 ) " +
 	        "c4 b3 ) " +
 	        "g3 c4 g4 bb4 c5 r";
+
 	public static String sum = 	"c4 e4 d4 r ( e4 f4 d4 r ) " + //Takes input until user enters 0
 	        					"c4 b3 (  " + //If cell to your left not 0
 	        					"c4 d4 c4 c4 " + //Subtract one

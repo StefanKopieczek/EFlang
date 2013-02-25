@@ -57,6 +57,7 @@ public class EARCompiler {
 		instructions.put("IN", IN);
 		instructions.put("OUT", OUT);
 		instructions.put("ADD", ADD);
+		instructions.put("MUL", MUL);
 		instructions.put("IF", IF);
 		instructions.put("REPIF", REPIF);
 		instructions.put("ZERO", ZERO);
@@ -72,7 +73,7 @@ public class EARCompiler {
 	public String compile(String EARCode) {
 		String output = "";
 		
-		EARCode = EARCode.replaceAll("; *",";");
+		EARCode = EARCode.replaceAll(";\\s*",";");
 		String[] instructions = EARCode.split(";");
 		
 		
@@ -462,26 +463,75 @@ public class EARCompiler {
 	 */
 	public EARInstruction MUL = new EARInstruction() {
 		public String compile(String[] args) {
+			String tempA,tempB;
 			String output = "";
+			String targetCell = args[2];
+			String workingCell = args[3];
+			
+			//Zero the target cell
+			output += ZERO.compile(new String[]{targetCell});
+			
 			if (args[0].charAt(0)=='@') {
 				if (args[1].charAt(0)=='@') {
 					//BOTH REFERENCES - HARD CASE
+					//Clear working cell
+					output += ZERO.compile(new String[]{workingCell});
+					//Get cell indices
+					tempA = args[0].substring(1);
+					tempB = args[1].substring(1);
+					
+					//loop on tempA
+					output += IF.compile(new String[]{tempA});
+					
+					//subtract one from tempA
+					output += decrement();
+					
+					//add tempB to target & working space
+					output += ADD.compile(new String[]
+							{"@"+tempB,targetCell,workingCell});
+					
+					//move tempB back where it was
+					output += ADD.compile(new String[]{"@"+workingCell,tempB});
+					
+					//end loop
+					output += REPIF.compile(new String[]{});
+					
+					//DONE!
 					return output;
 				}
 				else {
-					
+					//tempA = cell reference
+					//tempB = absolute value
+					tempA = args[0];
+					tempB = args[1];
 				}
 			}
 			else {
 				if (args[1].charAt(0)=='@') {
-
+					//tempA = cell reference
+					//tempB = absolute value
+					tempA = args[1];
+					tempB = args[0];
 				}
 				else {
 					//If both absolute, just do it and add
 					int a = Integer.parseInt(args[0]);
 					int b = Integer.parseInt(args[1]);
-					output += ADD.compile(new String[]{String.valueOf(a*b),args[2]});
+					output += ADD.compile(new String[]
+							{String.valueOf(a*b),"@"+targetCell});
+					return output;
 				}
+			}
+			
+			//Now we're definitely in the 1 reference, 1 absolute case
+			//get value of absolute
+			int absoluteValue = Integer.parseInt(tempB);
+			//Clear working cell
+			output += ZERO.compile(new String[]{workingCell});
+			//just add that many times
+			for (int i=0; i<absoluteValue; i++) {
+				output += ADD.compile(new String[]{tempA,targetCell,workingCell});
+				output += ADD.compile(new String[]{"@"+workingCell,tempA.substring(1)});
 			}
 			return output;
 		}

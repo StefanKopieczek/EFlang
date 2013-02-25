@@ -4,7 +4,7 @@ class Main {
 	public static void main(String args[]) {
 		Parser parser = new Parser();
 		EARCompiler compiler = new EARCompiler();
-		String EFCode = compiler.compile(EARPrograms.fibonacci);
+		String EFCode = compiler.compile(EARPrograms.mulTest);
 		System.out.println(EFCode);
 		parser.perform(EFCode);
 	}
