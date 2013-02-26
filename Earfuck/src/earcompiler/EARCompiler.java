@@ -66,6 +66,8 @@ public class EARCompiler {
 		instructions.put("WHILE", WHILE);
 		instructions.put("ENDWHILE", ENDWHILE);
 		instructions.put("ZERO", ZERO);
+		instructions.put("COPY",COPY);
+		instructions.put("MOV",MOV);
 		
 		return instructions;
 	}
@@ -401,6 +403,7 @@ public class EARCompiler {
 	/**
 	 * Adds the value of the first argument (use @ for a pointer)
 	 * to the cells given by the remaining arguments (as many as you like)
+	 * THE SUMMAND IS DESTROYED (zeroed)
 	 * e.g.
 	 * ADD @5 2 3 4;
 	 * Adds the value in cell 5 to cells 2, 3 and 4.
@@ -463,6 +466,7 @@ public class EARCompiler {
 	/**
 	 * Subtracts the value of the first argument (use @ for a pointer)
 	 * from the cells given by the remaining arguments (as many as you like)
+	 * THE SUBTRACTAND IS DESTROYED (zeroed)
 	 * e.g.
 	 * SUB @5 2 3 4;
 	 * Subtracts the value in cell 5 from cells 2, 3 and 4.
@@ -525,6 +529,8 @@ public class EARCompiler {
 	/**
 	 * Multiplies two values into the given cell.
 	 * The final argument specifies a working cell
+	 * THE TWO MULTIPLICANDS ARE DESTROYED (zeroed).
+	 * THE WORKING CELL IS NOT ZEROED
 	 * e.g.
 	 * MUL @5 @3 1 0
 	 * Multiplies cell 5 with cell 3, stores the answer in cell 1, 
@@ -609,6 +615,81 @@ public class EARCompiler {
 				output += ADD.compile(new String[]{tempA,targetCell,workingCell});
 				output += ADD.compile(new String[]{"@"+workingCell,tempA.substring(1)});
 			}
+			return output;
+		}
+	};
+	
+	/**
+	 * Copies one cell into all the given targets.
+	 * Uses the final argument as a working cell.
+	 * DOES NOT DESTROY THE ORIGINAL
+	 * e.g.
+	 * COPY @2 3 4 5;
+	 * Copies cell 2 into cells 3 & 4, using cell 5 as working space.
+	 */
+	public EARInstruction COPY = new EARInstruction() {
+		public String compile(String[] args) {
+			String output = "";
+			
+			//Move last argument to beginning of argument list
+			//for use in moving values back from working cell later
+			//this makes sense if you think about it hard enough. 
+			//I promise.
+			ArrayList<String> addArgs = new ArrayList<String>();
+			addArgs.add("@"+args[args.length-1]);
+			for (String item : Arrays.copyOfRange(args, 0, args.length-1)) {
+				addArgs.add(item);
+			}
+			
+			//Zero the working cell
+			output += ZERO.compile(new String[]{args[args.length-1]});
+			//Zero all target cells
+			for (int i=1; i<args.length-1; i++) {
+				output += ZERO.compile(new String[]{args[i]});
+			}
+			
+			//Move the cell to be copied to the working cell & all targets
+			output += ADD.compile(args);
+			
+			//Move it back from the working cell to the original if it was a reference.
+			if (args[0].charAt(0)=='@') {
+				output += ADD.compile(new String[]
+						{"@"+args[args.length-1],args[0].substring(1)});
+			}
+			
+			return output;
+		}
+	};
+	
+	/**
+	 * Moves one cell into all the given targets.
+	 * DESTROYS ORIGINAL
+	 * e.g.
+	 * MOV @2 3 4;
+	 * Moves cell 2 into cells 3 & 4.
+	 */
+	public EARInstruction MOV = new EARInstruction() {
+		public String compile(String[] args) {
+			String output = "";
+			
+			//Move last argument to beginning of argument list
+			//for use in moving values back from working cell later
+			//this makes sense if you think about it hard enough. 
+			//I promise.
+			ArrayList<String> addArgs = new ArrayList<String>();
+			addArgs.add("@"+args[args.length-1]);
+			for (String item : Arrays.copyOfRange(args, 0, args.length-1)) {
+				addArgs.add(item);
+			}
+			
+			//Zero all target cells
+			for (int i=1; i<args.length; i++) {
+				output += ZERO.compile(new String[]{args[i]});
+			}
+			
+			//Move the cell to be copied to the working cell & all targets
+			output += ADD.compile(args);
+			
 			return output;
 		}
 	};

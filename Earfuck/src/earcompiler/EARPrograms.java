@@ -9,12 +9,18 @@ public class EARPrograms {
 									"ENDWHILE;" +
 									"OUT 0;";
 	
+	public static String copy = 	"IN 0;" +
+									"MOV @0 1 2 3;" +
+									"OUT 0; OUT 1; OUT 2; OUT 3;";
+	
 	public static String mulTest = 	"IN 1;" +
 									"IN 2;" +
+									"WHILE 2;" +
 									"WHILE 2;" +
 									"MUL @1 @2 3 0;" +
 									"ADD @3 1;" +
 									"IN 2;" +
+									"ENDWHILE;" +
 									"ENDWHILE;" +
 									"OUT 1;";
 	
@@ -22,12 +28,12 @@ public class EARPrograms {
 									"ADD @0 1 2; " +
 									"SUB 1 2;" +
 									"WHILE 2; " +
-									"ZERO 4;" +
-									"ADD @2 4;" +
-									"ADD @4 3 2;" +
+									"WHILE 2; " +
+									"COPY @2 3 4;" +
 									"MUL @3 @1 0 4;"+
-									"ADD @0 1; " +
+									"MOV @0 1; " +
 									"SUB 1 2; " +
+									"ENDWHILE; " +
 									"ENDWHILE; " +
 									"OUT 1;";
 	
