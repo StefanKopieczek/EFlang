@@ -81,8 +81,88 @@ public class LOBECompiler {
 		return targetVar; // TODO;
 	}
 	
-	public Variable evaluate(Conditional conditional) {
-		return null; // TODO
+	public Variable evaluate(Predicate pred, Value val1, Value val2) {
+		Value result;
+		String arg1Name = val1.getEARReference(this);
+		String arg2Name = val2.getEARReference(this);
+		String resultCell;
+		
+		String earCommand = "";		
+		earCommand += "COPY " + arg1Name + " [[0]]; ";		
+		earCommand += "COPY " + arg2Name + " [[1]]; ";		
+		
+		if (pred == Predicate.EQ) {
+			earCommand += 
+              "MOV 1 [[4]]; " +
+			  "WHILE [[0]]; " +
+              "MOV 0 [[4]]; " +
+              "COPY [[1]] [[2]] [[5]]; " +
+              "MOV 1 [[3]]; " +
+              "WHILE [[2]]; " +
+              "MOV 0 [[3]]; " +
+              "MOV 1 [[4]]; " +
+              "SUB 1 [[0]] [[1]]; " +
+              "ZERO [[2]]; " +
+              "ENDWHILE; " +
+              "WHILE [[3]]; " +
+              "ZERO [[0]]; " +
+              "MOV 1 [[1]]; " +
+              "ZERO [[3]]; " +
+              "ENDWHILE; " +
+              "ENDWHILE; " +
+              "WHILE [[1]]; " +
+              "MOV 0 [[4]]; " +
+              "ZERO [[1]]; " +
+              "ENDWHILE; ";
+			resultCell = "[[4]]";			  
+		}
+		else if (pred == Predicate.LT) {
+			earCommand += 
+              "MOV 0 [[4]]; " +
+			  "WHILE [[0]]; " +
+              "MOV 0 [[4]]; " +
+              "COPY [[1]] [[2]] [[5]]; " +
+              "MOV 1 [[3]]; " +
+              "WHILE [[2]]; " +
+              "MOV 0 [[3]]; " +
+              "MOV 1 [[4]]; " +
+              "SUB 1 [[0]] [[1]]; " +
+              "ZERO [[2]]; " +
+              "ENDWHILE; " +
+              "WHILE [[3]]; " +
+              "ZERO [[0]]; " +
+              "ZERO [[1]]; " +
+              "ZERO [[3]]; " +
+              "ENDWHILE; " +
+              "ENDWHILE; " +
+              "WHILE [[1]]; " +
+              "MOV 1 [[4]]; " +
+              "ZERO [[1]]; " +
+              "ENDWHILE; ";
+			resultCell = "[[4]]";
+		}
+		else if (pred == Predicate.NEQ) {
+			resultCell = "";
+		}
+		else {
+			resultCell = "";
+			throw new InvalidOperationTokenException(
+					                 "Unknown operation token " + pred.name());
+		}					
+		
+		Variable targetVar = mSymbols.getNewInternalVariable();
+		String targetVarName = targetVar.getEARReference(this);
+				
+		earCommand += "COPY " + resultCell + " " + targetVarName + ";";
+		
+		for (int i = 0; i < 6; i++) {
+			String s = Integer.toString(i);
+			earCommand = earCommand.replaceAll("\\[\\[" + s + "\\]\\]", 
+					                           mWorkingMemory[i]);
+		}
+		
+		mOutput += earCommand;
+		
+		return targetVar; // TODO;
 	}
-	
 }

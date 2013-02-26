@@ -1,9 +1,10 @@
 package lobecompiler;
 
-public enum Predicate {
-	LT("<"),
+public enum Predicate {	
 	EQ("=="),
-	NEQ("!=");
+	NEQ("!="),
+	LEQ("<="),
+	LT("<");
 	
 	private String mSymbol;
 	
