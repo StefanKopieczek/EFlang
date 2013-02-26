@@ -81,4 +81,8 @@ public class LOBECompiler {
 		return targetVar; // TODO;
 	}
 	
+	public Variable evaluate(Conditional conditional) {
+		return null; // TODO
+	}
+	
 }
