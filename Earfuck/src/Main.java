@@ -1,10 +1,11 @@
-package earfuck;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
 import earcompiler.EARPrograms;
+import earfuck.Parser;
 
 class Main {
 	public static void main(String args[]) throws EARException {
