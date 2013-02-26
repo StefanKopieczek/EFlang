@@ -116,9 +116,34 @@ public class LOBECompiler {
               "ENDWHILE; ";
 			resultCell = "[[4]]";			  
 		}
-		else if (pred == Predicate.LT) {
+		else if (pred == Predicate.NEQ) {
 			earCommand += 
               "MOV 0 [[4]]; " +
+			  "WHILE [[0]]; " +
+              "MOV 1 [[4]]; " +
+              "COPY [[1]] [[2]] [[5]]; " +
+              "MOV 1 [[3]]; " +
+              "WHILE [[2]]; " +
+              "MOV 0 [[3]]; " +
+              "MOV 0 [[4]]; " +
+              "SUB 1 [[0]] [[1]]; " +
+              "ZERO [[2]]; " +
+              "ENDWHILE; " +
+              "WHILE [[3]]; " +
+              "ZERO [[0]]; " +
+              "MOV 1 [[1]]; " +
+              "ZERO [[3]]; " +
+              "ENDWHILE; " +
+              "ENDWHILE; " +
+              "WHILE [[1]]; " +
+              "MOV 1 [[4]]; " +
+              "ZERO [[1]]; " +
+              "ENDWHILE; ";
+			resultCell = "[[4]]";		
+		}
+		else if (pred == Predicate.LEQ) {
+			earCommand += 
+              "MOV 1 [[4]]; " +
 			  "WHILE [[0]]; " +
               "MOV 0 [[4]]; " +
               "COPY [[1]] [[2]] [[5]]; " +
@@ -140,9 +165,32 @@ public class LOBECompiler {
               "ZERO [[1]]; " +
               "ENDWHILE; ";
 			resultCell = "[[4]]";
-		}
-		else if (pred == Predicate.NEQ) {
-			resultCell = "";
+		}	
+		else if (pred == Predicate.LT) {
+			earCommand += 
+              "MOV 0 [[4]]; " +
+			  "WHILE [[0]]; " +
+              "MOV 0 [[4]]; " +
+              "COPY [[1]] [[2]] [[5]]; " +
+              "MOV 1 [[3]]; " +
+              "WHILE [[2]]; " +
+              "MOV 0 [[3]]; " +
+              "MOV 1 [[4]]; " +
+              "SUB 1 [[0]] [[1]]; " +
+              "ZERO [[2]]; " +
+              "ENDWHILE; " +
+              "WHILE [[3]]; " +
+              "ZERO [[0]]; " +
+              "ZERO [[1]]; " +
+              "ZERO [[3]]; " +
+              "ZERO [[4]]; " +
+              "ENDWHILE; " +
+              "ENDWHILE; " +
+              "WHILE [[1]]; " +
+              "MOV 1 [[4]]; " +
+              "ZERO [[1]]; " +
+              "ENDWHILE; ";
+			resultCell = "[[4]]";
 		}
 		else {
 			resultCell = "";
