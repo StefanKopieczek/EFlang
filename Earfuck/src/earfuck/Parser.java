@@ -80,6 +80,16 @@ public class Parser {
 	int mPointer;
 	
 	/**
+	 * Current place in the music.
+	 */
+	Integer mPlace;
+	
+	/**
+	 * The last note played.
+	 */
+	String mPreviousNote;
+	
+	/**
 	 * The performers *love* playing changes in rhythm.
 	 * In fact they love it so much, that they will play each double-time 
 	 * section until the audience gets bored (that is, until the ambiance is 
@@ -116,6 +126,8 @@ public class Parser {
 		
 		mComposition = new String[0];
 		mPointer = 0;
+		mPlace = 0;
+		mPreviousNote = null;
 		mBracketsSkipped = 0;
 		mBrackets = new Stack<Integer>();
 		
@@ -123,144 +135,164 @@ public class Parser {
 	}
 	
 	/**
-	 * Perform a piece, specified as a string.
+	 * Sets the piece to be played.<br />
+	 * Should only be called ONCE, BEFORE execution.
+	 * @param piece String of EF Code
+	 */
+	public void giveMusic(String piece) {
+		mComposition = piece.split("\\s+");
+	}
+	
+	/**
+	 * Perform the whole piece
 	 * 	 * 
 	 * @param piece The piece to play - comprised of musical tokens separated
 	 * by whitespace.
 	 */
-	public void perform(String piece) {
-		mComposition = piece.split("\\s+");				 							
+	public void perform() {	
+		playFirstNote();
 		
-		String command = mComposition[0];
-		String previousNote = null;
-		
-		if (isNote(command)) {
-			// The first command is a musical note, so let's play it.
-			mPerformer.addNote(command, mNoteDuration);
-		}
-		
-		Integer place = 0;
-				
-		while (place < mComposition.length - 1) {
-			if (isNote(command)) {
-				// The last command was a note.
-				// Remember it in order to decide on future optimism.
-				previousNote = command;
-			}
-			
-			place += 1;
-			command = mComposition[place];			
-			
-			if (command.equals("(")) {
-				if (mAmbiance.get(mMentalState) == 0) {
-					// We skip this double-time section because the audience is
-					// bored.
-					// We record how many brackets we pass so that we can stop
-					// skipping after the matching ')' character.
-					mBracketsSkipped += 1;					
-				}
-				else {
-					// The audience isn't bored, so we play this section.
-					// Bracketed sections are played double-time.
-					// We also record where we are in the piece so that if the
-					// audience isn't bored when we finish this section, we can
-					// re-play it.
-					mNoteDuration /= 2;
-					mBrackets.push(place);
-				}
-				continue;
-			}			
-			else if (command.equals(")")) {
-				if (mBracketsSkipped > 0) {
-					// We're skipping a bracketed section at the moment and we
-					// haven't got to the end of it, so we note the closing
-					// bracket, and continue skipping the section.
-					mBracketsSkipped -= 1;					
-				}
-				else {
-					// We've reached the end of a double-time section which we
-					// are currently playing through.
-					// We resume normal tempo; and if the audience isn't bored
-					// we skip back to the start of the section and play it 
-					// again!
-					Integer startPlace = mBrackets.pop();
-					mNoteDuration *= 2;
-					if (mAmbiance.get(mMentalState) != 0) {
-						// Skip back to just before the opening bracket at the
-						// start of this section - we increment by one at the 
-						// start of the loop anyway.
-						place = startPlace - 1;					
-					}
-				}
-				continue;
-			}
-			
-			if (mBracketsSkipped != 0) {
-				// If we're skipping through a double-time section, we 
-				// shouldn't pay attention to anything other than brackets, so
-				// just skip ahead in the loop.
-				continue;
-			}
-			
-			if (command.equals("r")) {	
-				// We've hit a rest - so add it to the play queue.
-
-				if (mOptimism < 0) {
-					// When the audience are pessimistic on a rest, we ask for
-					// a value from the user to cheer them up.
-					System.out.print(":> ");					
-					Integer x = sc.nextInt();		
-					mAmbiance.put(mMentalState,x);
-				}
-				else if (mOptimism > 0) {
-					// When the audience are optimistic on a rest, they want to
-					// tell everyone about it so they tell STDOUT about their
-					// ambiance in the current mental state.
-					if (mOutputMode.equals("numeric")) {
-						// In numeric mode, we display the ambiance value as an
-						// integer, and add a newline when outputting.
-						System.out.println(mAmbiance.get(mMentalState));
-					}
-					else if (mOutputMode.equals("ascii")) {
-						// In ascii mode, we display the ambiance value as an
-						// ascii char, and don't print a newline afterwards.
-						System.out.print((char)(mAmbiance.get(mMentalState).intValue()));
-					}
-				}
-				mPerformer.addNote("R", mNoteDuration);
-				mPerformer.onRest();
-				continue;
-			}
-			
-			if ((previousNote != null) && 
-			        (mPerformer.getNoteValue(command) == 
-			         mPerformer.getNoteValue(previousNote))) {
-				// We just played a repeated note.
-				// We increase the ambiance value in this mental state if the
-				// audience are optimistic, and decrease if we're pessimistic.
-				mAmbiance.put(mMentalState,mAmbiance.get(mMentalState) + mOptimism);
-			}
-			else if (previousNote != null) {
-				// We just played a note that wasn't the same as the previous
-				// (distinct) note.
-				// We are optimistic if the pitch is now higher, and 
-				// pessimistic otherwise.
-				boolean isHappy = mPerformer.getNoteValue(command) > 
-				                  	mPerformer.getNoteValue(previousNote);
-				mOptimism = isHappy? 1 : -1;
-				mMentalState += mOptimism;
-			}
-											
-			// Calculate how excited the performers are, and then queue the
-			// note to be played.
-			getExcited();
-			mPerformer.addNote(command, mNoteDuration, mExcitement);	
+		while (mPlace < mComposition.length - 1) {
+			stepForward();
 		}
 		
 		mPerformer.onPieceEnd();
 		sc.close();
 	}
 	
+	/**
+	 * Executes the first command of the piece. <br />
+	 * MUST BE CALLED BEFORE stepForward()
+	 */
+	public void playFirstNote() {
+		String command = mComposition[0];
+		
+		if (isNote(command)) {
+			// The first command is a musical note, so let's play it.
+			mPerformer.addNote(command, mNoteDuration);
+			mPreviousNote = command;
+		}
+	}
+	
+	/**
+	 * Execute the next command. <br />
+	 * MUST CALL playFirstNote() FIRST!!
+	 */
+	public void stepForward() {
+		mPlace += 1;
+		String command = mComposition[mPlace];			
+		
+		if (command.equals("(")) {
+			if (mAmbiance.get(mMentalState) == 0) {
+				// We skip this double-time section because the audience is
+				// bored.
+				// We record how many brackets we pass so that we can stop
+				// skipping after the matching ')' character.
+				mBracketsSkipped += 1;					
+			}
+			else {
+				// The audience isn't bored, so we play this section.
+				// Bracketed sections are played double-time.
+				// We also record where we are in the piece so that if the
+				// audience isn't bored when we finish this section, we can
+				// re-play it.
+				mNoteDuration /= 2;
+				mBrackets.push(mPlace);
+			}
+			return;
+		}			
+		else if (command.equals(")")) {
+			if (mBracketsSkipped > 0) {
+				// We're skipping a bracketed section at the moment and we
+				// haven't got to the end of it, so we note the closing
+				// bracket, and continue skipping the section.
+				mBracketsSkipped -= 1;					
+			}
+			else {
+				// We've reached the end of a double-time section which we
+				// are currently playing through.
+				// We resume normal tempo; and if the audience isn't bored
+				// we skip back to the start of the section and play it 
+				// again!
+				Integer startPlace = mBrackets.pop();
+				mNoteDuration *= 2;
+				if (mAmbiance.get(mMentalState) != 0) {
+					// Skip back to just before the opening bracket at the
+					// start of this section - we increment by one at the 
+					// start of the loop anyway.
+					mPlace = startPlace - 1;					
+				}
+			}
+			return;
+		}
+		
+		if (mBracketsSkipped != 0) {
+			// If we're skipping through a double-time section, we 
+			// shouldn't pay attention to anything other than brackets, so
+			// just skip ahead in the loop.
+			return;
+		}
+		
+		if (command.equals("r")) {	
+			// We've hit a rest - so add it to the play queue.
+
+			if (mOptimism < 0) {
+				// When the audience are pessimistic on a rest, we ask for
+				// a value from the user to cheer them up.
+				System.out.print(":> ");					
+				Integer x = sc.nextInt();		
+				mAmbiance.put(mMentalState,x);
+			}
+			else if (mOptimism > 0) {
+				// When the audience are optimistic on a rest, they want to
+				// tell everyone about it so they tell STDOUT about their
+				// ambiance in the current mental state.
+				if (mOutputMode.equals("numeric")) {
+					// In numeric mode, we display the ambiance value as an
+					// integer, and add a newline when outputting.
+					System.out.println(mAmbiance.get(mMentalState));
+				}
+				else if (mOutputMode.equals("ascii")) {
+					// In ascii mode, we display the ambiance value as an
+					// ascii char, and don't print a newline afterwards.
+					System.out.print((char)(mAmbiance.get(mMentalState).intValue()));
+				}
+			}
+			mPerformer.addNote("R", mNoteDuration);
+			mPerformer.onRest();
+			return;
+		}
+		
+		if ((mPreviousNote != null) && 
+		        (mPerformer.getNoteValue(command) == 
+		         mPerformer.getNoteValue(mPreviousNote))) {
+			// We just played a repeated note.
+			// We increase the ambiance value in this mental state if the
+			// audience are optimistic, and decrease if we're pessimistic.
+			mAmbiance.put(mMentalState,mAmbiance.get(mMentalState) + mOptimism);
+		}
+		else if (mPreviousNote != null) {
+			// We just played a note that wasn't the same as the previous
+			// (distinct) note.
+			// We are optimistic if the pitch is now higher, and 
+			// pessimistic otherwise.
+			boolean isHappy = mPerformer.getNoteValue(command) > 
+			                  	mPerformer.getNoteValue(mPreviousNote);
+			mOptimism = isHappy? 1 : -1;
+			mMentalState += mOptimism;
+		}
+										
+		// Calculate how excited the performers are, and then queue the
+		// note to be played.
+		getExcited();
+		mPerformer.addNote(command, mNoteDuration, mExcitement);	
+		
+		if (isNote(command)) {
+			// The last command was a note.
+			// Remember it in order to decide on future optimism.
+			mPreviousNote = command;
+		}
+	}
 	/**
 	 * Calculates the excitement of the performers, based on their current 
 	 * excitement levels, and on their optimism.
