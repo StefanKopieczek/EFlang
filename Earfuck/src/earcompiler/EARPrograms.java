@@ -10,7 +10,7 @@ public class EARPrograms {
 									"OUT 0;";
 	
 	public static String copy = 	"IN 0;" +
-									"MOV @0 1 2 3;" +
+									"COPY 2 1 2 3;" +
 									"OUT 0; OUT 1; OUT 2; OUT 3;";
 	
 	public static String mulTest = 	"IN 1;" +

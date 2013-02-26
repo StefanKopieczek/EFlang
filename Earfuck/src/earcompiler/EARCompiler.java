@@ -622,6 +622,7 @@ public class EARCompiler {
 	/**
 	 * Copies one cell into all the given targets.
 	 * Uses the final argument as a working cell.
+	 * Note: Working cell is not used if value is absolute.
 	 * DOES NOT DESTROY THE ORIGINAL
 	 * e.g.
 	 * COPY @2 3 4 5;
@@ -630,6 +631,13 @@ public class EARCompiler {
 	public EARInstruction COPY = new EARInstruction() {
 		public String compile(String[] args) {
 			String output = "";
+			
+			//If copying an absolute, use MOV, it's faster
+			if (args[0].charAt(0)!='@') {
+				String[] movArgs = Arrays.copyOfRange(args, 0, args.length-1);
+				output += MOV.compile(movArgs);
+				return output;
+			}
 			
 			//Move last argument to beginning of argument list
 			//for use in moving values back from working cell later
