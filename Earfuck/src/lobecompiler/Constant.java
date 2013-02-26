@@ -11,6 +11,10 @@ public class Constant implements Value {
 		return mValue;
 	}
 	
+	public int getDepth() {
+		return 1;
+	}
+	
 	public Value simplify(LOBECompiler compiler) {
 		return this;
 	}

@@ -8,6 +8,10 @@ public class Variable implements Value {
 		mName = name;
 	}
 	
+	public int getDepth() {
+		return 1;
+	}
+	
 	public Value simplify(LOBECompiler compiler) {
 		return this;
 	}
