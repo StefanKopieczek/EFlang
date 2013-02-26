@@ -77,7 +77,7 @@ public class EARCompiler {
 	 * @param EARCode
 	 * @return String containing EF program
 	 */
-	public String compile(String EARCode) {
+	public String compile(String EARCode) throws EARException {
 		String output = "";
 		
 		EARCode = EARCode.replaceAll(";\\s*",";");
@@ -86,8 +86,8 @@ public class EARCompiler {
 		
 		output += currentNote.toString()+" ";
 		
-		for (String instruction : instructions) {
-			instruction = instruction.replaceAll("(\n)? +(\n)?", " ");
+		for (int i=0; i<instructions.length; i++) {
+			String instruction = instructions[i].replaceAll("(\n)? +(\n)?", " ");
 			String[] parsedInstruction = instruction.split(" ");
 			
 			String[] args = Arrays.copyOfRange(parsedInstruction, 1, 
@@ -95,6 +95,33 @@ public class EARCompiler {
 			String opcode = parsedInstruction[0];
 			
 			EARInstruction command = instructionSet.get(opcode);
+			
+			//Check opcode actually generated a command
+			if (command==null) {
+				String message = "\nInvalid opcode at instruction "+i+":";
+				if (i>0) {
+					message += "\n"+(i-1)+": "+instructions[i-1];
+				}
+				message += "\n"+i+": "+instruction;
+				if (i<instructions.length-1) {
+					message += "\n"+(i+1)+": "+instructions[i+1];
+				}
+				throw new EARInvalidOpcodeException(message);
+			}
+			
+			//Check validity of command and throw helpful error message
+			if (!command.checkArgs(instruction)) {
+				String message = "\nInvalid instruction signature at instruction "+i+":";
+				if (i>0) {
+					message += "\n"+(i-1)+": "+instructions[i-1];
+				}
+				message += "\n"+i+": "+instruction;
+				if (i<instructions.length-1) {
+					message += "\n"+(i+1)+": "+instructions[i+1];
+				}
+				throw new EARInvalidSignatureException(message);
+			}
+			
 			output += command.compile(args);
 		}
 		return output;
@@ -242,6 +269,21 @@ public class EARCompiler {
 	}
 	
 	public class EARInstruction{
+		private String signature;
+		
+		public EARInstruction(String sig) {
+			signature = sig;
+		}
+		
+		/**
+		 * Checks if the given arg string is of the correct signature.
+		 * @param args
+		 * @return True/False
+		 */
+		public boolean checkArgs(String args) {
+			return args.matches(signature);
+		}
+		
 		public String compile(String[] args){
 			return "";
 		}	
@@ -254,7 +296,7 @@ public class EARCompiler {
 	 * e.g.
 	 * GOTO 5;
 	 */
-	public EARInstruction GOTO = new EARInstruction() {
+	public EARInstruction GOTO = new EARInstruction("GOTO\\s+\\d+\\s*") {
 		public String compile(String[] args) {
 			int destination = Integer.parseInt(args[0]);
 			String output = "";
@@ -274,7 +316,7 @@ public class EARCompiler {
 	 * e.g.
 	 * ZERO 5;
 	 */
-	public EARInstruction ZERO = new EARInstruction() {
+	public EARInstruction ZERO = new EARInstruction("ZERO\\s+\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 
@@ -295,7 +337,7 @@ public class EARCompiler {
 	 * e.g.
 	 * IN 5;
 	 */
-	public EARInstruction IN = new EARInstruction() {
+	public EARInstruction IN = new EARInstruction("IN\\s+\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			if (args.length!=0){
@@ -320,7 +362,7 @@ public class EARCompiler {
 	 * e.g.
 	 * OUT 5;
 	 */
-	public EARInstruction OUT = new EARInstruction() {
+	public EARInstruction OUT = new EARInstruction("OUT\\s+\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			if (args.length!=0){
@@ -346,7 +388,7 @@ public class EARCompiler {
 	 * e.g.
 	 * IF 5;
 	 */
-	public EARInstruction WHILE = new EARInstruction() {
+	public EARInstruction WHILE = new EARInstruction("WHILE\\s+\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			if (args.length!=0){
@@ -371,7 +413,7 @@ public class EARCompiler {
 	 * e.g.
 	 * REPIF;
 	 */
-	public EARInstruction ENDWHILE = new EARInstruction() {
+	public EARInstruction ENDWHILE = new EARInstruction("ENDWHILE") {
 		public String compile(String[] args) {
 			String output = "";
 			int branchExitPoint = branchLocStack.pop();
@@ -408,7 +450,7 @@ public class EARCompiler {
 	 * ADD @5 2 3 4;
 	 * Adds the value in cell 5 to cells 2, 3 and 4.
 	 */
-	public EARInstruction ADD = new EARInstruction() {
+	public EARInstruction ADD = new EARInstruction("ADD\\s+@?\\d+\\s+(\\d+\\s+)*\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			int amount;
@@ -471,7 +513,7 @@ public class EARCompiler {
 	 * SUB @5 2 3 4;
 	 * Subtracts the value in cell 5 from cells 2, 3 and 4.
 	 */
-	public EARInstruction SUB = new EARInstruction() {
+	public EARInstruction SUB = new EARInstruction("SUB\\s+@?\\d+\\s+(\\d+\\s+)*\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			int amount;
@@ -536,7 +578,7 @@ public class EARCompiler {
 	 * Multiplies cell 5 with cell 3, stores the answer in cell 1, 
 	 * and uses cell 0 for working.
 	 */
-	public EARInstruction MUL = new EARInstruction() {
+	public EARInstruction MUL = new EARInstruction("MUL\\s+(@?\\d+\\s*){2}\\d+\\s+\\d+\\s*") {
 		public String compile(String[] args) {
 			String tempA,tempB;
 			String output = "";
@@ -628,7 +670,7 @@ public class EARCompiler {
 	 * COPY @2 3 4 5;
 	 * Copies cell 2 into cells 3 & 4, using cell 5 as working space.
 	 */
-	public EARInstruction COPY = new EARInstruction() {
+	public EARInstruction COPY = new EARInstruction("COPY\\s+@?\\d+\\s+(\\d+\\s+)+\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			
@@ -676,7 +718,7 @@ public class EARCompiler {
 	 * MOV @2 3 4;
 	 * Moves cell 2 into cells 3 & 4.
 	 */
-	public EARInstruction MOV = new EARInstruction() {
+	public EARInstruction MOV = new EARInstruction("MOV\\s+@?\\d+\\s+(\\d+\\s+)*\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			
