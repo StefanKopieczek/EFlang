@@ -24,12 +24,12 @@ public class EARPrograms {
 									"ENDWHILE;" +
 									"OUT 1;";
 	
-	public static String factorial = "IN 0; " +
+	public static String factorial = "IN 0; (Take input)" +
 									"ADD @0 1 2; " +
 									"SUB 1 2;" +
 									"WHILE 2; " +
 									"WHILE 2; " +
-									"COPY @2 3 4;" +
+									"COPY @2 3 4; (This is a comment)" +
 									"MUL @3 @1 0 4;"+
 									"MOV @0 1; " +
 									"SUB 1 2; " +

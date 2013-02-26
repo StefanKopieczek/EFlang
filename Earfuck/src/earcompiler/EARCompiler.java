@@ -80,7 +80,11 @@ public class EARCompiler {
 	public String compile(String EARCode) throws EARException {
 		String output = "";
 		
+		//Discard comments
+		EARCode = EARCode.replaceAll("\\([^\\)]*\\)","");
+		//Standardise end of commands
 		EARCode = EARCode.replaceAll(";\\s*",";");
+		//Split into individual instructions
 		String[] instructions = EARCode.split(";");
 		
 		
