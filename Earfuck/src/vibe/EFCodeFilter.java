@@ -18,7 +18,7 @@ public class EFCodeFilter extends FileFilter {
 			extension = name.substring(i+1).toLowerCase();
 		}
 		
-		if ((extension.equals(".ear")) || (extension.equals(".ef"))) {
+		if ((extension.equals("ear")) || (extension.equals("ef"))) {
 			return true;
 		}
 		

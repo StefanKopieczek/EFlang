@@ -16,7 +16,7 @@ public class Parser {
 	 * when we print the contents of a cell to output. 
 	 */
 	String mOutputMode;
-		
+	
 	/**
 	 * The 'ambiance' is the state of the audience's mind, as represented by a
 	 * both-ways unbounded linear array of integers. Each time a note is played
@@ -116,7 +116,7 @@ public class Parser {
 	/**
 	 * Clear all stateful data ready for a new run of code.
 	 */
-	private void refreshState() {		
+	public void refreshState() {		
 		mAmbiance = new EarfuckMemory();
 		mOptimism = 0;
 		mMentalState = 0;
@@ -149,8 +149,6 @@ public class Parser {
 	 * by whitespace.
 	 */
 	public void perform() {	
-		playFirstNote();
-		
 		while (mPlace < mComposition.length - 1) {
 			stepForward();
 		}
@@ -334,10 +332,10 @@ public class Parser {
 	}
 	
 	/**
-	 * This class represents an abstract tape memory, composed of 
-	 * integer-valued cells.
-	 * There are infinitely many cells, each corresponding to an integer index.  
-	 * @author Stefan Kopieczek
-	 *
+	 * Returns the piece we are currently playing.
+	 * @return
 	 */
+	public String[] getPiece() {
+		return mComposition;
+	}
 }

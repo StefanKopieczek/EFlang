@@ -29,6 +29,7 @@ public class MainFrame extends JFrame {
 	
 	public MainFrame() {
 		initComponents();
+		this.setTitle("VIBE Earfuck IDE");
 	}
 	
 	private void initComponents() {
@@ -104,6 +105,32 @@ public class MainFrame extends JFrame {
 		button.setActionCommand("compile");
 		button.addActionListener(mController);
 		mToolBar.add(button);
+		
+		button = new JButton();
+		button.setText("|>");
+		button.setActionCommand("play");
+		button.addActionListener(mController);
+		mToolBar.add(button);
+		
+		button = new JButton();
+		button.setText("||");
+		button.setActionCommand("pause");
+		button.addActionListener(mController);
+		button.setEnabled(false);
+		mToolBar.add(button);
+		
+		button = new JButton();
+		button.setText("O");
+		button.setActionCommand("stop");
+		button.addActionListener(mController);
+		button.setEnabled(false);
+		mToolBar.add(button);
+		
+		button = new JButton();
+		button.setText("->");
+		button.setActionCommand("step");
+		button.addActionListener(mController);
+		mToolBar.add(button);
 	}
 	
 	public String getEARCode() {
@@ -129,4 +156,10 @@ public class MainFrame extends JFrame {
 	public void setEFCode(String text) {
 		mEFTextPane.setText(text);
 	}
+	
+	public void setButtonEnabled(int index, boolean enabled) {
+		JButton button = (JButton) mToolBar.getComponent(index);
+		button.setEnabled(enabled);
+	}
+
 }

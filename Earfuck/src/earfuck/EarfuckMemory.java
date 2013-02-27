@@ -1,7 +1,13 @@
 package earfuck;
 import java.util.HashMap;
 
-
+/**
+ * This class represents an abstract tape memory, composed of 
+ * integer-valued cells.
+ * There are infinitely many cells, each corresponding to an integer index.  
+ * @author Stefan Kopieczek
+ *
+ */
 public class EarfuckMemory {
 		
 		/**
