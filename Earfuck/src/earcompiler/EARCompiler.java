@@ -102,7 +102,7 @@ public class EARCompiler {
 			
 			//Check opcode actually generated a command
 			if (command==null) {
-				String message = "\nInvalid opcode at instruction "+i+":";
+				String message = "Invalid opcode at instruction "+i+":";
 				if (i>0) {
 					message += "\n"+(i-1)+": "+instructions[i-1];
 				}
@@ -115,7 +115,7 @@ public class EARCompiler {
 			
 			//Check validity of command and throw helpful error message
 			if (!command.checkArgs(instruction)) {
-				String message = "\nInvalid instruction signature at instruction "+i+":";
+				String message = "Invalid instruction signature at instruction "+i+":";
 				if (i>0) {
 					message += "\n"+(i-1)+": "+instructions[i-1];
 				}
