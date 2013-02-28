@@ -157,27 +157,17 @@ public class Parser {
 		sc.close();
 	}
 	
-	/**
-	 * Executes the first command of the piece. <br />
-	 * MUST BE CALLED BEFORE stepForward()
-	 */
-	public void playFirstNote() {
-		String command = mComposition[0];
-		
-		if (isNote(command)) {
-			// The first command is a musical note, so let's play it.
-			mPerformer.addNote(command, mNoteDuration);
-			mPreviousNote = command;
-		}
+	
+	public void stepForward() {
+		String command = mComposition[mPlace];
+		executeCommand(command);
+		mPlace++;
 	}
 	
 	/**
-	 * Execute the next command. <br />
-	 * MUST CALL playFirstNote() FIRST!!
+	 * Execute the given command.
 	 */
-	public void stepForward() {
-		mPlace += 1;
-		String command = mComposition[mPlace];			
+	public void executeCommand(String command) {			
 		
 		if (command.equals("(")) {
 			if (mAmbiance.get(mMentalState) == 0) {
@@ -337,5 +327,9 @@ public class Parser {
 	 */
 	public String[] getPiece() {
 		return mComposition;
+	}
+	
+	public int getPlace() {
+		return mPlace;
 	}
 }

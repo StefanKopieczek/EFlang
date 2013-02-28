@@ -133,7 +133,7 @@ public class VibeController implements ActionListener {
 		mFrame.setButtonEnabled(4,false); //Step
 		String EFCode = mFrame.getEFCode();
 		mParser.giveMusic(EFCode);
-		mWorker = new ParserWorker(mParser);
+		mWorker = new ParserWorker(mParser,mFrame);
 		mWorker.execute();
 	}
 	

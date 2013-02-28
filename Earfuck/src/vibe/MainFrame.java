@@ -19,9 +19,9 @@ public class MainFrame extends JFrame {
 	private Container mContainer;
 	private JSplitPane mEditPane;
 	private JSplitPane mEARAndEFPane;
-	private JTextPane mHighLevelTextPane;
-	private JTextPane mEARTextPane;
-	private JTextPane mEFTextPane;
+	private CodePane mHighLevelTextPane;
+	private CodePane mEARTextPane;
+	private CodePane mEFTextPane;
 	private JMenuBar mMenuBar;
 	private JPanel mToolBar;
 	
@@ -33,7 +33,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void initComponents() {
-		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		mController = new VibeController(this);
 		
 		mContainer = getContentPane();
@@ -41,24 +41,24 @@ public class MainFrame extends JFrame {
 		//Create text panes
 		JPanel noWrapPanel;
 		JScrollPane scrollPane1, scrollPane2, scrollPane3;
-		mHighLevelTextPane = new JTextPane();
+		mHighLevelTextPane = new CodePane();
 		noWrapPanel = new JPanel(new BorderLayout());
 		noWrapPanel.add(mHighLevelTextPane);
 		scrollPane1 = new JScrollPane(noWrapPanel);
 		
-		mEARTextPane = new JTextPane();
+		mEARTextPane = new CodePane();
 		noWrapPanel = new JPanel(new BorderLayout());
 		noWrapPanel.add(mEARTextPane);
 		scrollPane2 = new JScrollPane(noWrapPanel);
 		
-		mEFTextPane = new JTextPane();
-		noWrapPanel = new JPanel(new BorderLayout());
-		noWrapPanel.add(mEFTextPane);
-		scrollPane3 = new JScrollPane(noWrapPanel);
+		mEFTextPane = new CodePane();
+//		noWrapPanel = new JPanel(new BorderLayout());
+//		noWrapPanel.add(mEFTextPane);
+//		scrollPane3 = new JScrollPane(noWrapPanel);
 		
 		//Create split panes
 		mEARAndEFPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					scrollPane2,scrollPane3);
+					scrollPane2,mEFTextPane);
 		mEditPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 					scrollPane1,mEARAndEFPane);
 		mEARAndEFPane.setContinuousLayout(true);
@@ -155,6 +155,10 @@ public class MainFrame extends JFrame {
 	
 	public void setEFCode(String text) {
 		mEFTextPane.setText(text);
+	}
+	
+	public CodePane getEFTextPane() {
+		return mEFTextPane;
 	}
 	
 	public void setButtonEnabled(int index, boolean enabled) {

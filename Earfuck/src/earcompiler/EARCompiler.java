@@ -388,9 +388,9 @@ public class EARCompiler {
 	
 	/**
 	 * Begins a loop conditional on the target cell.
-	 * Should be matched with an REPIF
+	 * Should be matched with an WHILE
 	 * e.g.
-	 * IF 5;
+	 * WHILE 5;
 	 */
 	public EARInstruction WHILE = new EARInstruction("WHILE\\s+\\d+\\s*") {
 		public String compile(String[] args) {
