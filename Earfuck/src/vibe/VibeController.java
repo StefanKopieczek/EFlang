@@ -21,6 +21,11 @@ public class VibeController implements ActionListener {
 	private Parser mParser;
 	private String mOpenFilePath;
 	private ParserWorker mWorker;
+	private VibeMode mMode;
+	
+	enum VibeMode {
+		HIGHLEVEL, EAR, EF;
+	}
 	
 	public VibeController(MainFrame frame) {
 		mFrame = frame;
@@ -46,6 +51,14 @@ public class VibeController implements ActionListener {
 		}
 		if (action.getActionCommand().equals("save")) {
 			save();
+			return;
+		}
+		if (action.getActionCommand().equals("saveas")) {
+			saveAs();
+			return;
+		}
+		if (action.getActionCommand().equals("new")) {
+			newFile();
 			return;
 		}
 		if (action.getActionCommand().equals("play")) {
@@ -78,6 +91,7 @@ public class VibeController implements ActionListener {
 	}
 	
 	private void exitProgram() {
+		pause();
 		mFrame.dispose();
 		System.exit(0);
 	}
@@ -111,9 +125,9 @@ public class VibeController implements ActionListener {
 		}
 	}
 	
-	private void saveFile(String path, String text) {
+	private void saveFile(File file, String text) {
 		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 			bw.append(text);
 			bw.close();
 		} catch (IOException e) {
@@ -123,7 +137,32 @@ public class VibeController implements ActionListener {
 	}
 	
 	private void save() {
-		saveFile(mOpenFilePath,mFrame.getEARCode());
+		if (mOpenFilePath==null) {
+			saveAs();
+			return;
+		}
+		File file = new File(mOpenFilePath);
+		saveFile(file,mFrame.getEARCode());
+	}
+	
+	private void saveAs() {
+		JFileChooser fc = new JFileChooser();
+		fc.setFileFilter(new EFCodeFilter());
+		int returnVal = fc.showSaveDialog(mFrame);
+		
+		if (returnVal==JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			saveFile(file, mFrame.getEARCode());
+			
+			mOpenFilePath = file.getPath();
+		}
+	}
+	
+	private void newFile() {
+		mOpenFilePath = null;
+		mFrame.setEARCode("");
+		mFrame.setEFCode("");
+		mFrame.setHighLevelCode("");
 	}
 	
 	private void play() {
@@ -160,5 +199,14 @@ public class VibeController implements ActionListener {
 			mParser.giveMusic(mFrame.getEFCode());
 		}
 		(new StepForwardWorker(mParser)).execute();
+	}
+	
+	public void setMode(VibeMode mode) {
+		mMode = mode;
+		mFrame.setupEditPane(mode);
+	}
+	
+	public VibeMode getMode() {
+		return mMode;
 	}
 }

@@ -7,7 +7,7 @@ public class Main {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				MainFrame frame = new MainFrame();
-				frame.setVisible(true);
+				frame.create();
 			}
 		});
 	}

@@ -12,7 +12,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 
 public class MainFrame extends JFrame {
 
@@ -32,8 +32,20 @@ public class MainFrame extends JFrame {
 		this.setTitle("VIBE Earfuck IDE");
 	}
 	
+	private void setupUI() {
+		mController.setMode(VibeController.VibeMode.EAR);
+		mEditPane.setDividerLocation(0.333);
+		mEARAndEFPane.setDividerLocation(0.5);
+	}
+	
+	public void create() {
+		setVisible(true);
+		setupUI();
+	}
+	
 	private void initComponents() {
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		
 		mController = new VibeController(this);
 		
 		mContainer = getContentPane();
@@ -52,20 +64,19 @@ public class MainFrame extends JFrame {
 		scrollPane2 = new JScrollPane(noWrapPanel);
 		
 		mEFTextPane = new CodePane();
-//		noWrapPanel = new JPanel(new BorderLayout());
-//		noWrapPanel.add(mEFTextPane);
-//		scrollPane3 = new JScrollPane(noWrapPanel);
+		scrollPane3 = new JScrollPane(mEFTextPane);
+		scrollPane3.setHorizontalScrollBarPolicy(
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		
 		//Create split panes
 		mEARAndEFPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					scrollPane2,mEFTextPane);
+					scrollPane2,scrollPane3);
 		mEditPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 					scrollPane1,mEARAndEFPane);
 		mEARAndEFPane.setContinuousLayout(true);
 		mEditPane.setContinuousLayout(true);
 		
 		//Add to container
-		mEditPane.remove(mHighLevelTextPane);
 		mContainer.add(mEditPane,BorderLayout.CENTER);
 		
 		//Set window size
@@ -78,7 +89,14 @@ public class MainFrame extends JFrame {
 		mMenuBar = new JMenuBar();
 		JMenu menu = new JMenu("File");
 		
-		JMenuItem menuItem = new JMenuItem("Open");
+		JMenuItem menuItem;
+		
+		menuItem = new JMenuItem("New");
+		menuItem.addActionListener(mController);
+		menuItem.setActionCommand("new");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Open");
 		menuItem.addActionListener(mController);
 		menuItem.setActionCommand("open");
 		menu.add(menuItem);
@@ -86,6 +104,11 @@ public class MainFrame extends JFrame {
 		menuItem = new JMenuItem("Save");
 		menuItem.addActionListener(mController);
 		menuItem.setActionCommand("save");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Save as");
+		menuItem.addActionListener(mController);
+		menuItem.setActionCommand("saveas");
 		menu.add(menuItem);
 		
 		menuItem = new JMenuItem("Exit");
@@ -131,6 +154,7 @@ public class MainFrame extends JFrame {
 		button.setActionCommand("step");
 		button.addActionListener(mController);
 		mToolBar.add(button);
+		
 	}
 	
 	public String getEARCode() {
@@ -164,6 +188,31 @@ public class MainFrame extends JFrame {
 	public void setButtonEnabled(int index, boolean enabled) {
 		JButton button = (JButton) mToolBar.getComponent(index);
 		button.setEnabled(enabled);
+	}
+	
+	public void setupEditPane(VibeController.VibeMode mode) {
+		JScrollPane leftPane = (JScrollPane) mEditPane.getComponent(0);
+		JScrollPane midPane = (JScrollPane) mEARAndEFPane.getComponent(0);
+		
+		if (mode==VibeController.VibeMode.EAR) {
+			leftPane.setVisible(false);
+			midPane.setVisible(true);
+			mEARAndEFPane.setDividerSize(5);
+			mEditPane.setDividerSize(0);
+		}
+		if (mode==VibeController.VibeMode.EF) {
+			leftPane.setVisible(false);
+			midPane.setVisible(false);
+			mEARAndEFPane.setDividerSize(0);
+			mEditPane.setDividerSize(0);
+		}
+		if (mode==VibeController.VibeMode.HIGHLEVEL) {
+			leftPane.setVisible(true);
+			midPane.setVisible(true);
+			mEARAndEFPane.setDividerSize(5);
+			mEditPane.setDividerSize(5);
+		}
+		
 	}
 
 }
