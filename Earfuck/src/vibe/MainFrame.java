@@ -215,6 +215,19 @@ public class MainFrame extends JFrame {
 		return mEFTextPane;
 	}
 	
+	public void setCodeEditable(boolean editable) {
+		VibeController.VibeMode mode = mController.getMode();
+		if (mode==VibeController.VibeMode.EF) {
+			mEFTextPane.setEditable(editable);
+		}
+		else if (mode==VibeController.VibeMode.EAR) {
+			mEARTextPane.setEditable(editable);
+		}
+		else if (mode==VibeController.VibeMode.HIGHLEVEL) {
+			mHighLevelTextPane.setEditable(editable);
+		}
+	}
+	
 	public int getTempo() {
 		return mTempoSlider.getValue();
 	}
@@ -228,23 +241,30 @@ public class MainFrame extends JFrame {
 		JScrollPane leftPane = (JScrollPane) mEditPane.getComponent(0);
 		JScrollPane midPane = (JScrollPane) mEARAndEFPane.getComponent(0);
 		
+		mEFTextPane.setEditable(false);
+		mEARTextPane.setEditable(false);
+		mHighLevelTextPane.setEditable(false);
+		
 		if (mode==VibeController.VibeMode.EAR) {
 			leftPane.setVisible(false);
 			midPane.setVisible(true);
 			mEARAndEFPane.setDividerSize(5);
 			mEditPane.setDividerSize(0);
+			mEARTextPane.setEditable(true);
 		}
 		if (mode==VibeController.VibeMode.EF) {
 			leftPane.setVisible(false);
 			midPane.setVisible(false);
 			mEARAndEFPane.setDividerSize(0);
 			mEditPane.setDividerSize(0);
+			mEFTextPane.setEditable(true);
 		}
 		if (mode==VibeController.VibeMode.HIGHLEVEL) {
 			leftPane.setVisible(true);
 			midPane.setVisible(true);
 			mEARAndEFPane.setDividerSize(5);
 			mEditPane.setDividerSize(5);
+			mHighLevelTextPane.setEditable(true);
 		}
 		
 	}

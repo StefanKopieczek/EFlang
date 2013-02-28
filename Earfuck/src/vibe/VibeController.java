@@ -90,11 +90,13 @@ public class VibeController implements ActionListener {
 	private void compileEARCode() {
 		String EARCode = mFrame.getEARCode();
 		String EFCode = null;
-		try {
-			EFCode = mEARCompiler.compile(EARCode);
-			mFrame.setEFCode(EFCode);
-		} catch (EARException e) {
-			mFrame.setEFCode(e.getMessage());
+		if (mPlayState==PlayState.STOPPED) {
+			try {
+				EFCode = mEARCompiler.compile(EARCode);
+				mFrame.setEFCode(EFCode);
+			} catch (EARException e) {
+				mFrame.setEFCode(e.getMessage());
+			}
 		}
 	}
 	
@@ -220,6 +222,7 @@ public class VibeController implements ActionListener {
 			mFrame.setButtonEnabled(2,true); //Pause
 			mFrame.setButtonEnabled(3,true); //Stop
 			mFrame.setButtonEnabled(4,false); //Step
+			mFrame.setCodeEditable(false);
 			return;
 		}
 		if (state==PlayState.PAUSED) {
@@ -227,6 +230,7 @@ public class VibeController implements ActionListener {
 			mFrame.setButtonEnabled(2,false); //Pause
 			mFrame.setButtonEnabled(3,true); //Stop
 			mFrame.setButtonEnabled(4,true); //Step
+			mFrame.setCodeEditable(false);
 			return;
 		}
 		if (state==PlayState.STOPPED) {
@@ -234,6 +238,7 @@ public class VibeController implements ActionListener {
 			mFrame.setButtonEnabled(2,false); //Pause
 			mFrame.setButtonEnabled(3,false); //Stop
 			mFrame.setButtonEnabled(4,true); //Step
+			mFrame.setCodeEditable(true);
 			return;
 		}
 	}
