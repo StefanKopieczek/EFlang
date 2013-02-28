@@ -44,6 +44,10 @@ public class EARCompiler {
 	private Stack<Integer> branchOptimismStack;
 	
 	public EARCompiler() {
+		resetState();
+	}
+	
+	public void resetState() {
 		p=0;
 		memory = new EarfuckMemory();
 		currentNote = STARTING_NOTE;
@@ -78,6 +82,7 @@ public class EARCompiler {
 	 * @return String containing EF program
 	 */
 	public String compile(String EARCode) throws EARException {
+		resetState();
 		String output = "";
 		
 		//Discard comments

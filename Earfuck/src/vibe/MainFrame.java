@@ -4,15 +4,20 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Rectangle;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class MainFrame extends JFrame {
 
@@ -24,6 +29,11 @@ public class MainFrame extends JFrame {
 	private CodePane mEFTextPane;
 	private JMenuBar mMenuBar;
 	private JPanel mToolBar;
+	private JSlider mTempoSlider;
+	
+	private final static int MIN_TEMPO = 30;
+	private final static int INITIAL_TEMPO = 130;
+	private final static int MAX_TEMPO = 1000;
 	
 	private VibeController mController;
 	
@@ -155,6 +165,26 @@ public class MainFrame extends JFrame {
 		button.addActionListener(mController);
 		mToolBar.add(button);
 		
+		//Tempo slider frame
+		JPanel frame = new JPanel();
+		frame.setLayout(new BoxLayout(frame,BoxLayout.PAGE_AXIS));
+		
+		mTempoSlider = new JSlider(MIN_TEMPO,MAX_TEMPO,INITIAL_TEMPO);
+		mTempoSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				//Set the label text
+				//All in one line, because I'm awesome and love unreadable code <_<
+				((JLabel) ((JPanel) mToolBar.getComponent(5)).getComponent(0)).setText(
+						"Tempo: "+String.valueOf(mTempoSlider.getValue()));
+			}
+		});
+		JLabel label = new JLabel();
+		label.setAlignmentY(CENTER_ALIGNMENT);
+		label.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));
+		frame.add(label);
+		frame.add(mTempoSlider);
+		mToolBar.add(frame);
 	}
 	
 	public String getEARCode() {
@@ -183,6 +213,10 @@ public class MainFrame extends JFrame {
 	
 	public CodePane getEFTextPane() {
 		return mEFTextPane;
+	}
+	
+	public int getTempo() {
+		return mTempoSlider.getValue();
 	}
 	
 	public void setButtonEnabled(int index, boolean enabled) {
@@ -214,5 +248,4 @@ public class MainFrame extends JFrame {
 		}
 		
 	}
-
 }

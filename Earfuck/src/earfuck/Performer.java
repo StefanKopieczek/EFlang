@@ -8,4 +8,5 @@ public interface Performer {
 	public void addNote(String note, float frac, int excitement);
 	public void changeInstrument(String instrumentString);
 	public void setTempo(int tempoInt);
+	public int getTempo();
 }

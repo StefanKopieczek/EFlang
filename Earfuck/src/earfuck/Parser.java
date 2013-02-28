@@ -332,4 +332,12 @@ public class Parser {
 	public int getPlace() {
 		return mPlace;
 	}
+	
+	public void setTempo(int tempo) {
+		mPerformer.setTempo(tempo);
+	}
+	
+	public int getTempo() {
+		return mPerformer.getTempo();
+	}
 }

@@ -21,10 +21,16 @@ public class VibeController implements ActionListener {
 	private Parser mParser;
 	private String mOpenFilePath;
 	private ParserWorker mWorker;
+	private StepForwardWorker mStepWorker;
 	private VibeMode mMode;
+	private PlayState mPlayState;
 	
 	enum VibeMode {
 		HIGHLEVEL, EAR, EF;
+	}
+	
+	enum PlayState {
+		PLAYING, PAUSED, STOPPED;
 	}
 	
 	public VibeController(MainFrame frame) {
@@ -33,6 +39,8 @@ public class VibeController implements ActionListener {
 		mOpenFilePath = null;
 		mParser = new Parser();
 		mWorker = null;
+		mStepWorker = null;
+		mPlayState = PlayState.STOPPED;
 	}
 
 	@Override
@@ -97,6 +105,7 @@ public class VibeController implements ActionListener {
 	}
 	
 	private void openFile() {
+		stop();
 		JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new EFCodeFilter());
 		int returnVal = fc.showOpenDialog(mFrame);
@@ -159,6 +168,7 @@ public class VibeController implements ActionListener {
 	}
 	
 	private void newFile() {
+		stop();
 		mOpenFilePath = null;
 		mFrame.setEARCode("");
 		mFrame.setEFCode("");
@@ -166,39 +176,66 @@ public class VibeController implements ActionListener {
 	}
 	
 	private void play() {
-		mFrame.setButtonEnabled(1,false); //Play
-		mFrame.setButtonEnabled(2,true); //Pause
-		mFrame.setButtonEnabled(3,true); //Stop
-		mFrame.setButtonEnabled(4,false); //Step
 		String EFCode = mFrame.getEFCode();
+		
+		if (mPlayState==PlayState.STOPPED) {
+			mParser.refreshState();
+		}
+		mPlayState = PlayState.PLAYING;
 		mParser.giveMusic(EFCode);
-		mWorker = new ParserWorker(mParser,mFrame);
+		mWorker = new ParserWorker(this);
 		mWorker.execute();
+		
+		setPlayState(PlayState.PLAYING);
 	}
 	
 	private void pause() {
-		mFrame.setButtonEnabled(1,true); //Play
-		mFrame.setButtonEnabled(2,false); //Pause
-		mFrame.setButtonEnabled(3,true); //Stop
-		mFrame.setButtonEnabled(4,true); //Step
 		mWorker.cancel(true);
+		setPlayState(PlayState.PAUSED);
 	}
 	
 	private void stop() {
-		mFrame.setButtonEnabled(1,true); //Play
-		mFrame.setButtonEnabled(2,false); //Pause
-		mFrame.setButtonEnabled(3,false); //Stop
-		mFrame.setButtonEnabled(4,true); //Step
-		mWorker.cancel(true);
-		mParser.refreshState();
+		if (mWorker!=null) {
+			mWorker.cancel(true);
+		}
+		setPlayState(PlayState.STOPPED);
 	}
 	
 	private void step() {
-		mFrame.setButtonEnabled(4,false); //Step
+		if (mPlayState==PlayState.STOPPED) {
+			mParser.refreshState();
+		}
 		if (mParser.getPiece().length==0) {
 			mParser.giveMusic(mFrame.getEFCode());
 		}
-		(new StepForwardWorker(mParser)).execute();
+		mStepWorker = new StepForwardWorker(this);
+		mStepWorker.execute();
+		setPlayState(PlayState.PLAYING);
+	}
+	
+	public void setPlayState(PlayState state) {
+		mPlayState = state;
+		if (state==PlayState.PLAYING) {
+			mFrame.setButtonEnabled(1,false); //Play
+			mFrame.setButtonEnabled(2,true); //Pause
+			mFrame.setButtonEnabled(3,true); //Stop
+			mFrame.setButtonEnabled(4,false); //Step
+			return;
+		}
+		if (state==PlayState.PAUSED) {
+			mFrame.setButtonEnabled(1,true); //Play
+			mFrame.setButtonEnabled(2,false); //Pause
+			mFrame.setButtonEnabled(3,true); //Stop
+			mFrame.setButtonEnabled(4,true); //Step
+			return;
+		}
+		if (state==PlayState.STOPPED) {
+			mFrame.setButtonEnabled(1,true); //Play
+			mFrame.setButtonEnabled(2,false); //Pause
+			mFrame.setButtonEnabled(3,false); //Stop
+			mFrame.setButtonEnabled(4,true); //Step
+			return;
+		}
 	}
 	
 	public void setMode(VibeMode mode) {
@@ -208,5 +245,13 @@ public class VibeController implements ActionListener {
 	
 	public VibeMode getMode() {
 		return mMode;
+	}
+	
+	public MainFrame getFrame() {
+		return mFrame;
+	}
+	
+	public Parser getParser() {
+		return mParser;
 	}
 }

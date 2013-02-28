@@ -54,6 +54,11 @@ class MidiStreamPerformer implements Performer{
 		mPlayer.stream("T" + tempo + " ");
 	}
 	
+	@Override
+	public int getTempo() {
+		return Integer.parseInt(tempo);
+	}
+	
 	int getNoteValue(String a) {
 		return MusicStringParser.getNote(a).getValue();
 	}
