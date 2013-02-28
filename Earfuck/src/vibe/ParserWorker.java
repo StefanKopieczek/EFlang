@@ -1,10 +1,9 @@
 package vibe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.SwingWorker;
-
-import earfuck.Parser;
 
 public class ParserWorker extends SwingWorker<Void,Integer> {
 VibeController mController;
@@ -31,8 +30,25 @@ VibeController mController;
 	@Override
 	protected void process(List<Integer> indices) {
 		try {
-			mController.getFrame().getEFTextPane().setCurrentCommandIndex(indices.get(indices.size()-1));
+			//Get EF command index
+			int currentEFCommand = indices.get(indices.size()-1);
+			//Get EAR command index
+			int currentEARCommand = 0;
+			ArrayList<Integer> EARCommandStartPositions = 
+					mController.getEARCommandStartPositions();
+			for (int i=0; i<EARCommandStartPositions.size(); i++) {
+				if (EARCommandStartPositions.get(i) <= currentEFCommand) {
+					currentEARCommand = i;
+				}
+			}
+			
+			mController.getFrame().getEFTextPane().
+					setCurrentCommandIndex(currentEFCommand);
 			mController.getFrame().getEFTextPane().invalidate();
+			
+			mController.getFrame().getEARTextPane().
+					setCurrentCommandIndex(currentEARCommand);
+			mController.getFrame().getEARTextPane().invalidate();
 		}
 		catch (IndexOutOfBoundsException ex) {
 			this.cancel(true);

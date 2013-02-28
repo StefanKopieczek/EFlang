@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
 
@@ -24,6 +25,7 @@ public class VibeController implements ActionListener {
 	private StepForwardWorker mStepWorker;
 	private VibeMode mMode;
 	private PlayState mPlayState;
+	private ArrayList<Integer> mEARCommandStartPositions;
 	
 	enum VibeMode {
 		HIGHLEVEL, EAR, EF;
@@ -41,6 +43,7 @@ public class VibeController implements ActionListener {
 		mWorker = null;
 		mStepWorker = null;
 		mPlayState = PlayState.STOPPED;
+		mEARCommandStartPositions = new ArrayList<Integer>();
 	}
 
 	@Override
@@ -94,6 +97,7 @@ public class VibeController implements ActionListener {
 			try {
 				EFCode = mEARCompiler.compile(EARCode);
 				mFrame.setEFCode(EFCode);
+				mEARCommandStartPositions = mEARCompiler.getCommandStartPositions();
 			} catch (EARException e) {
 				mFrame.setEFCode(e.getMessage());
 			}
@@ -258,5 +262,9 @@ public class VibeController implements ActionListener {
 	
 	public Parser getParser() {
 		return mParser;
+	}
+	
+	public ArrayList<Integer> getEARCommandStartPositions() {
+		return mEARCommandStartPositions;
 	}
 }

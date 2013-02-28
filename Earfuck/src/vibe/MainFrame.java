@@ -69,6 +69,7 @@ public class MainFrame extends JFrame {
 		scrollPane1 = new JScrollPane(noWrapPanel);
 		
 		mEARTextPane = new CodePane();
+		mEARTextPane.setDivider('\n');
 		noWrapPanel = new JPanel(new BorderLayout());
 		noWrapPanel.add(mEARTextPane);
 		scrollPane2 = new JScrollPane(noWrapPanel);
@@ -213,6 +214,14 @@ public class MainFrame extends JFrame {
 	
 	public CodePane getEFTextPane() {
 		return mEFTextPane;
+	}
+	
+	public CodePane getEARTextPane() {
+		return mEARTextPane;
+	}
+	
+	public CodePane getHighLevelTextPane() {
+		return mHighLevelTextPane;
 	}
 	
 	public void setCodeEditable(boolean editable) {

@@ -43,6 +43,14 @@ public class EARCompiler {
 	private Stack<Note> branchNoteStack;
 	private Stack<Integer> branchOptimismStack;
 	
+	/**
+	 * This stores the start position in the compiled EF code for each
+	 * EAR command.
+	 * Index = EAR command index
+	 * Value = first EF command index in the given EAR command
+	 */
+	private ArrayList<Integer> commandStartPositions;
+	
 	public EARCompiler() {
 		resetState();
 	}
@@ -56,6 +64,7 @@ public class EARCompiler {
 		branchLocStack = new Stack<Integer>();
 		branchNoteStack = new Stack<Note>();
 		branchOptimismStack = new Stack<Integer>();
+		commandStartPositions = new ArrayList<Integer>();
 	}
 	
 	private HashMap<String,EARInstruction> getInstructionSet() {
@@ -85,55 +94,72 @@ public class EARCompiler {
 		resetState();
 		String output = "";
 		
-		//Discard comments
-		EARCode = EARCode.replaceAll("\\([^\\)]*\\)","");
+		//Discard comments (OLD COMMENT STYLE = "\\([^\\)]*\\)")
+		EARCode = EARCode.replaceAll("\\\\\\\\.*\\n","\n");
 		//Standardise end of commands
 		EARCode = EARCode.replaceAll(";\\s*",";");
 		//Split into individual instructions
-		String[] instructions = EARCode.split(";");
-		
+		String[] instructions = EARCode.split("\n");
 		
 		output += currentNote.toString()+" ";
 		
 		for (int i=0; i<instructions.length; i++) {
-			String instruction = instructions[i].replaceAll("(\n)? +(\n)?", " ");
-			String[] parsedInstruction = instruction.split(" ");
-			
-			String[] args = Arrays.copyOfRange(parsedInstruction, 1, 
-											parsedInstruction.length);
-			String opcode = parsedInstruction[0];
-			
-			EARInstruction command = instructionSet.get(opcode);
-			
-			//Check opcode actually generated a command
-			if (command==null) {
-				String message = "Invalid opcode at instruction "+i+":";
-				if (i>0) {
-					message += "\n"+(i-1)+": "+instructions[i-1];
+			String compiledInstruction = "";
+			String instruction = instructions[i].replaceAll(" +", " ");
+			instruction = instruction.replaceAll("^ +", "");
+			if (!instruction.equals("")) {
+				String[] parsedInstruction = instruction.split(" ");
+				
+				String[] args = Arrays.copyOfRange(parsedInstruction, 1, 
+												parsedInstruction.length);
+				String opcode = parsedInstruction[0];
+				
+				EARInstruction command = instructionSet.get(opcode);
+				
+				//Check opcode actually generated a command
+				if (command==null) {
+					String message = "Invalid opcode at instruction "+i+":";
+					if (i>0) {
+						message += "\n"+(i-1)+": "+instructions[i-1];
+					}
+					message += "\n"+i+": "+instruction;
+					if (i<instructions.length-1) {
+						message += "\n"+(i+1)+": "+instructions[i+1];
+					}
+					throw new EARInvalidOpcodeException(message);
 				}
-				message += "\n"+i+": "+instruction;
-				if (i<instructions.length-1) {
-					message += "\n"+(i+1)+": "+instructions[i+1];
+				
+				//Check validity of command and throw helpful error message
+				if (!command.checkArgs(instruction)) {
+					String message = "Invalid instruction signature at instruction "+i+":";
+					if (i>0) {
+						message += "\n"+(i-1)+": "+instructions[i-1];
+					}
+					message += "\n"+i+": "+instruction;
+					if (i<instructions.length-1) {
+						message += "\n"+(i+1)+": "+instructions[i+1];
+					}
+					throw new EARInvalidSignatureException(message);
 				}
-				throw new EARInvalidOpcodeException(message);
+				compiledInstruction = command.compile(args);
 			}
 			
-			//Check validity of command and throw helpful error message
-			if (!command.checkArgs(instruction)) {
-				String message = "Invalid instruction signature at instruction "+i+":";
-				if (i>0) {
-					message += "\n"+(i-1)+": "+instructions[i-1];
+			//calculate how many commands into the EF code we are
+			int commands = 0;
+			for (char c : output.toCharArray()) {
+				if (c==' ') {
+					commands++;
 				}
-				message += "\n"+i+": "+instruction;
-				if (i<instructions.length-1) {
-					message += "\n"+(i+1)+": "+instructions[i+1];
-				}
-				throw new EARInvalidSignatureException(message);
 			}
-			
-			output += command.compile(args);
+			//Add it to the array of start positions
+			commandStartPositions.add(commands);
+			output += compiledInstruction;
 		}
 		return output;
+	}
+	
+	public ArrayList<Integer> getCommandStartPositions() {
+		return commandStartPositions;
 	}
 	
 	//Some convenience methods, not accessible to the EAR programmer directly
