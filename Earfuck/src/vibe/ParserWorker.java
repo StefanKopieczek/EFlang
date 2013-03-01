@@ -33,12 +33,12 @@ VibeController mController;
 			//Get EF command index
 			int currentEFCommand = indices.get(indices.size()-1);
 			//Get EAR command index
-			int currentEARCommand = 0;
-			ArrayList<Integer> EARCommandStartPositions = 
+			int currentEARLine = 0;
+			ArrayList<Integer> earLineStartPositions = 
 					mController.getEARCommandStartPositions();
-			for (int i=0; i<EARCommandStartPositions.size(); i++) {
-				if (EARCommandStartPositions.get(i) <= currentEFCommand) {
-					currentEARCommand = i;
+			for (int i=0; i<earLineStartPositions.size(); i++) {
+				if (earLineStartPositions.get(i) <= currentEFCommand) {
+					currentEARLine = i;
 				}
 			}
 			
@@ -47,7 +47,7 @@ VibeController mController;
 			mController.getFrame().getEFTextPane().invalidate();
 			
 			mController.getFrame().getEARTextPane().
-					setCurrentCommandIndex(currentEARCommand);
+					setCurrentCommandIndex(currentEARLine);
 			mController.getFrame().getEARTextPane().invalidate();
 		}
 		catch (IndexOutOfBoundsException ex) {

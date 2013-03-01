@@ -49,7 +49,7 @@ public class EARCompiler {
 	 * Index = EAR command index
 	 * Value = first EF command index in the given EAR command
 	 */
-	private ArrayList<Integer> commandStartPositions;
+	private ArrayList<Integer> lineStartPositions;
 	
 	public EARCompiler() {
 		resetState();
@@ -64,7 +64,7 @@ public class EARCompiler {
 		branchLocStack = new Stack<Integer>();
 		branchNoteStack = new Stack<Note>();
 		branchOptimismStack = new Stack<Integer>();
-		commandStartPositions = new ArrayList<Integer>();
+		lineStartPositions = new ArrayList<Integer>();
 	}
 	
 	private HashMap<String,EARInstruction> getInstructionSet() {
@@ -96,8 +96,7 @@ public class EARCompiler {
 		
 		//Discard comments (OLD COMMENT STYLE = "\\([^\\)]*\\)")
 		EARCode = EARCode.replaceAll("\\\\\\\\.*\\n","\n");
-		//Standardise end of commands
-		EARCode = EARCode.replaceAll(";\\s*",";");
+
 		//Split into individual instructions
 		String[] instructions = EARCode.split("\n");
 		
@@ -152,14 +151,14 @@ public class EARCompiler {
 				}
 			}
 			//Add it to the array of start positions
-			commandStartPositions.add(commands);
+			lineStartPositions.add(commands);
 			output += compiledInstruction;
 		}
 		return output;
 	}
 	
 	public ArrayList<Integer> getCommandStartPositions() {
-		return commandStartPositions;
+		return lineStartPositions;
 	}
 	
 	//Some convenience methods, not accessible to the EAR programmer directly

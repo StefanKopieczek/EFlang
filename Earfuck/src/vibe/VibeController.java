@@ -25,7 +25,7 @@ public class VibeController implements ActionListener {
 	private StepForwardWorker mStepWorker;
 	private VibeMode mMode;
 	private PlayState mPlayState;
-	private ArrayList<Integer> mEARCommandStartPositions;
+	private ArrayList<Integer> mEARLineStartPositions;
 	
 	enum VibeMode {
 		HIGHLEVEL, EAR, EF;
@@ -43,7 +43,7 @@ public class VibeController implements ActionListener {
 		mWorker = null;
 		mStepWorker = null;
 		mPlayState = PlayState.STOPPED;
-		mEARCommandStartPositions = new ArrayList<Integer>();
+		mEARLineStartPositions = new ArrayList<Integer>();
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class VibeController implements ActionListener {
 			try {
 				EFCode = mEARCompiler.compile(EARCode);
 				mFrame.setEFCode(EFCode);
-				mEARCommandStartPositions = mEARCompiler.getCommandStartPositions();
+				mEARLineStartPositions = mEARCompiler.getCommandStartPositions();
 			} catch (EARException e) {
 				mFrame.setEFCode(e.getMessage());
 			}
@@ -265,6 +265,6 @@ public class VibeController implements ActionListener {
 	}
 	
 	public ArrayList<Integer> getEARCommandStartPositions() {
-		return mEARCommandStartPositions;
+		return mEARLineStartPositions;
 	}
 }
