@@ -8,7 +8,12 @@ import java.util.Stack;
 
 import earfuck.EarfuckMemory;
 
-
+/**
+ * Compiler for the EAR language. <br/>
+ * Takes in EAR code and compiles to raw EF.
+ * @author Ryan Norris
+ *
+ */
 public class EARCompiler {
 	private static Note STARTING_NOTE = Note.c4;
 	private enum Note {

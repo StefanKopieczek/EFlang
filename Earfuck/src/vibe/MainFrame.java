@@ -19,22 +19,81 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+/**
+ * The main application frame.
+ * Contains all other components.
+ * @author Ryan Norris
+ *
+ */
 public class MainFrame extends JFrame {
 
+	/**
+	 * Container for the whole UI.
+	 */
 	private Container mContainer;
+	
+	/**
+	 * The outside JSplitPane for the code edit boxes.
+	 * Contains the HighLevelTextPane and the
+	 * other SplitPane.
+	 */
 	private JSplitPane mEditPane;
+	
+	/**
+	 * The inner JSplitPane for the code edit boxes.
+	 * Contains the EAR and EF TextPanes.
+	 */
 	private JSplitPane mEARAndEFPane;
+	
+	/**
+	 * Text box for entering high level code.
+	 */
 	private CodePane mHighLevelTextPane;
+	
+	/**
+	 * Text box for entering EAR code.
+	 */
 	private CodePane mEARTextPane;
+	
+	/**
+	 * Text box for entering EF code.
+	 */
 	private CodePane mEFTextPane;
+	
+	/**
+	 * The menu bar at the top of the application. (File etc...)
+	 */
 	private JMenuBar mMenuBar;
+	
+	/**
+	 * Toolbar running along the top of the application just below the menu bar. <br/>
+	 * Contains useful buttons (compile/play/pause/stop/step) and tempo slider.
+	 */
 	private JPanel mToolBar;
+	
+	/**
+	 * Slider to control the tempo of the code playback.
+	 */
 	private JSlider mTempoSlider;
 	
+	/**
+	 * Minimum selectable tempo for slider.
+	 */
 	private final static int MIN_TEMPO = 30;
+	
+	/**
+	 * Initial value for tempo slider.
+	 */
 	private final static int INITIAL_TEMPO = 130;
+	
+	/**
+	 * Maximum selectable tempo for slider.
+	 */
 	private final static int MAX_TEMPO = 1000;
 	
+	/**
+	 * Controller to handle all events on this window.
+	 */
 	private VibeController mController;
 	
 	public MainFrame() {
@@ -42,17 +101,28 @@ public class MainFrame extends JFrame {
 		this.setTitle("VIBE Earfuck IDE");
 	}
 	
+	/**
+	 * UI setup to be done AFTER made visible.
+	 */
 	private void setupUI() {
 		mController.setMode(VibeController.VibeMode.EAR);
 		mEditPane.setDividerLocation(0.333);
 		mEARAndEFPane.setDividerLocation(0.5);
 	}
 	
+	/**
+	 * Should be called when the user wants the window to appear.
+	 */
 	public void create() {
 		setVisible(true);
 		setupUI();
 	}
 	
+	/**
+	 * Initialises all components. </br>
+	 * Called from constructor, so should not contain any initialisation
+	 * that requires the components to be visible.
+	 */
 	private void initComponents() {
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
@@ -188,42 +258,86 @@ public class MainFrame extends JFrame {
 		mToolBar.add(frame);
 	}
 	
+	/**
+	 * Returns the contents of the EAR code pane.
+	 * @return
+	 */
 	public String getEARCode() {
 		return mEARTextPane.getText();
 	}
 	
+	/**
+	 * Sets the contents of the EAR code pane.
+	 * @param text
+	 */
 	public void setEARCode(String text) {
 		mEARTextPane.setText(text);
 	}
 	
+	/**
+	 * Returns the contents of the high level code pane.
+	 * @return
+	 */
 	public String getHighLevelCode() {
 		return mHighLevelTextPane.getText();
 	}
 	
+	/**
+	 * Sets the contents of the high level code pane.
+	 * @param text
+	 */
 	public void setHighLevelCode(String text) {
 		mHighLevelTextPane.setText(text);
 	}
 	
+	/**
+	 * Returns the contents of the EF code pane.
+	 * @return
+	 */
 	public String getEFCode() {
 		return mEFTextPane.getText();
 	}
 	
+	/**
+	 * Sets the contents of the EF code pane.
+	 * @param text
+	 */
 	public void setEFCode(String text) {
 		mEFTextPane.setText(text);
 	}
 	
+	/**
+	 * Returns the EF text pane itself. <br/>
+	 * Used by the ParserWorker & StepForwardWorker for code highlighting.
+	 * @return
+	 */
 	public CodePane getEFTextPane() {
 		return mEFTextPane;
 	}
 	
+	/**
+	 * Returns the EAR text pane itself. <br/>
+	 * Used by the ParserWorker & StepForwardWorker for code highlighting.
+	 * @return
+	 */
 	public CodePane getEARTextPane() {
 		return mEARTextPane;
 	}
 	
+	/**
+	 * Returns the High Level text pane itself. <br/>
+	 * Used by the ParserWorker & StepForwardWorker for code highlighting.
+	 * @return
+	 */
 	public CodePane getHighLevelTextPane() {
 		return mHighLevelTextPane;
 	}
 	
+	/**
+	 * Sets whether the code is editable. (Only the code of the current mode
+	 * is ever editable)
+	 * @param editable
+	 */
 	public void setCodeEditable(boolean editable) {
 		VibeController.VibeMode mode = mController.getMode();
 		if (mode==VibeController.VibeMode.EF) {
@@ -237,15 +351,29 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
+	/**
+	 * Gets the user selected tempo from the tempo slider.
+	 * @return
+	 */
 	public int getTempo() {
 		return mTempoSlider.getValue();
 	}
 	
+	/**
+	 * Sets buttons enabled or disabled. <br/>
+	 * @param index 0 = compile, 1 = play, 2 = pause, 3 = stop, 4 = step
+	 * @param enabled true/false
+	 */
 	public void setButtonEnabled(int index, boolean enabled) {
 		JButton button = (JButton) mToolBar.getComponent(index);
 		button.setEnabled(enabled);
 	}
 	
+	/**
+	 * Sets up the edit pane for the given mode. <br/>
+	 * Sets the correct text pane to editable and hides irrelevant panes.
+	 * @param mode the VibeMode we're setting up for
+	 */
 	public void setupEditPane(VibeController.VibeMode mode) {
 		JScrollPane leftPane = (JScrollPane) mEditPane.getComponent(0);
 		JScrollPane midPane = (JScrollPane) mEARAndEFPane.getComponent(0);

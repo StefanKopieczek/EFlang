@@ -4,6 +4,12 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
+/**
+ * Lets through only files of type .ear and .ef <br/>
+ * Allows user to change directory.
+ * @author Ryan Norris
+ *
+ */
 public class EFCodeFilter extends FileFilter {
 
 	@Override

@@ -5,6 +5,12 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
+/**
+ * This worker runs the EF Parser on a background thread until told to stop. <br/>
+ * It also passes forward information for code highlighting to the text panes.
+ * @author Ryan Norris
+ *
+ */
 public class ParserWorker extends SwingWorker<Void,Integer> {
 VibeController mController;
 	
