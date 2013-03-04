@@ -333,6 +333,14 @@ public class Parser {
 		return mPlace;
 	}
 	
+	public int getPointer() {
+		return mMentalState;
+	}
+	
+	public int getMemoryValueAt(int i) {
+		return this.mAmbiance.get(i);
+	}
+	
 	public void setTempo(int tempo) {
 		mPerformer.setTempo(tempo);
 	}

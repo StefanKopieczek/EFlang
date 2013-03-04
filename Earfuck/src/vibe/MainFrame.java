@@ -2,6 +2,7 @@ package vibe;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import javax.swing.BoxLayout;
@@ -16,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -92,6 +94,11 @@ public class MainFrame extends JFrame {
 	private final static int MAX_TEMPO = 1000;
 	
 	/**
+	 * Visualiser for Parser memory.
+	 */
+	private MemoryVisualiser mMemoryVisualiser;
+	
+	/**
 	 * Controller to handle all events on this window.
 	 */
 	private VibeController mController;
@@ -108,6 +115,11 @@ public class MainFrame extends JFrame {
 		mController.setMode(VibeController.VibeMode.EAR);
 		mEditPane.setDividerLocation(0.333);
 		mEARAndEFPane.setDividerLocation(0.5);
+		
+		Dimension size = mMemoryVisualiser.getSize();
+		size.width = this.getWidth();
+		mMemoryVisualiser.setSize(size);
+		mMemoryVisualiser.setHorizontalAlignment(SwingConstants.CENTER);
 	}
 	
 	/**
@@ -256,6 +268,10 @@ public class MainFrame extends JFrame {
 		frame.add(label);
 		frame.add(mTempoSlider);
 		mToolBar.add(frame);
+		
+		//Create the Memory Visualiser
+		mMemoryVisualiser = new MemoryVisualiser(mController.getParser());
+		mContainer.add(mMemoryVisualiser,BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -403,6 +419,9 @@ public class MainFrame extends JFrame {
 			mEditPane.setDividerSize(5);
 			mHighLevelTextPane.setEditable(true);
 		}
-		
+	}
+	
+	public void updateMemoryVisualiser() {
+		mMemoryVisualiser.update();
 	}
 }

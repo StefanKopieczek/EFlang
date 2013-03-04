@@ -55,6 +55,8 @@ VibeController mController;
 			mController.getFrame().getEARTextPane().
 					setCurrentCommandIndex(currentEARLine);
 			mController.getFrame().getEARTextPane().invalidate();
+			
+			mController.getFrame().updateMemoryVisualiser();
 		}
 		catch (IndexOutOfBoundsException ex) {
 			this.cancel(true);
