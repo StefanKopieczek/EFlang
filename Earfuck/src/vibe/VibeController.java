@@ -319,6 +319,8 @@ public class VibeController implements ActionListener {
 			mWorker.cancel(true);
 		}
 		setPlayState(PlayState.STOPPED);
+		mParser.refreshState();
+		mFrame.updateMemoryVisualiser();
 	}
 	
 	/**

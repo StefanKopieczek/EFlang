@@ -24,7 +24,6 @@ public class Console extends JTextPane implements IoManager{
 		mParser = null;
 		updateText();
 		setEditable(false);
-		getCaret().setVisible(false);
 	}
 	
 	@Override
@@ -45,7 +44,10 @@ public class Console extends JTextPane implements IoManager{
 							mText.add(inputText);
 							inputMode = false;
 							setEditable(false);
-							getCaret().setVisible(false);
+							
+							//This is a hack to lose focus
+							setFocusable(false);
+							setFocusable(true);
 						}
 						catch (NumberFormatException e) {
 							addLine("Invalid: "+inputText);

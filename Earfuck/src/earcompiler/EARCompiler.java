@@ -100,7 +100,7 @@ public class EARCompiler {
 		String output = "";
 		
 		//Discard comments (OLD COMMENT STYLE = "\\([^\\)]*\\)")
-		EARCode = EARCode.replaceAll("\\\\\\\\.*\\n","\n");
+		EARCode = EARCode.replaceAll("//.*\\n","\n");
 
 		//Split into individual instructions
 		String[] instructions = EARCode.split("\n");
