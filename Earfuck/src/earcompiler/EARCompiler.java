@@ -335,7 +335,7 @@ public class EARCompiler {
 	 * e.g.
 	 * GOTO 5;
 	 */
-	public EARInstruction GOTO = new EARInstruction("GOTO\\s+\\d+\\s*") {
+	public EARInstruction GOTO = new EARInstruction("GOTO\\s+-?\\d+\\s*") {
 		public String compile(String[] args) {
 			int destination = Integer.parseInt(args[0]);
 			String output = "";
@@ -355,7 +355,7 @@ public class EARCompiler {
 	 * e.g.
 	 * ZERO 5;
 	 */
-	public EARInstruction ZERO = new EARInstruction("ZERO\\s+\\d+\\s*") {
+	public EARInstruction ZERO = new EARInstruction("ZERO\\s+-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 
@@ -376,7 +376,7 @@ public class EARCompiler {
 	 * e.g.
 	 * IN 5;
 	 */
-	public EARInstruction IN = new EARInstruction("IN\\s+\\d+\\s*") {
+	public EARInstruction IN = new EARInstruction("IN\\s+-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			if (args.length!=0){
@@ -401,7 +401,7 @@ public class EARCompiler {
 	 * e.g.
 	 * OUT 5;
 	 */
-	public EARInstruction OUT = new EARInstruction("OUT\\s+\\d+\\s*") {
+	public EARInstruction OUT = new EARInstruction("OUT\\s+-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			if (args.length!=0){
@@ -427,7 +427,7 @@ public class EARCompiler {
 	 * e.g.
 	 * WHILE 5;
 	 */
-	public EARInstruction WHILE = new EARInstruction("WHILE\\s+\\d+\\s*") {
+	public EARInstruction WHILE = new EARInstruction("WHILE\\s+-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			if (args.length!=0){
@@ -489,7 +489,8 @@ public class EARCompiler {
 	 * ADD @5 2 3 4;
 	 * Adds the value in cell 5 to cells 2, 3 and 4.
 	 */
-	public EARInstruction ADD = new EARInstruction("ADD\\s+@?\\d+\\s+(\\d+\\s+)*\\d+\\s*") {
+	public EARInstruction ADD = new EARInstruction(
+			"ADD\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			int amount;
@@ -552,7 +553,8 @@ public class EARCompiler {
 	 * SUB @5 2 3 4;
 	 * Subtracts the value in cell 5 from cells 2, 3 and 4.
 	 */
-	public EARInstruction SUB = new EARInstruction("SUB\\s+@?\\d+\\s+(\\d+\\s+)*\\d+\\s*") {
+	public EARInstruction SUB = new EARInstruction(
+			"SUB\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			int amount;
@@ -617,7 +619,8 @@ public class EARCompiler {
 	 * Multiplies cell 5 with cell 3, stores the answer in cell 1, 
 	 * and uses cell 0 for working.
 	 */
-	public EARInstruction MUL = new EARInstruction("MUL\\s+(@?\\d+\\s*){2}\\d+\\s+\\d+\\s*") {
+	public EARInstruction MUL = new EARInstruction(
+			"MUL\\s+((@|@-)?\\d+\\s*){2}-?\\d+\\s+-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String tempA,tempB;
 			String output = "";
@@ -681,7 +684,7 @@ public class EARCompiler {
 					int a = Integer.parseInt(args[0]);
 					int b = Integer.parseInt(args[1]);
 					output += ADD.compile(new String[]
-							{String.valueOf(a*b),"@"+targetCell});
+							{String.valueOf(a*b),targetCell});
 					return output;
 				}
 			}
@@ -709,7 +712,8 @@ public class EARCompiler {
 	 * COPY @2 3 4 5;
 	 * Copies cell 2 into cells 3 & 4, using cell 5 as working space.
 	 */
-	public EARInstruction COPY = new EARInstruction("COPY\\s+@?\\d+\\s+(\\d+\\s+)+\\d+\\s*") {
+	public EARInstruction COPY = new EARInstruction(
+			"COPY\\s+(@|@-)?\\d+\\s+(\\d+\\s+)+\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			
@@ -757,7 +761,8 @@ public class EARCompiler {
 	 * MOV @2 3 4;
 	 * Moves cell 2 into cells 3 & 4.
 	 */
-	public EARInstruction MOV = new EARInstruction("MOV\\s+@?\\d+\\s+(\\d+\\s+)*\\d+\\s*") {
+	public EARInstruction MOV = new EARInstruction(
+			"MOV\\s+(@|@-)?\\d+\\s+(\\d+\\s+)*\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			
