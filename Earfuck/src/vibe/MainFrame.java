@@ -1,6 +1,7 @@
 package vibe;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -18,6 +19,7 @@ import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -99,6 +101,11 @@ public class MainFrame extends JFrame {
 	private MemoryVisualiser mMemoryVisualiser;
 	
 	/**
+	 * The input/output console
+	 */
+	private Console mConsole;
+	
+	/**
 	 * Controller to handle all events on this window.
 	 */
 	private VibeController mController;
@@ -117,8 +124,8 @@ public class MainFrame extends JFrame {
 		mEARAndEFPane.setDividerLocation(0.5);
 		
 		Dimension size = mMemoryVisualiser.getSize();
-		size.width = this.getWidth();
-		mMemoryVisualiser.setSize(size);
+		//size.width = this.getWidth() - mConsole.getWidth();
+		//mMemoryVisualiser.setSize(size);
 		mMemoryVisualiser.setHorizontalAlignment(SwingConstants.CENTER);
 	}
 	
@@ -269,9 +276,26 @@ public class MainFrame extends JFrame {
 		frame.add(mTempoSlider);
 		mToolBar.add(frame);
 		
+		//SOUTH SECTION
+		frame = new JPanel();
+		frame.setLayout(new BoxLayout(frame,BoxLayout.LINE_AXIS));
+		
 		//Create the Memory Visualiser
 		mMemoryVisualiser = new MemoryVisualiser(mController.getParser());
-		mContainer.add(mMemoryVisualiser,BorderLayout.SOUTH);
+		frame.add(mMemoryVisualiser);
+		
+		//Create the console
+		mConsole = new Console();
+		mController.getParser().setIoManager(mConsole);
+		noWrapPanel = new JPanel(new BorderLayout());
+		noWrapPanel.add(mConsole);
+		scrollPane1 = new JScrollPane(noWrapPanel);
+		Dimension size = new Dimension(150,100);
+		scrollPane1.setPreferredSize(size);
+		
+		frame.add(scrollPane1);
+		
+		mContainer.add(frame,BorderLayout.SOUTH);
 	}
 	
 	/**
