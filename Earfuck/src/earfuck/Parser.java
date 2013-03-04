@@ -12,10 +12,22 @@ public class Parser {
 	MidiStreamPerformer mPerformer = new MidiStreamPerformer();
 	
 	/**
+	 * This handles input/output.
+	 */
+	IoManager mIoManager = new SystemIoManager();
+	
+	/**
 	 * Either 'numeric' or 'ascii' - this determines how we render characters
 	 * when we print the contents of a cell to output. 
 	 */
 	String mOutputMode;
+	
+	/**
+	 * If the conductor is currently waiting for input
+	 * from the audience, he will refuse to play any further through
+	 * the piece.
+	 */
+	boolean mWaitingForInput;
 	
 	/**
 	 * The 'ambiance' is the state of the audience's mind, as represented by a
@@ -106,8 +118,6 @@ public class Parser {
 	 */
 	int mBracketsSkipped;		
 	
-	Scanner sc;
-	
 	public Parser() {
 		mOutputMode = "numeric";
 		refreshState();
@@ -122,6 +132,7 @@ public class Parser {
 		mMentalState = 0;
 		mExcitement = INITIAL_ATTACK_VALUE;
 		mNoteDuration = 0.25f;
+		mWaitingForInput = false;
 		
 		mComposition = new String[0];
 		mPointer = 0;
@@ -129,8 +140,6 @@ public class Parser {
 		mPreviousNote = null;
 		mBracketsSkipped = 0;
 		mBrackets = new Stack<Integer>();
-		
-		sc = new Scanner(System.in);
 	}
 	
 	/**
@@ -154,14 +163,15 @@ public class Parser {
 		}
 		
 		mPerformer.onPieceEnd();
-		sc.close();
 	}
 	
 	
 	public void stepForward() {
-		String command = mComposition[mPlace];
-		executeCommand(command);
-		mPlace++;
+		if (!mWaitingForInput) {
+			String command = mComposition[mPlace];
+			executeCommand(command);
+			mPlace++;
+		}
 	}
 	
 	/**
@@ -226,24 +236,14 @@ public class Parser {
 			if (mOptimism < 0) {
 				// When the audience are pessimistic on a rest, we ask for
 				// a value from the user to cheer them up.
-				System.out.print(":> ");					
-				Integer x = sc.nextInt();		
-				mAmbiance.put(mMentalState,x);
+				mWaitingForInput = true;
+				mIoManager.requestInput(this);
 			}
 			else if (mOptimism > 0) {
 				// When the audience are optimistic on a rest, they want to
 				// tell everyone about it so they tell STDOUT about their
 				// ambiance in the current mental state.
-				if (mOutputMode.equals("numeric")) {
-					// In numeric mode, we display the ambiance value as an
-					// integer, and add a newline when outputting.
-					System.out.println(mAmbiance.get(mMentalState));
-				}
-				else if (mOutputMode.equals("ascii")) {
-					// In ascii mode, we display the ambiance value as an
-					// ascii char, and don't print a newline afterwards.
-					System.out.print((char)(mAmbiance.get(mMentalState).intValue()));
-				}
+				mIoManager.output(mAmbiance.get(mMentalState));
 			}
 			mPerformer.addNote("R", mNoteDuration);
 			mPerformer.onRest();
@@ -280,6 +280,14 @@ public class Parser {
 			mPreviousNote = command;
 		}
 	}
+	
+	public void giveInput(int value) {
+		if (mWaitingForInput) {
+			mAmbiance.put(mMentalState,value);
+			mWaitingForInput = false;
+		}
+	}
+	
 	/**
 	 * Calculates the excitement of the performers, based on their current 
 	 * excitement levels, and on their optimism.
@@ -347,5 +355,13 @@ public class Parser {
 	
 	public int getTempo() {
 		return mPerformer.getTempo();
+	}
+	
+	public void setIoManager(IoManager manager) {
+		mIoManager = manager;
+	}
+	
+	public IoManager getIoManager() {
+		return mIoManager;
 	}
 }
