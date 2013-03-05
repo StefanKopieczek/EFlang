@@ -328,6 +328,11 @@ public class VibeController implements ActionListener {
 		}
 		setPlayState(PlayState.STOPPED);
 		mParser.refreshState();
+		mFrame.getEFTextPane().setCurrentCommandIndex(-1);
+		mFrame.getEFTextPane().invalidate();
+
+		mFrame.getEARTextPane().setCurrentCommandIndex(-1);
+		mFrame.getEARTextPane().invalidate();
 		mFrame.updateMemoryVisualiser();
 	}
 	

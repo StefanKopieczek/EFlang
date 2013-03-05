@@ -25,7 +25,7 @@ public class MemoryVisualiser extends JLabel {
 	/**
 	 * The number of rows of cells to display
 	 */
-	private int mNumberOfRows = 5;
+	private int mNumberOfRows = 3;
 
 	/**
 	 * Whether to scroll the display vertically as 

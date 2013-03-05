@@ -28,6 +28,11 @@ public class CodePane extends JTextPane {
 		Style noStyle = this.addStyle("NoStyle", null);
 		String code = getText();
 		
+		getStyledDocument().setCharacterAttributes(0, getText().length(), noStyle, true);
+		if (i==-1) {
+			return;
+		}
+		
 		int j=0;
 		while (i>0) {
 			if (code.charAt(j)==mDivider) {
@@ -36,8 +41,10 @@ public class CodePane extends JTextPane {
 			j++;
 		}
 		int commandLength = code.substring(j).indexOf(mDivider);
-		
-		getStyledDocument().setCharacterAttributes(0, getText().length(), noStyle, true);
+		if (commandLength==-1) {
+			commandLength = code.substring(j).length();
+		}
+
 		getStyledDocument().setCharacterAttributes(j,commandLength, style, true);
 	}
 }

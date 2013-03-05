@@ -21,22 +21,20 @@ public class StepForwardWorker extends SwingWorker<Void, Integer> {
 	
 	@Override
 	public Void doInBackground() {
+		//If we've reached the end of the piece, stop playback.
+		if (mController.getParser().getPlace() >= 
+				mController.getParser().getPiece().length) {
+			mController.stop();
+			return null;
+		}
 		publish(mController.getParser().getPlace());
-		
 		//Change tempo if the slider has been moved
 		int newTempo = mController.getFrame().getTempo();
 		if (newTempo != mController.getParser().getTempo()) {
 			mController.getParser().setTempo(newTempo);
 		}
-		
-		//If we've reached the end of the piece, stop playback.
-		if (mController.getParser().getPlace() >= 
-				mController.getParser().getPiece().length) {
-			mController.stop();
-		}
-		else {
-			mController.getParser().stepForward();
-		}
+		mController.getParser().stepForward();
+		mController.pause();
 		return null;
 	}
 	
@@ -63,10 +61,5 @@ public class StepForwardWorker extends SwingWorker<Void, Integer> {
 		mController.getFrame().getEARTextPane().invalidate();
 		
 		mController.getFrame().updateMemoryVisualiser();
-	}
-	
-	@Override
-	protected void done() {
-		mController.setPlayState(VibeController.PlayState.PAUSED);
 	}
 }

@@ -21,6 +21,12 @@ VibeController mController;
 	@Override
 	public Void doInBackground() {
 		while (!this.isCancelled()) {
+			//If we've reached the end of the piece, stop playback.
+			if (mController.getParser().getPlace() >= 
+					mController.getParser().getPiece().length) {
+				mController.stop();
+				break;
+			}
 			publish(mController.getParser().getPlace());
 			//Change tempo if the slider has been moved
 			int newTempo = mController.getFrame().getTempo();
@@ -28,11 +34,6 @@ VibeController mController;
 				mController.getParser().setTempo(newTempo);
 			}
 			mController.getParser().stepForward();
-			//If we've reached the end of the piece, stop playback.
-			if (mController.getParser().getPlace() >= 
-					mController.getParser().getPiece().length) {
-				mController.stop();
-			}
 		}
 		return null;
 	}
@@ -60,10 +61,5 @@ VibeController mController;
 		mController.getFrame().getEARTextPane().invalidate();
 		
 		mController.getFrame().updateMemoryVisualiser();
-	}
-	
-	@Override
-	protected void done() {
-		mController.setPlayState(VibeController.PlayState.STOPPED);
 	}
 }
