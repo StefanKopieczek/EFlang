@@ -289,7 +289,10 @@ public class VibeController implements ActionListener {
 	 * Begin playing the current program (from current location)
 	 * until told to stop.
 	 */
-	private void play() {
+	public void play() {
+		if (mPlayState==PlayState.PLAYING) {
+			return;
+		}
 		String EFCode = mFrame.getEFCode();
 		
 		if (mPlayState==PlayState.STOPPED) {
@@ -306,15 +309,20 @@ public class VibeController implements ActionListener {
 	/**
 	 * Pauses playback.
 	 */
-	private void pause() {
-		mWorker.cancel(true);
-		setPlayState(PlayState.PAUSED);
+	public void pause() {
+		if (mPlayState==PlayState.PLAYING) {
+			mWorker.cancel(true);
+			setPlayState(PlayState.PAUSED);
+		}
 	}
 	
 	/**
 	 * Stop playback. Call to setPlayState resets program state.
 	 */
-	private void stop() {
+	public void stop() {
+		if (mPlayState==PlayState.STOPPED) {
+			return;
+		}
 		if (mWorker!=null) {
 			mWorker.cancel(true);
 		}
@@ -326,7 +334,10 @@ public class VibeController implements ActionListener {
 	/**
 	 * Steps the EF program forward one command.
 	 */
-	private void step() {
+	public void step() {
+		if (mPlayState==PlayState.PLAYING) {
+			return;
+		}
 		if (mPlayState==PlayState.STOPPED) {
 			mParser.refreshState();
 		}

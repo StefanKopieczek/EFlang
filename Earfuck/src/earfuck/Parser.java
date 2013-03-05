@@ -1,6 +1,6 @@
 package earfuck;
-import java.util.Scanner;
 import java.util.Stack;
+import java.util.concurrent.CountDownLatch;
 
 public class Parser {	
 	private static Integer INITIAL_ATTACK_VALUE = 63;
@@ -27,7 +27,7 @@ public class Parser {
 	 * from the audience, he will refuse to play any further through
 	 * the piece.
 	 */
-	boolean mWaitingForInput;
+	CountDownLatch mAwaitingInput;
 	
 	/**
 	 * The 'ambiance' is the state of the audience's mind, as represented by a
@@ -86,14 +86,9 @@ public class Parser {
 	String[] mComposition;	
 	
 	/**
-	 * The index of the current musical token that is being processed.
-	 */
-	int mPointer;
-	
-	/**
 	 * Current place in the music.
 	 */
-	Integer mPlace;
+	private int mPlace;
 	
 	/**
 	 * The last note played.
@@ -132,10 +127,9 @@ public class Parser {
 		mMentalState = 0;
 		mExcitement = INITIAL_ATTACK_VALUE;
 		mNoteDuration = 0.25f;
-		mWaitingForInput = false;
+		mAwaitingInput = new CountDownLatch(0);
 		
 		mComposition = new String[0];
-		mPointer = 0;
 		mPlace = 0;
 		mPreviousNote = null;
 		mBracketsSkipped = 0;
@@ -167,11 +161,15 @@ public class Parser {
 	
 	
 	public void stepForward() {
-		if (!mWaitingForInput) {
-			String command = mComposition[mPlace];
-			executeCommand(command);
-			mPlace++;
+		String command = mComposition[mPlace];
+		executeCommand(command);
+		try {
+			mAwaitingInput.await();
+		} 
+		catch (InterruptedException e) {
+			return;
 		}
+		mPlace++;
 	}
 	
 	/**
@@ -236,7 +234,7 @@ public class Parser {
 			if (mOptimism < 0) {
 				// When the audience are pessimistic on a rest, we ask for
 				// a value from the user to cheer them up.
-				mWaitingForInput = true;
+				mAwaitingInput = new CountDownLatch(1);
 				mIoManager.requestInput(this);
 			}
 			else if (mOptimism > 0) {
@@ -282,10 +280,8 @@ public class Parser {
 	}
 	
 	public void giveInput(int value) {
-		if (mWaitingForInput) {
-			mAmbiance.put(mMentalState,value);
-			mWaitingForInput = false;
-		}
+		mAmbiance.put(mMentalState,value);
+		mAwaitingInput.countDown();
 	}
 	
 	/**
@@ -359,6 +355,10 @@ public class Parser {
 	
 	public void setIoManager(IoManager manager) {
 		mIoManager = manager;
+	}
+	
+	public CountDownLatch isWaitingForInput() {
+		return mAwaitingInput;
 	}
 	
 	public IoManager getIoManager() {

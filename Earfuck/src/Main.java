@@ -11,7 +11,7 @@ class Main {
 	public static void main(String args[]) throws EARException {
 		Parser parser = new Parser();
 		EARCompiler compiler = new EARCompiler();
-		String EFCode = compiler.compile(EARPrograms.fibonacci);
+		String EFCode = compiler.compile(EARPrograms.factorial);
 
 		Pattern pattern = Pattern.compile("(\\S{1,2} ?){1,10}");
 		Matcher matcher = pattern.matcher(EFCode);

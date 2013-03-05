@@ -14,7 +14,7 @@ import earfuck.Parser;
  * @author Ryan Norris
  *
  */
-public class Console extends JTextPane implements IoManager{
+public class Console extends JTextPane implements IoManager {
 	/**
 	 * A list of the lines of text in the console.
 	 * Does not include the text being currently entered.

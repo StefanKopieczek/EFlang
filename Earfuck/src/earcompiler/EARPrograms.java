@@ -24,18 +24,18 @@ public class EARPrograms {
 									"ENDWHILE;" +
 									"OUT 1;";
 	
-	public static String factorial = "IN 0; (Take input)" +
-									"ADD @0 1 2; " +
-									"SUB 1 2;" +
-									"WHILE 2; " +
-									"WHILE 2; " +
-									"COPY @2 3 4; (This is a comment)" +
-									"MUL @3 @1 0 4;"+
-									"MOV @0 1; " +
-									"SUB 1 2; " +
-									"ENDWHILE; " +
-									"ENDWHILE; " +
-									"OUT 1;";
+	public static String factorial = "IN 0\n" +
+									"ADD @0 1 2\n" +
+									"SUB 1 2\n" +
+									"WHILE 2\n" +
+									"WHILE 2\n" +
+									"COPY @2 3 4\n" +
+									"MUL @3 @1 0 4\n"+
+									"MOV @0 1\n" +
+									"SUB 1 2\n" +
+									"ENDWHILE\n" +
+									"ENDWHILE\n" +
+									"OUT 1\n";
 	
 	public static String destroyer = "IN 0; OUT 0; ZERO 0; OUT 0;";
 	public static String fibonacci_broken = "ADD 1 0; WHILE 0; ADD @0 1 2; OUT 1; " +

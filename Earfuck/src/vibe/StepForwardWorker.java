@@ -29,38 +29,40 @@ public class StepForwardWorker extends SwingWorker<Void, Integer> {
 			mController.getParser().setTempo(newTempo);
 		}
 		
-		mController.getParser().stepForward();
+		//If we've reached the end of the piece, stop playback.
+		if (mController.getParser().getPlace() >= 
+				mController.getParser().getPiece().length) {
+			mController.stop();
+		}
+		else {
+			mController.getParser().stepForward();
+		}
 		return null;
 	}
 	
 	@Override
 	protected void process(List<Integer> indices) {
-		try {
-			//Get EF command index
-			int currentEFCommand = indices.get(indices.size()-1);
-			//Get EAR command index
-			int currentEARLine = 0;
-			ArrayList<Integer> earLineStartPositions = 
-					mController.getEARCommandStartPositions();
-			for (int i=0; i<earLineStartPositions.size(); i++) {
-				if (earLineStartPositions.get(i) <= currentEFCommand) {
-					currentEARLine = i;
-				}
+		//Get EF command index
+		int currentEFCommand = indices.get(indices.size()-1);
+		//Get EAR command index
+		int currentEARLine = 0;
+		ArrayList<Integer> earLineStartPositions = 
+				mController.getEARCommandStartPositions();
+		for (int i=0; i<earLineStartPositions.size(); i++) {
+			if (earLineStartPositions.get(i) <= currentEFCommand) {
+				currentEARLine = i;
 			}
-			
-			mController.getFrame().getEFTextPane().
-					setCurrentCommandIndex(currentEFCommand);
-			mController.getFrame().getEFTextPane().invalidate();
-			
-			mController.getFrame().getEARTextPane().
-					setCurrentCommandIndex(currentEARLine);
-			mController.getFrame().getEARTextPane().invalidate();
-			
-			mController.getFrame().updateMemoryVisualiser();
 		}
-		catch (IndexOutOfBoundsException ex) {
-			this.cancel(true);
-		}
+		
+		mController.getFrame().getEFTextPane().
+				setCurrentCommandIndex(currentEFCommand);
+		mController.getFrame().getEFTextPane().invalidate();
+		
+		mController.getFrame().getEARTextPane().
+				setCurrentCommandIndex(currentEARLine);
+		mController.getFrame().getEARTextPane().invalidate();
+		
+		mController.getFrame().updateMemoryVisualiser();
 	}
 	
 	@Override
