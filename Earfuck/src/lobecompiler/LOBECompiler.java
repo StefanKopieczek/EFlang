@@ -20,8 +20,7 @@ public class LOBECompiler {
 		mWorkingMemory = new String[size];
 		for (int i = 0; i < size; i++) {
 			mSymbols.put(new Variable("!w"+i), i);
-			mWorkingMemory[i] = "!w"+i;
-			
+			mWorkingMemory[i] = "!w"+i;			
 		}			
 	}
 	
@@ -37,8 +36,7 @@ public class LOBECompiler {
 		return mSymbols.get(v);
 	}
 	
-	public Value evaluate(Operator op, Value val1, Value val2) {
-		Value result;
+	public Value evaluate(Operator op, Value val1, Value val2) {		
 		String arg1Name = val1.getEARReference(this);
 		String arg2Name = val2.getEARReference(this);
 		String opName;
@@ -53,13 +51,13 @@ public class LOBECompiler {
 			arg2Name = "@1";
 		}
 		
-		if (op == op.ADD) {
+		if (op == Operator.ADD) {
 			opName = "ADD";
 		}
-		else if (op == op.MUL) {
+		else if (op == Operator.MUL) {
 			opName = "MUL";
 		}
-		else if (op == op.SUB) {
+		else if (op == Operator.SUB) {
 			opName = "SUB";
 		}
 		else {
@@ -70,7 +68,7 @@ public class LOBECompiler {
 		Variable targetVar = mSymbols.getNewInternalVariable();
 		String targetVarName = targetVar.getEARReference(this);
 		
-		if (op != op.MUL){ 
+		if (op != Operator.MUL){ 
 			earCommand += opName + " " + arg1Name + " " + arg2Name + "; ";
 			earCommand += "MOV " + arg2Name + " " + targetVarName + " !w2;";
 		}
@@ -92,8 +90,7 @@ public class LOBECompiler {
 		return targetVar; // TODO;
 	}
 	
-	public Variable evaluate(Predicate pred, Value val1, Value val2) {
-		Value result;
+	public Variable evaluate(Predicate pred, Value val1, Value val2) {		
 		String arg1Name = val1.getEARReference(this);
 		String arg2Name = val2.getEARReference(this);
 		String resultCell;
