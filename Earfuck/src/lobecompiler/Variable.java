@@ -12,7 +12,7 @@ public class Variable implements Value {
 		return 1;
 	}
 	
-	public Value simplify(LOBECompiler compiler) {
+	public Value evaluate(LOBECompiler compiler) {
 		return this;
 	}
 	

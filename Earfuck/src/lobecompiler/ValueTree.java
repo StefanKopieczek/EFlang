@@ -17,9 +17,9 @@ public class ValueTree implements Evaluable {
 		return Math.max(mLeft.getDepth(), mRight.getDepth()) + 1;
 	}
 	
-	public Value simplify(LOBECompiler compiler) {	
-		Value leftVal = mLeft.simplify(compiler);
-		Value rightVal = mRight.simplify(compiler);
+	public Value evaluate(LOBECompiler compiler) {	
+		Value leftVal = mLeft.evaluate(compiler);
+		Value rightVal = mRight.evaluate(compiler);
 		return compiler.evaluate(mOperator, leftVal, rightVal);
 	}
 }

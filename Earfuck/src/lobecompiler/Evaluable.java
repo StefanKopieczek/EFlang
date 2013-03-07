@@ -1,6 +1,6 @@
 package lobecompiler;
 
 public interface Evaluable {
-	public Value simplify(LOBECompiler compiler);
+	public Value evaluate(LOBECompiler compiler);
 	public int getDepth();
 }
