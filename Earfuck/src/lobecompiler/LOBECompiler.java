@@ -1,23 +1,28 @@
 package lobecompiler;
 
 import earcompiler.EARCompiler;
+import earcompiler.EARException;
 
 public class LOBECompiler {
 		
 	private LOBESymbolTable mSymbols;
 	private EARCompiler earCompiler;
 	private String mOutput;	
+	private String[] mWorkingMemory;
 	
 	public LOBECompiler() {
 		mSymbols = new LOBESymbolTable();
-		initWorkingMemory();
+		initWorkingMemory(10);
 		mOutput = "";
 	}
 	
-	private void initWorkingMemory() {
-		mSymbols.put(new Variable("!w0"), 0);
-		mSymbols.put(new Variable("!w1"), 1);
-		mSymbols.put(new Variable("!w2"), 2);
+	private void initWorkingMemory(int size) {
+		mWorkingMemory = new String[size];
+		for (int i = 0; i < size; i++) {
+			mSymbols.put(new Variable("!w"+i), i);
+			mWorkingMemory[i] = "!w"+i;
+			
+		}			
 	}
 	
 	public String getEARReference(Constant c) {
@@ -76,7 +81,13 @@ public class LOBECompiler {
 		                  targetVarName + " " +
 					      "!w2;";
 		}
-		mOutput += earCompiler.compile(earCommand);
+		
+		try {
+			mOutput += earCompiler.compile(earCommand);
+		}
+		catch(EARException e) {
+			// Hmm this is sad but oh well.
+		}
 		
 		return targetVar; // TODO;
 	}
