@@ -1,5 +1,7 @@
 package lobecompiler;
 
+import java.util.Stack;
+
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
 
@@ -9,11 +11,37 @@ public class LOBECompiler {
 	private EARCompiler earCompiler;
 	private String mOutput;	
 	private String[] mWorkingMemory;
+	private Stack<Variable> mIfs;
 	
 	public LOBECompiler() {
 		mSymbols = new LOBESymbolTable();
 		initWorkingMemory(10);
 		mOutput = "";
+	}
+	
+	private void execute(LOBEInstruction instruction) 
+			throws InvalidParameterException {
+		if (instruction.mCommand == LOBECommand.PRINT) {
+			if (instruction.mArguments.length != 1) {
+				throw new InvalidParameterException("PRINT takes exactly one parameter.");
+			}
+			Value argval = instruction.mArguments[0].evaluate(this);
+			mOutput += "OUT " + argval.getEARReference(this);			
+		}
+		else if (instruction.mCommand == LOBECommand.SET) {
+			if (instruction.mArguments.length != 2) {
+				throw new InvalidParameterException("SET takes exactly two parameters.");
+			}
+			if (!(instruction.mArguments[0] instanceof Variable)) {
+				throw new InvalidParameterException("The first argument to SET must be a variable.");
+			}
+			Variable target = (Variable)instruction.mArguments[0];
+			Value source = instruction.mArguments[1].evaluate(this);
+			mOutput += "COPY " + source.getEARReference(this) + " " + mSymbols.get(target) + " " + mWorkingMemory[0];
+		}
+		else if (instruction.mCommand == LOBECommand.IF) {
+			
+		}
 	}
 	
 	private void initWorkingMemory(int size) {
@@ -35,6 +63,7 @@ public class LOBECompiler {
 	public int getPointer(Variable v) {
 		return mSymbols.get(v);
 	}
+		
 	
 	public Value evaluate(Operator op, Value val1, Value val2) {		
 		String arg1Name = val1.getEARReference(this);

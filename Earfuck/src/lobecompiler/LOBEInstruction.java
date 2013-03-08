@@ -2,9 +2,10 @@ package lobecompiler;
 
 public class LOBEInstruction {
 	public LOBECommand mCommand;
-	public String mArgs;
-	public LOBEInstruction(LOBECommand cmd, String args) {
+	public Evaluable[] mArguments;
+	
+	public LOBEInstruction(LOBECommand cmd, Evaluable[] args) {
 		mCommand = cmd;
-		mArgs = args;
+		mArguments = args;
 	}
 }

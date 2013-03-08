@@ -1,6 +1,6 @@
 package lobecompiler;
 
-public class Conditional {
+public class Conditional implements Evaluable {
 	Predicate mPredicate;
 	Evaluable mLeft;
 	Evaluable mRight;
@@ -15,5 +15,9 @@ public class Conditional {
 		Value left = mLeft.evaluate(compiler);
 		Value right = mRight.evaluate(compiler);
 		return compiler.evaluate(mPredicate, left, right);
+	}
+	
+	public int getDepth() {
+		return 1 + Math.max(mLeft.getDepth(), mRight.getDepth());
 	}
 }
