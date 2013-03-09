@@ -129,7 +129,7 @@ public class VibeController implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent action) {
 		if (action.getActionCommand().equals("compile")) {
-			compileEARCode();
+			compile();
 			return;
 		}
 		if (action.getActionCommand().equals("exit")) {
@@ -185,7 +185,7 @@ public class VibeController implements ActionListener {
 		String EARCode = null;
 		if (mPlayState==PlayState.STOPPED) {
 			try {
-				EARCode = mEARCompiler.compile(LOBECode);
+				EARCode = mLOBECompiler.compile(LOBECode);
 				mFrame.setEARCode(EARCode);
 				//mEARLineStartPositions = mEARCompiler.getCommandStartPositions();
 			} catch (Exception e) {
