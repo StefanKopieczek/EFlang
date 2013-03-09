@@ -186,7 +186,7 @@ public class LOBECompiler {
 					if (val2 instanceof Constant) {
 						// Can't use a constant as the second argument, so back 1st arg up
 						// and switch the order of the arguments.
-						Value temp = backup((Variable)val2, targetVar, mWorkingMemory[0]);
+						Value temp = backup((Variable)val1, targetVar, mWorkingMemory[0]);
 						val1 = val2;
 						val2 = temp;
 					}
@@ -227,7 +227,7 @@ public class LOBECompiler {
 					if (val2 instanceof Constant) {
 						// Can't use a constant as the second argument, so back 1st arg up
 						// and switch the order of the arguments.
-						Value temp = backup((Variable)val2, targetVar, mWorkingMemory[0]);
+						Value temp = backup((Variable)val1, targetVar, mWorkingMemory[0]);
 						val1 = val2;
 						val2 = temp;
 					}
