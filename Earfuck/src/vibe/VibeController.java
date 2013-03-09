@@ -179,6 +179,10 @@ public class VibeController implements ActionListener {
 	}
 	
 	private void compile() {
+		mFrame.setHighLevelCode(mFrame.getHighLevelCode().
+				replaceAll("\\\r\\\n", "\\\n"));
+		mFrame.setEARCode(mFrame.getEARCode().
+				replaceAll("\\\r\\\n", "\\\n"));
 		if (mMode==VibeMode.HIGHLEVEL) {
 			compileLOBECode();
 			compileEARCode();
@@ -406,7 +410,9 @@ public class VibeController implements ActionListener {
 	 */
 	public void pause() {
 		if (mPlayState==PlayState.PLAYING) {
-			mWorker.cancel(true);
+			if (mWorker!=null) {
+				mWorker.cancel(true);
+			}
 			setPlayState(PlayState.PAUSED);
 		}
 	}
@@ -441,12 +447,12 @@ public class VibeController implements ActionListener {
 		if (mPlayState==PlayState.STOPPED) {
 			mParser.refreshState();
 		}
+		setPlayState(PlayState.PLAYING);
 		if (mParser.getPiece().length==0) {
 			mParser.giveMusic(mFrame.getEFCode());
 		}
 		mStepWorker = new StepForwardWorker(this);
 		mStepWorker.execute();
-		setPlayState(PlayState.PLAYING);
 	}
 	
 	/**

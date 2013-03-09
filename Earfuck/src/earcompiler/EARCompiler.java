@@ -103,7 +103,7 @@ public class EARCompiler {
 		EARCode = EARCode.replaceAll("//.*\\n","\n");
 
 		//Split into individual instructions
-		String[] instructions = EARCode.split("\\n+");
+		String[] instructions = EARCode.split("(\\r?\\n)+");
 		
 		output += currentNote.toString()+" ";
 		
