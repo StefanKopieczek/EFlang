@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
+import lobecompiler.LOBECompiler;
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
 import earfuck.Parser;
@@ -34,6 +36,14 @@ public class VibeController implements ActionListener {
 	 * to allow live code highlighting during playback.
 	 */
 	private EARCompiler mEARCompiler;
+	
+	/**
+	 * The LOBE compiler used to compile the code in the Lobe box
+	 * into EAR code. <br/>
+	 * The compiler also should return a suitable array of line markings
+	 * to allow live code highlighting during playback.
+	 */
+	private LOBECompiler mLOBECompiler;
 	
 	/**
 	 * The EF Parser to use to playback the compiled EF code.
@@ -103,6 +113,7 @@ public class VibeController implements ActionListener {
 	public VibeController(MainFrame frame) {
 		mFrame = frame;
 		mEARCompiler = new EARCompiler();
+		mLOBECompiler = new LOBECompiler();
 		mOpenFilePath = null;
 		mParser = new Parser();
 		mWorker = null;
@@ -159,6 +170,30 @@ public class VibeController implements ActionListener {
 		}
 	}
 	
+	private void compile() {
+		if (mMode==VibeMode.HIGHLEVEL) {
+			compileLOBECode();
+			compileEARCode();
+		}
+		else if (mMode==VibeMode.EAR){
+			compileEARCode();
+		}
+	}
+	
+	private void compileLOBECode() {
+		String LOBECode = mFrame.getHighLevelCode();
+		String EARCode = null;
+		if (mPlayState==PlayState.STOPPED) {
+			try {
+				EARCode = mEARCompiler.compile(LOBECode);
+				mFrame.setEARCode(EARCode);
+				//mEARLineStartPositions = mEARCompiler.getCommandStartPositions();
+			} catch (Exception e) {
+				mFrame.setEARCode(e.getMessage());
+			}
+		}
+	}
+	
 	/**
 	 * Uses mEARCompiler to compile the code in EAR box to EF code.
 	 * Puts the EF code into the EF box.
@@ -188,9 +223,8 @@ public class VibeController implements ActionListener {
 	
 	/**
 	 * Opens an EF, EAR or Higher Level language file. <br/>
-	 * Should intelligently switch mode and put the code into the correct box
-	 * depending on file extension. <br/>
-	 * Currently only inputs to the EAR box.
+	 * Switch mode and put the code into the correct box
+	 * depending on file extension.
 	 */
 	private void openFile() {
 		stop();
@@ -214,7 +248,28 @@ public class VibeController implements ActionListener {
 				}
 				
 				br.close();
-				mFrame.setEARCode(builder.toString());
+				
+				//Decide what to do based on file extension
+				String name = file.getName();
+				String extension = "";
+				int i = name.lastIndexOf('.');
+				if ((i>0) && (i<name.length()-1)) {
+					extension = name.substring(i+1).toLowerCase();
+				}
+				
+				if (extension.equals("ef")) {
+					mFrame.setEFCode(builder.toString());
+					setMode(VibeMode.EF);
+				}
+				else if (extension.equals("ear")) {
+					mFrame.setEARCode(builder.toString());
+					setMode(VibeMode.EAR);
+				}
+				else if (extension.equals("lobe")) {
+					mFrame.setHighLevelCode(builder.toString());
+					setMode(VibeMode.HIGHLEVEL);
+				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -250,7 +305,7 @@ public class VibeController implements ActionListener {
 			return;
 		}
 		File file = new File(mOpenFilePath);
-		saveFile(file,mFrame.getEARCode());
+		saveFile(file,getCurrentCode());
 	}
 	
 	/**
@@ -265,7 +320,7 @@ public class VibeController implements ActionListener {
 		
 		if (returnVal==JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			saveFile(file, mFrame.getEARCode());
+			saveFile(file, getCurrentCode());
 			
 			mOpenFilePath = file.getPath();
 		}
@@ -283,6 +338,38 @@ public class VibeController implements ActionListener {
 		mFrame.setEARCode("");
 		mFrame.setEFCode("");
 		mFrame.setHighLevelCode("");
+		
+		String[] options = new String[]{"LOBE","EAR","RAW EF"};
+		int choice = JOptionPane.showOptionDialog(mFrame, 
+								"Which type of file would you like to create?", 
+								"Please choose a file type", 
+								JOptionPane.DEFAULT_OPTION, 
+								JOptionPane.QUESTION_MESSAGE, 
+								null, 
+								options, 
+								options[0]);
+		
+		switch (choice) {
+		case 0: setMode(VibeMode.HIGHLEVEL);
+				break;
+		case 1: setMode(VibeMode.EAR);
+				break;
+		case 2: setMode(VibeMode.EF);
+				break;
+		}
+	}
+	
+	/**
+	 * Gets the code from the box currently being edited.
+	 * @return
+	 */
+	public String getCurrentCode() {
+		switch (mMode) {
+		case EF: return mFrame.getEFCode();
+		case EAR: return mFrame.getEARCode();
+		case HIGHLEVEL: return mFrame.getHighLevelCode();
+		default: return null;
+		}
 	}
 	
 	/**
