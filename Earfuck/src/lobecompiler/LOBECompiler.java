@@ -127,10 +127,10 @@ public class LOBECompiler {
 			Conditional whileCond = mWhileConds.pop();
 			Variable whileVar = whileCond.evaluate(this);
 			Variable whileToVar = mWhileCells.pop();
-			mOutput += "COPY @" + whileVar.getRef(this)
-					+ " " + whileToVar.getRef(this)
-					+ " " + mWorkingMemory[0].getRef(this) 
-					+ "\n";
+//			mOutput += "COPY @" + whileVar.getRef(this)
+//					+ " " + whileToVar.getRef(this)
+//					+ " " + mWorkingMemory[0].getRef(this) 
+//					+ "\n";
 			mOutput += "ENDWHILE\n\n";
 		} else {
 			throw new InvalidOperationTokenException("Invalid command "
