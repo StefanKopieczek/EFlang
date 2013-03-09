@@ -15,12 +15,29 @@ public class LOBECompiler {
 	private Stack<Variable> mWhileCells;
 
 	public LOBECompiler() {
+		reset();
+	}
+	
+	/**
+	 * Resets state to that of a new compiler.
+	 */
+	private void reset() {
 		mSymbols = new LOBESymbolTable();
 		initWorkingMemory(10);
 		mOutput = "";
 		mIfs = new Stack<Variable>();
 		mWhileConds = new Stack<Conditional>();
 		mWhileCells = new Stack<Variable>();
+	}
+	
+	public String compile(String LOBECode) throws InvalidParameterException {
+		reset();
+		LOBEParser parser = new LOBEParser();
+		LOBEInstruction[] instructions = parser.parseAll(LOBECode);
+		for (LOBEInstruction instruction : instructions) {
+			execute(instruction);
+		}
+		return mOutput;
 	}
 
 	public void execute(LOBEInstruction instruction)
