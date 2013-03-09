@@ -10,9 +10,6 @@ public class LOBECompiler {
 	private LOBESymbolTable mSymbols;
 	public String mOutput;
 	private Variable[] mWorkingMemory;
-	private Variable mLeftVar;
-	private Variable mRightVar;
-	private Variable mCenterVar;
 	private Stack<Variable> mIfs;
 	private Stack<Conditional> mWhileConds;
 	private Stack<Variable> mWhileCells;
@@ -40,7 +37,7 @@ public class LOBECompiler {
 			}
 			else
 			{
-				target = mSymbols.getNewInternalVariable();
+				target = mSymbols.getNewInternalVariable(this);
 				mOutput += "MOV " + argval.getRef(this) + " " + target.getRef(this) + "\n";				
 			}			
 			mOutput += "OUT " + target.getRef(this) + "\n";			
@@ -71,22 +68,24 @@ public class LOBECompiler {
 						"IF takes exactly one parameter.");
 			}
 			Value argVal = instruction.mArguments[0].evaluate(this);
-			Variable ifVar = mSymbols.getNewInternalVariable();
+			Variable ifVar = mSymbols.getNewInternalVariable(this);
 			String maybeAt = (ifVar instanceof Variable) ? "@" : "";
 			mOutput += "COPY " + maybeAt + argVal.getRef(this)
 					+ " " + ifVar.getRef(this) 
 					+ " " + mWorkingMemory[0].getRef(this) 
 					+ "\n";
 			mIfs.add(ifVar);
+			mSymbols.lockVariable(ifVar);
 			mOutput += "WHILE " + ifVar.getRef(this) + "\n\n";
 		} else if (instruction.mCommand == LOBECommand.ENDIF) {
 			if (instruction.mArguments.length != 0) {
 				throw new InvalidParameterException(
 						"ENDIF takes no parameters.");
 			}
-			Variable ifVar = mIfs.pop();
+			Variable ifVar = mIfs.pop();			
 			mOutput += "ZERO " + ifVar.getRef(this) + "\n";
 			mOutput += "ENDWHILE\n\n";
+			mSymbols.unlockVariable(ifVar);
 		} else if (instruction.mCommand == LOBECommand.WHILE) {
 			if (instruction.mArguments.length != 1) {
 				throw new InvalidParameterException(
@@ -120,21 +119,16 @@ public class LOBECompiler {
 			throw new InvalidOperationTokenException("Invalid command "
 					+ instruction.mCommand);
 		}
+		mSymbols.clearInternalVars();
 	}
 
 	private void initWorkingMemory(int size) {
 		mWorkingMemory = new Variable[size];
 		for (int i = 0; i < size; i++) {
 			Variable v = new Variable("!w" + i);
-			mSymbols.put(v, i);
+			mSymbols.put(v, -i);
 			mWorkingMemory[i] = v;
 		}
-		mLeftVar = new Variable("!loc1");
-		mCenterVar = new Variable("!loc2");
-		mRightVar = new Variable("!loc3");
-		mSymbols.put(mLeftVar, -1);
-		mSymbols.put(mCenterVar, -2);
-		mSymbols.put(mCenterVar, -3);
 	}
 
 	public String getRef(Constant c) {
@@ -158,7 +152,7 @@ public class LOBECompiler {
 
 	public Value evaluate(Operator op, Value val1, Value val2) {
 		String opName;
-		Variable targetVar = mSymbols.getNewInternalVariable();
+		Variable targetVar = mSymbols.getNewInternalVariable(this);
 		Value result;
 		
 		// We require values to be either variables or constants.
@@ -182,7 +176,7 @@ public class LOBECompiler {
 					else {
 						// Back up the first argument.						
 						val1 = backup((Variable)val1, 
-								      mSymbols.getNewInternalVariable(),
+								      mSymbols.getNewInternalVariable(this),
 								      mWorkingMemory[0]);
 					}				
 				}
@@ -223,7 +217,7 @@ public class LOBECompiler {
 					else {
 						// Back up the first argument.						
 						val1 = backup((Variable)val1, 
-								      mSymbols.getNewInternalVariable(),
+								      mSymbols.getNewInternalVariable(this),
 								      mWorkingMemory[0]);
 					}				
 				}
@@ -395,7 +389,7 @@ public class LOBECompiler {
 					+ pred.name());
 		}
 
-		Variable targetVar = mSymbols.getNewInternalVariable();
+		Variable targetVar = mSymbols.getNewInternalVariable(this);
 		String targetVarName = targetVar.getRef(this);
 
 		earCommand += "COPY @" + resultCell + " " + targetVarName + " [[5]]\n";

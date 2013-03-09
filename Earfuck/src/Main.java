@@ -50,8 +50,7 @@ class Main {
 				               "SET temp (temp*2)\n" +
 				               "IF (b7==1)\n" +
 				               "SET answer (answer+temp)\n" +
-				               "ENDIF\n" +
-				               "SET temp (temp*2)\n" +				               
+				               "ENDIF\n" +			               
 				               "PRINT answer\n";
 				               
 				
