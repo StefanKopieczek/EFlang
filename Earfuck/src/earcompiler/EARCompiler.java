@@ -713,7 +713,7 @@ public class EARCompiler {
 	 * Copies cell 2 into cells 3 & 4, using cell 5 as working space.
 	 */
 	public EARInstruction COPY = new EARInstruction(
-			"COPY\\s+(@|@-)?\\d+\\s+(\\d+\\s+)+\\d+\\s*") {
+			"COPY\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)+-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			
@@ -762,7 +762,7 @@ public class EARCompiler {
 	 * Moves cell 2 into cells 3 & 4.
 	 */
 	public EARInstruction MOV = new EARInstruction(
-			"MOV\\s+(@|@-)?\\d+\\s+(\\d+\\s+)*\\d+\\s*") {
+			"MOV\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
 			
