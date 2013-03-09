@@ -2,10 +2,25 @@ package lobecompiler;
 
 public class Variable implements Value {
 	
-	private String mName;
+	public String mName;
 	
 	public Variable(String name) {
 		mName = name;
+	}
+	
+	@Override
+	public int hashCode() {
+		return mName.hashCode();
+	}
+	
+	@Override public boolean equals(Object obj) {
+		 if (obj == null)
+	            return false;
+	        if (obj == this)
+	            return true;
+	        if (obj.getClass() != getClass())
+	            return false;
+	        return obj.hashCode() == hashCode();
 	}
 	
 	public int getDepth() {
@@ -16,7 +31,7 @@ public class Variable implements Value {
 		return this;
 	}
 	
-	public String getEARReference(LOBECompiler compiler) {
-		return compiler.getEARReference(this);
+	public String getRef(LOBECompiler compiler) {		
+		return compiler.getRef(this);
 	}
 }

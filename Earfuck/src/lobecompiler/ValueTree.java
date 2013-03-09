@@ -6,8 +6,8 @@ public class ValueTree implements Evaluable {
 	public Evaluable mRight;	
 	
 	public ValueTree(Operator operator, 
-			             Evaluable left, 
-			             Evaluable right) {
+			         Evaluable left, 
+			         Evaluable right) {
 		mOperator = operator;
 		mLeft = left;
 		mRight = right;		

@@ -19,7 +19,7 @@ public class Constant implements Value {
 		return this;
 	}
 	
-	public String getEARReference(LOBECompiler compiler) {
-		return compiler.getEARReference(this);
+	public String getRef(LOBECompiler compiler) {
+		return compiler.getRef(this);
 	}
 }

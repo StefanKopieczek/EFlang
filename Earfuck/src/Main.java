@@ -1,26 +1,71 @@
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import earcompiler.EARCompiler;
+import lobecompiler.InvalidParameterException;
+import lobecompiler.LOBECompiler;
+import lobecompiler.LOBEInstruction;
+import lobecompiler.LOBEParser;
 import earcompiler.EARException;
-import earcompiler.EARPrograms;
 import earfuck.Parser;
 
 class Main {
 	public static void main(String args[]) throws EARException {
-		Parser parser = new Parser();
-		EARCompiler compiler = new EARCompiler();
-		String EFCode = compiler.compile(EARPrograms.factorial);
-
-		Pattern pattern = Pattern.compile("(\\S{1,2} ?){1,10}");
-		Matcher matcher = pattern.matcher(EFCode);
-		
-		while (matcher.find()) {
-			System.out.println(matcher.group());
+		LOBECompiler lobeCompiler = new LOBECompiler();
+		LOBEParser lobeParser = new LOBEParser();
+		String LOBESTRINGOMG = "SET b7 1\n" +
+				               "SET b6 0\n" +
+				               "SET b5 0\n" +
+				               "SET b4 1\n" +
+				               "SET b3 1\n" +
+				               "SET b2 0\n" +
+				               "SET b1 0\n" +
+				               "SET b0 1\n" +
+				               "SET temp 1\n" +
+				               "SET answer 0\n" +
+				               "IF (b0==1)\n" +
+				               "SET answer (answer+temp)\n" +
+				               "ENDIF\n" +
+				               "SET temp (temp*2)\n" +
+				               "IF (b1==1)\n" +
+				               "SET answer (answer+temp)\n" +
+				               "ENDIF\n" +
+				               "SET temp (temp*2)\n" +
+				               "IF (b2==1)\n" +
+				               "SET answer (answer+temp)\n" +
+				               "ENDIF\n" +
+				               "SET temp (temp*2)\n" +
+				               "IF (b3==1)\n" +
+				               "SET answer (answer+temp)\n" +
+				               "ENDIF\n" +
+				               "SET temp (temp*2)\n" +
+				               "IF (b4==1)\n" +
+				               "SET answer (answer+temp)\n" +
+				               "ENDIF\n" +
+				               "SET temp (temp*2)\n" +
+				               "IF (b5==1)\n" +
+				               "SET answer (answer+temp)\n" +
+				               "ENDIF\n" +
+				               "SET temp (temp*2)\n" +
+				               "IF (b6==1)\n" +
+				               "SET answer (answer+temp)\n" +
+				               "ENDIF\n" +
+				               "SET temp (temp*2)\n" +
+				               "IF (b7==1)\n" +
+				               "SET answer (answer+temp)\n" +
+				               "ENDIF\n" +
+				               "SET temp (temp*2)\n" +				               
+				               "PRINT answer\n";
+				               
+				
+		//String predTest = "SET a 3\nIF (a<3)\nPRINT 50\nENDIF";
+		//String LOBESTRINGOMG = "SET a 3\nIF (a==3)\nPRINT 17\nENDIF";
+		LOBEInstruction[] instructions = lobeParser.parseAll(LOBESTRINGOMG);
+		for (LOBEInstruction instruction : instructions) {
+			try {
+				lobeCompiler.execute(instruction);
+			} catch (InvalidParameterException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		
-		parser.giveMusic(EFCode);
-		parser.perform();
+		System.out.println(lobeCompiler.mOutput);
 	}
 }

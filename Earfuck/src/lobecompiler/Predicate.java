@@ -6,7 +6,7 @@ public enum Predicate {
 	LEQ("<="),
 	LT("<");
 	
-	private String mSymbol;
+	public String mSymbol;
 	
 	Predicate(String symbol) {
 		mSymbol = symbol;
