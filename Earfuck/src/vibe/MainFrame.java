@@ -153,6 +153,7 @@ public class MainFrame extends JFrame {
 		JPanel noWrapPanel;
 		JScrollPane scrollPane1, scrollPane2, scrollPane3;
 		mHighLevelTextPane = new CodePane();
+		mHighLevelTextPane.setDivider('\n');
 		noWrapPanel = new JPanel(new BorderLayout());
 		noWrapPanel.add(mHighLevelTextPane);
 		scrollPane1 = new JScrollPane(noWrapPanel);

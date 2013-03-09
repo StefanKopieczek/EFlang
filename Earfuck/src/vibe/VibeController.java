@@ -90,6 +90,13 @@ public class VibeController implements ActionListener {
 	private ArrayList<Integer> mEARLineStartPositions;
 	
 	/**
+	 * This array contains the start positions (in terms of EAR commands)
+	 * of each High Level command. <br/>
+	 * Used for code highlighting.
+	 */
+	private ArrayList<Integer> mHighLevelLineStartPositions;
+	
+	/**
 	 * The mode describes which type of code we're currently editing.<br/>
 	 * It can be HIGHLEVEL, EAR or EF.
 	 */
@@ -120,6 +127,7 @@ public class VibeController implements ActionListener {
 		mStepWorker = null;
 		mPlayState = PlayState.STOPPED;
 		mEARLineStartPositions = new ArrayList<Integer>();
+		mHighLevelLineStartPositions = new ArrayList<Integer>();
 	}
 
 	/**
@@ -187,7 +195,7 @@ public class VibeController implements ActionListener {
 			try {
 				EARCode = mLOBECompiler.compile(LOBECode);
 				mFrame.setEARCode(EARCode);
-				//mEARLineStartPositions = mEARCompiler.getCommandStartPositions();
+				mHighLevelLineStartPositions = mLOBECompiler.getCommandStartPositions();
 			} catch (Exception e) {
 				mFrame.setEARCode(e.getMessage());
 			}
@@ -517,5 +525,14 @@ public class VibeController implements ActionListener {
 	 */
 	public ArrayList<Integer> getEARCommandStartPositions() {
 		return mEARLineStartPositions;
+	}
+	
+	/**
+	 * Returns the High Level line start positions. <br/>
+	 * Used by workers to do code highlighting.
+	 * @return
+	 */
+	public ArrayList<Integer> getHighLevelCommandStartPositions() {
+		return mHighLevelLineStartPositions;
 	}
 }

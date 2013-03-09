@@ -1,9 +1,7 @@
 package lobecompiler;
 
+import java.util.ArrayList;
 import java.util.Stack;
-
-import earcompiler.EARCompiler;
-import earcompiler.EARException;
 
 public class LOBECompiler {
 
@@ -13,6 +11,7 @@ public class LOBECompiler {
 	private Stack<Variable> mIfs;
 	private Stack<Conditional> mWhileConds;
 	private Stack<Variable> mWhileCells;
+	private ArrayList<Integer> mCommandStartPositions;
 
 	public LOBECompiler() {
 		reset();
@@ -28,8 +27,19 @@ public class LOBECompiler {
 		mIfs = new Stack<Variable>();
 		mWhileConds = new Stack<Conditional>();
 		mWhileCells = new Stack<Variable>();
+		mCommandStartPositions = new ArrayList<Integer>();
 	}
 	
+	public ArrayList<Integer> getCommandStartPositions() {
+		return mCommandStartPositions;
+	}
+	
+	/**
+	 * Compiles the given LOBE code and returns the compiled EAR code as a string.
+	 * @param LOBECode Code to compile.
+	 * @return The Compiled EAR code.
+	 * @throws InvalidParameterException
+	 */
 	public String compile(String LOBECode) throws InvalidParameterException {
 		reset();
 		LOBEParser parser = new LOBEParser();
@@ -42,6 +52,7 @@ public class LOBECompiler {
 
 	public void execute(LOBEInstruction instruction)
 			throws InvalidParameterException {
+		mCommandStartPositions.add(mOutput.split("\\n+").length);
 		if (instruction.mCommand == LOBECommand.PRINT) {
 			if (instruction.mArguments.length != 1) {
 				throw new InvalidParameterException(

@@ -52,6 +52,16 @@ VibeController mController;
 			}
 		}
 		
+		//Get High Level command index
+		int currentHighLevelLine = 0;
+		ArrayList<Integer> highLevelLineStartPositions = 
+				mController.getHighLevelCommandStartPositions();
+		for (int i=0; i<highLevelLineStartPositions.size(); i++) {
+			if (highLevelLineStartPositions.get(i) <= currentEARLine) {
+				currentHighLevelLine = i;
+			}
+		}
+		
 		mController.getFrame().getEFTextPane().
 				setCurrentCommandIndex(currentEFCommand);
 		mController.getFrame().getEFTextPane().invalidate();
@@ -59,6 +69,10 @@ VibeController mController;
 		mController.getFrame().getEARTextPane().
 				setCurrentCommandIndex(currentEARLine);
 		mController.getFrame().getEARTextPane().invalidate();
+		
+		mController.getFrame().getHighLevelTextPane().
+			setCurrentCommandIndex(currentHighLevelLine);
+		mController.getFrame().getHighLevelTextPane().invalidate();
 		
 		mController.getFrame().updateMemoryVisualiser();
 	}
