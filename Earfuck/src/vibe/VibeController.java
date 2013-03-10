@@ -1,7 +1,10 @@
 package vibe;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,7 +26,7 @@ import earfuck.Parser;
  * @author Ryan Norris
  *
  */
-public class VibeController implements ActionListener {
+public class VibeController implements ActionListener, KeyEventDispatcher {
 	/**
 	 * The application window JFrame.
 	 */
@@ -128,6 +131,10 @@ public class VibeController implements ActionListener {
 		mPlayState = PlayState.STOPPED;
 		mEARLineStartPositions = new ArrayList<Integer>();
 		mHighLevelLineStartPositions = new ArrayList<Integer>();
+		
+		//Register us to handle keyboard events globally
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().
+		addKeyEventDispatcher(this);
 	}
 
 	/**
@@ -178,6 +185,10 @@ public class VibeController implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Compiles the currently edited code all the way down to EF code.
+	 * Fills all code boxes with code at that level if generated.
+	 */
 	private void compile() {
 		mFrame.setHighLevelCode(mFrame.getHighLevelCode().
 				replaceAll("\\\r\\\n", "\\\n"));
@@ -192,6 +203,10 @@ public class VibeController implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Uses mLOBECompiler to compile the code in LOBE box to EAR code.
+	 * Puts the EAR code into the EAR box.
+	 */
 	private void compileLOBECode() {
 		String LOBECode = mFrame.getHighLevelCode();
 		String EARCode = null;
@@ -306,10 +321,8 @@ public class VibeController implements ActionListener {
 	}
 	
 	/**
-	 * Saves the EAR code to the already open file if possible.
+	 * Saves the current code to the already open file if possible.
 	 * Otherwise loads the saveAs dialog.<br/>
-	 * ** TO DO ** work more generally to save different code types
-	 * depending on mode.
 	 */
 	private void save() {
 		if (mOpenFilePath==null) {
@@ -323,7 +336,6 @@ public class VibeController implements ActionListener {
 	/**
 	 * Prompts user to choose where to save code.
 	 * And then saves it.
-	 * ** TO DO ** work more generally for different modes.
 	 */
 	private void saveAs() {
 		JFileChooser fc = new JFileChooser();
@@ -341,7 +353,7 @@ public class VibeController implements ActionListener {
 	/**
 	 * Creates a "new" workspace by clearing all textboxes and forgetting 
 	 * current filename. <br/>
-	 * ** TO DO ** prompt user to select which kind of file they want to create
+	 * Prompts user to select which kind of file they want to create
 	 * and switch modes accordingly.
 	 */
 	private void newFile() {
@@ -540,5 +552,25 @@ public class VibeController implements ActionListener {
 	 */
 	public ArrayList<Integer> getHighLevelCommandStartPositions() {
 		return mHighLevelLineStartPositions;
+	}
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent e) {
+		if (e.getID() == KeyEvent.KEY_PRESSED &&
+				e.getModifiers() == java.awt.event.InputEvent.CTRL_MASK) {
+			if (e.getKeyCode() == KeyEvent.VK_S) {
+				save();
+				return true;
+			}
+			if (e.getKeyCode() == KeyEvent.VK_O) {
+				openFile();
+				return true;
+			}
+			if (e.getKeyCode() == KeyEvent.VK_N) {
+				newFile();
+				return true;
+			}
+		}
+		return false;
 	}
 }
