@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import lobecompiler.InvalidParameterException;
 import lobecompiler.LOBECompiler;
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
@@ -195,10 +196,12 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		mFrame.setEARCode(mFrame.getEARCode().
 				replaceAll("\\\r\\\n", "\\\n"));
 		if (mMode==VibeMode.HIGHLEVEL) {
+			System.out.println("OHI!");
 			compileLOBECode();
 			compileEARCode();
 		}
 		else if (mMode==VibeMode.EAR){
+			System.out.println("HEL-LOW!");
 			compileEARCode();
 		}
 	}
@@ -215,7 +218,8 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 				EARCode = mLOBECompiler.compile(LOBECode);
 				mFrame.setEARCode(EARCode);
 				mHighLevelLineStartPositions = mLOBECompiler.getCommandStartPositions();
-			} catch (Exception e) {
+			} catch (InvalidParameterException e) {
+				System.out.println("Exception!");		
 				mFrame.setEARCode(e.getMessage());
 			}
 		}

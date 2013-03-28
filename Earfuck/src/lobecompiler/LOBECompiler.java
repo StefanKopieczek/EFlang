@@ -68,9 +68,20 @@ public class LOBECompiler {
 				target = mSymbols.getNewInternalVariable(this);
 				mOutput += "MOV " + argval.getRef(this) + " " + target.getRef(this) + "\n";				
 			}			
-			mOutput += "OUT " + target.getRef(this) + "\n";			
-			
+			mOutput += "OUT " + target.getRef(this) + "\n";						
 		} 
+		else if (instruction.mCommand == LOBECommand.INPUT) {
+			if (instruction.mArguments.length != 1) {
+				throw new InvalidParameterException("INPUT takes exactly one parameter.");
+			}
+			Value argval = instruction.mArguments[0].evaluate(this);
+			if (!(argval instanceof Variable)) {
+				throw new InvalidParameterException("INPUT cannot take a constant argument.");
+			}
+			else {				
+				mOutput += "IN " + argval.getRef(this) + "\n";
+			}
+		}
 		else if (instruction.mCommand == LOBECommand.SET) {
 			if (instruction.mArguments.length != 2) {
 				throw new InvalidParameterException(
@@ -168,6 +179,9 @@ public class LOBECompiler {
 	}
 
 	public int getPointer(Variable v) {
+		if (!mSymbols.containsKey(v)) {
+			mSymbols.addVariable(v);
+		}
 		return mSymbols.get(v);
 	}
 	
