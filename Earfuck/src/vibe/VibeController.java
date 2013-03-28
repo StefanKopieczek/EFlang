@@ -196,12 +196,10 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		mFrame.setEARCode(mFrame.getEARCode().
 				replaceAll("\\\r\\\n", "\\\n"));
 		if (mMode==VibeMode.HIGHLEVEL) {
-			System.out.println("OHI!");
 			compileLOBECode();
 			compileEARCode();
 		}
 		else if (mMode==VibeMode.EAR){
-			System.out.println("HEL-LOW!");
 			compileEARCode();
 		}
 	}
@@ -218,8 +216,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 				EARCode = mLOBECompiler.compile(LOBECode);
 				mFrame.setEARCode(EARCode);
 				mHighLevelLineStartPositions = mLOBECompiler.getCommandStartPositions();
-			} catch (InvalidParameterException e) {
-				System.out.println("Exception!");		
+			} catch (InvalidParameterException e) {	
 				mFrame.setEARCode(e.getMessage());
 			}
 		}
