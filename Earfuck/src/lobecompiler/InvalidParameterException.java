@@ -1,6 +1,6 @@
 package lobecompiler;
 
-public class InvalidParameterException extends Exception {
+public class InvalidParameterException extends LobeCompilationException {
 	public InvalidParameterException() {
 		super();
 	}

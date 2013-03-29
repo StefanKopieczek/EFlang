@@ -31,6 +31,11 @@ public class Variable implements Value {
 		return this;
 	}
 	
+	public Variable evaluate(LOBECompiler compiler, Variable target) {
+	    compiler.storeValue(this, target);
+	    return target;
+	}
+	
 	public String getRef(LOBECompiler compiler) {		
 		return compiler.getRef(this);
 	}
