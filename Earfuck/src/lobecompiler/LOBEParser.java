@@ -7,7 +7,8 @@ import java.util.regex.Pattern;
 
 public class LOBEParser {
 
-	public LOBEInstruction parseInstruction(String instrString) {
+	public LOBEInstruction parseInstruction(String instrString) 
+	    throws InvalidOperationTokenException {
 		String[] tokens = instrString.split(" +");
 		LOBECommand command = parseCommand(tokens[0]);
 		Evaluable[] args = parseArgs(Arrays.copyOfRange(tokens, 1,
@@ -16,7 +17,8 @@ public class LOBEParser {
 		return result;
 	}
 	
-	public LOBEInstruction[] parseAll(String instructions) {
+	public LOBEInstruction[] parseAll(String instructions) 
+	    throws InvalidOperationTokenException {
 		ArrayList<LOBEInstruction> lobeInstructions = new ArrayList<LOBEInstruction>();
 		String[] instructionStrings = instructions.split("\r?\n+");
 		for (String commandString : instructionStrings) {
@@ -25,7 +27,8 @@ public class LOBEParser {
 		return lobeInstructions.toArray(new LOBEInstruction[0]);
 	}
 
-	public LOBECommand parseCommand(String commandString) {
+	public LOBECommand parseCommand(String commandString) 
+	    throws InvalidOperationTokenException {
 		LOBECommand result = null;
 		for (LOBECommand cmd : LOBECommand.values()) {
 			if (commandString.toUpperCase().equals(cmd.toString())) {
@@ -37,8 +40,14 @@ public class LOBEParser {
 		}
 		return result;
 	}
+<<<<<<< HEAD
 	
 	public Evaluable parseArg(String argString) {
+=======
+
+	public Evaluable parseArg(String argString) 
+	    throws InvalidOperationTokenException {
+>>>>>>> 7125419ea2cfff90b3005910e4a0ddba740003cd
 		Evaluable result = null;
 		argString = argString.trim();
 		String topLevel = getTopLevel(argString);
@@ -189,7 +198,8 @@ public class LOBEParser {
 		return result;
 	}
 
-	public Evaluable[] parseArgs(String[] argStrings) {
+	public Evaluable[] parseArgs(String[] argStrings) 
+	    throws InvalidOperationTokenException {
 		ArrayList<Evaluable> resultList = new ArrayList<Evaluable>();
 		for (String argString : argStrings) {
 			resultList.add(parseArg(argString));

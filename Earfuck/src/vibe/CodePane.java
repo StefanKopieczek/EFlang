@@ -36,9 +36,14 @@ public class CodePane extends JTextPane {
 		int j=0;
 		while (i>0) {
 			if (code.charAt(j)==mDivider) {
+				while (code.charAt(j)==mDivider) {
+					j++;
+				}
 				i--;
 			}
-			j++;
+			else {
+				j++;
+			}
 		}
 		int commandLength = code.substring(j).indexOf(mDivider);
 		if (commandLength==-1) {

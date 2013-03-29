@@ -153,6 +153,7 @@ public class MainFrame extends JFrame {
 		JPanel noWrapPanel;
 		JScrollPane scrollPane1, scrollPane2, scrollPane3;
 		mHighLevelTextPane = new CodePane();
+		mHighLevelTextPane.setDivider('\n');
 		noWrapPanel = new JPanel(new BorderLayout());
 		noWrapPanel.add(mHighLevelTextPane);
 		scrollPane1 = new JScrollPane(noWrapPanel);
@@ -422,6 +423,7 @@ public class MainFrame extends JFrame {
 		mEARTextPane.setEditable(false);
 		mHighLevelTextPane.setEditable(false);
 		
+		
 		if (mode==VibeController.VibeMode.EAR) {
 			leftPane.setVisible(false);
 			midPane.setVisible(true);
@@ -443,6 +445,11 @@ public class MainFrame extends JFrame {
 			mEditPane.setDividerSize(5);
 			mHighLevelTextPane.setEditable(true);
 		}
+		
+		int totalWidth = mEditPane.getWidth();
+		mEARAndEFPane.setDividerLocation(totalWidth/3);
+		mEditPane.setDividerLocation(totalWidth/3);
+		
 	}
 	
 	public void updateMemoryVisualiser() {

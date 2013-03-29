@@ -1,7 +1,10 @@
 package vibe;
 
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,7 +14,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
+import lobecompiler.LOBECompiler;
+import lobecompiler.LobeCompilationException;
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
 import earfuck.Parser;
@@ -21,7 +27,7 @@ import earfuck.Parser;
  * @author Ryan Norris
  *
  */
-public class VibeController implements ActionListener {
+public class VibeController implements ActionListener, KeyEventDispatcher {
 	/**
 	 * The application window JFrame.
 	 */
@@ -34,6 +40,14 @@ public class VibeController implements ActionListener {
 	 * to allow live code highlighting during playback.
 	 */
 	private EARCompiler mEARCompiler;
+	
+	/**
+	 * The LOBE compiler used to compile the code in the Lobe box
+	 * into EAR code. <br/>
+	 * The compiler also should return a suitable array of line markings
+	 * to allow live code highlighting during playback.
+	 */
+	private LOBECompiler mLOBECompiler;
 	
 	/**
 	 * The EF Parser to use to playback the compiled EF code.
@@ -80,6 +94,13 @@ public class VibeController implements ActionListener {
 	private ArrayList<Integer> mEARLineStartPositions;
 	
 	/**
+	 * This array contains the start positions (in terms of EAR commands)
+	 * of each High Level command. <br/>
+	 * Used for code highlighting.
+	 */
+	private ArrayList<Integer> mHighLevelLineStartPositions;
+	
+	/**
 	 * The mode describes which type of code we're currently editing.<br/>
 	 * It can be HIGHLEVEL, EAR or EF.
 	 */
@@ -103,12 +124,18 @@ public class VibeController implements ActionListener {
 	public VibeController(MainFrame frame) {
 		mFrame = frame;
 		mEARCompiler = new EARCompiler();
+		mLOBECompiler = new LOBECompiler();
 		mOpenFilePath = null;
 		mParser = new Parser();
 		mWorker = null;
 		mStepWorker = null;
 		mPlayState = PlayState.STOPPED;
 		mEARLineStartPositions = new ArrayList<Integer>();
+		mHighLevelLineStartPositions = new ArrayList<Integer>();
+		
+		//Register us to handle keyboard events globally
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().
+		addKeyEventDispatcher(this);
 	}
 
 	/**
@@ -118,7 +145,7 @@ public class VibeController implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent action) {
 		if (action.getActionCommand().equals("compile")) {
-			compileEARCode();
+			compile();
 			return;
 		}
 		if (action.getActionCommand().equals("exit")) {
@@ -160,6 +187,42 @@ public class VibeController implements ActionListener {
 	}
 	
 	/**
+	 * Compiles the currently edited code all the way down to EF code.
+	 * Fills all code boxes with code at that level if generated.
+	 */
+	private void compile() {
+		mFrame.setHighLevelCode(mFrame.getHighLevelCode().
+				replaceAll("\\\r\\\n", "\\\n"));
+		mFrame.setEARCode(mFrame.getEARCode().
+				replaceAll("\\\r\\\n", "\\\n"));
+		if (mMode==VibeMode.HIGHLEVEL) {
+			compileLOBECode();
+			compileEARCode();
+		}
+		else if (mMode==VibeMode.EAR){
+			compileEARCode();
+		}
+	}
+	
+	/**
+	 * Uses mLOBECompiler to compile the code in LOBE box to EAR code.
+	 * Puts the EAR code into the EAR box.
+	 */
+	private void compileLOBECode() {
+		String LOBECode = mFrame.getHighLevelCode();
+		String EARCode = null;
+		if (mPlayState==PlayState.STOPPED) {
+			try {
+				EARCode = mLOBECompiler.compile(LOBECode);
+				mFrame.setEARCode(EARCode);
+				mHighLevelLineStartPositions = mLOBECompiler.getCommandStartPositions();
+			} catch (LobeCompilationException e) {	
+				mFrame.setEARCode(e.getMessage());
+			}
+		}
+	}
+	
+	/**
 	 * Uses mEARCompiler to compile the code in EAR box to EF code.
 	 * Puts the EF code into the EF box.
 	 */
@@ -188,9 +251,8 @@ public class VibeController implements ActionListener {
 	
 	/**
 	 * Opens an EF, EAR or Higher Level language file. <br/>
-	 * Should intelligently switch mode and put the code into the correct box
-	 * depending on file extension. <br/>
-	 * Currently only inputs to the EAR box.
+	 * Switch mode and put the code into the correct box
+	 * depending on file extension.
 	 */
 	private void openFile() {
 		stop();
@@ -214,7 +276,28 @@ public class VibeController implements ActionListener {
 				}
 				
 				br.close();
-				mFrame.setEARCode(builder.toString());
+				
+				//Decide what to do based on file extension
+				String name = file.getName();
+				String extension = "";
+				int i = name.lastIndexOf('.');
+				if ((i>0) && (i<name.length()-1)) {
+					extension = name.substring(i+1).toLowerCase();
+				}
+				
+				if (extension.equals("ef")) {
+					mFrame.setEFCode(builder.toString());
+					setMode(VibeMode.EF);
+				}
+				else if (extension.equals("ear")) {
+					mFrame.setEARCode(builder.toString());
+					setMode(VibeMode.EAR);
+				}
+				else if (extension.equals("lobe")) {
+					mFrame.setHighLevelCode(builder.toString());
+					setMode(VibeMode.HIGHLEVEL);
+				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -239,10 +322,8 @@ public class VibeController implements ActionListener {
 	}
 	
 	/**
-	 * Saves the EAR code to the already open file if possible.
+	 * Saves the current code to the already open file if possible.
 	 * Otherwise loads the saveAs dialog.<br/>
-	 * ** TO DO ** work more generally to save different code types
-	 * depending on mode.
 	 */
 	private void save() {
 		if (mOpenFilePath==null) {
@@ -250,13 +331,12 @@ public class VibeController implements ActionListener {
 			return;
 		}
 		File file = new File(mOpenFilePath);
-		saveFile(file,mFrame.getEARCode());
+		saveFile(file,getCurrentCode());
 	}
 	
 	/**
 	 * Prompts user to choose where to save code.
 	 * And then saves it.
-	 * ** TO DO ** work more generally for different modes.
 	 */
 	private void saveAs() {
 		JFileChooser fc = new JFileChooser();
@@ -265,7 +345,7 @@ public class VibeController implements ActionListener {
 		
 		if (returnVal==JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			saveFile(file, mFrame.getEARCode());
+			saveFile(file, getCurrentCode());
 			
 			mOpenFilePath = file.getPath();
 		}
@@ -274,7 +354,7 @@ public class VibeController implements ActionListener {
 	/**
 	 * Creates a "new" workspace by clearing all textboxes and forgetting 
 	 * current filename. <br/>
-	 * ** TO DO ** prompt user to select which kind of file they want to create
+	 * Prompts user to select which kind of file they want to create
 	 * and switch modes accordingly.
 	 */
 	private void newFile() {
@@ -283,6 +363,38 @@ public class VibeController implements ActionListener {
 		mFrame.setEARCode("");
 		mFrame.setEFCode("");
 		mFrame.setHighLevelCode("");
+		
+		String[] options = new String[]{"LOBE","EAR","RAW EF"};
+		int choice = JOptionPane.showOptionDialog(mFrame, 
+								"Which type of file would you like to create?", 
+								"Please choose a file type", 
+								JOptionPane.DEFAULT_OPTION, 
+								JOptionPane.QUESTION_MESSAGE, 
+								null, 
+								options, 
+								options[0]);
+		
+		switch (choice) {
+		case 0: setMode(VibeMode.HIGHLEVEL);
+				break;
+		case 1: setMode(VibeMode.EAR);
+				break;
+		case 2: setMode(VibeMode.EF);
+				break;
+		}
+	}
+	
+	/**
+	 * Gets the code from the box currently being edited.
+	 * @return
+	 */
+	public String getCurrentCode() {
+		switch (mMode) {
+		case EF: return mFrame.getEFCode();
+		case EAR: return mFrame.getEARCode();
+		case HIGHLEVEL: return mFrame.getHighLevelCode();
+		default: return null;
+		}
 	}
 	
 	/**
@@ -311,7 +423,9 @@ public class VibeController implements ActionListener {
 	 */
 	public void pause() {
 		if (mPlayState==PlayState.PLAYING) {
-			mWorker.cancel(true);
+			if (mWorker!=null) {
+				mWorker.cancel(true);
+			}
 			setPlayState(PlayState.PAUSED);
 		}
 	}
@@ -346,12 +460,12 @@ public class VibeController implements ActionListener {
 		if (mPlayState==PlayState.STOPPED) {
 			mParser.refreshState();
 		}
+		setPlayState(PlayState.PLAYING);
 		if (mParser.getPiece().length==0) {
 			mParser.giveMusic(mFrame.getEFCode());
 		}
 		mStepWorker = new StepForwardWorker(this);
 		mStepWorker.execute();
-		setPlayState(PlayState.PLAYING);
 	}
 	
 	/**
@@ -430,5 +544,34 @@ public class VibeController implements ActionListener {
 	 */
 	public ArrayList<Integer> getEARCommandStartPositions() {
 		return mEARLineStartPositions;
+	}
+	
+	/**
+	 * Returns the High Level line start positions. <br/>
+	 * Used by workers to do code highlighting.
+	 * @return
+	 */
+	public ArrayList<Integer> getHighLevelCommandStartPositions() {
+		return mHighLevelLineStartPositions;
+	}
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent e) {
+		if (e.getID() == KeyEvent.KEY_PRESSED &&
+				e.getModifiers() == java.awt.event.InputEvent.CTRL_MASK) {
+			if (e.getKeyCode() == KeyEvent.VK_S) {
+				save();
+				return true;
+			}
+			if (e.getKeyCode() == KeyEvent.VK_O) {
+				openFile();
+				return true;
+			}
+			if (e.getKeyCode() == KeyEvent.VK_N) {
+				newFile();
+				return true;
+			}
+		}
+		return false;
 	}
 }
