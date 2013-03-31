@@ -316,12 +316,18 @@ public class LOBECompiler {
 			case ADD:
 				if (val2 instanceof Variable) {
 					// 2nd arg is destroyed by ADD, so use a temp copy.
+					if (targetVar == null) {
+						targetVar = mSymbols.getNewInternalVariable(this);
+					}
 					val2 = backup((Variable)val2, targetVar, mWorkingMemory[0]);					
 				}				
 				if (val1 instanceof Variable) {
 					if (val2 instanceof Constant) {
 						// Can't use a constant as the second argument, so back 1st arg up
 						// and switch the order of the arguments.
+						if (targetVar == null) {
+							targetVar = mSymbols.getNewInternalVariable(this);
+						}
 						Value temp = backup((Variable)val1, targetVar, mWorkingMemory[0]);
 						val1 = val2;
 						val2 = temp;
@@ -343,7 +349,7 @@ public class LOBECompiler {
 				if (val1 instanceof Constant && val2 instanceof Constant) {
 					// Both arguments are constants - we just return their sum as a constant.
 					int num1 = ((Constant)val1).getValue();
-					int num2 = ((Constant)val1).getValue();
+					int num2 = ((Constant)val2).getValue();
 					result = new Constant(num1 + num2);
 				}
 				else {
@@ -358,6 +364,9 @@ public class LOBECompiler {
 			case SUB:
 				if (val2 instanceof Variable) {
 					// 2nd arg is destroyed by SUB, so use a temp copy.
+					if (targetVar == null) {
+						targetVar = mSymbols.getNewInternalVariable(this);
+					}
 					val2 = backup((Variable)val2, targetVar, mWorkingMemory[0]);					
 				}				
 				if (val1 instanceof Variable) {
@@ -365,6 +374,9 @@ public class LOBECompiler {
 						// Can't use a constant as the second argument, so back 1st arg up
 						// and switch the order of the arguments.
 						Value temp = backup((Variable)val1, targetVar, mWorkingMemory[0]);
+						if (targetVar == null) {
+							targetVar = mSymbols.getNewInternalVariable(this);
+						}
 						val1 = val2;
 						val2 = temp;
 					}
@@ -385,7 +397,7 @@ public class LOBECompiler {
 				if (val1 instanceof Constant && val2 instanceof Constant) {
 					// Both arguments are constants - we just return the answer as a constant.
 					int num1 = ((Constant)val1).getValue();
-					int num2 = ((Constant)val1).getValue();
+					int num2 = ((Constant)val2).getValue();
 					result = new Constant(num1 - num2);
 				}
 				else {
@@ -399,20 +411,23 @@ public class LOBECompiler {
 				
 			case MUL:
 				if (val1 instanceof Variable) {
-					// 1st arg is destroyed by SUB, so use a temp copy.
+					// 1st arg is destroyed by MUL, so use a temp copy.
 					val1 = backup((Variable)val1, mWorkingMemory[0], mWorkingMemory[2]);					
 				}
 				if (val2 instanceof Variable) {
-					// 2nd arg is destroyed by SUB, so use a temp copy.
+					// 2nd arg is destroyed by MUL, so use a temp copy.
 					val2 = backup((Variable)val2, mWorkingMemory[1], mWorkingMemory[2]);					
 				}
 				if (val1 instanceof Constant && val2 instanceof Constant) {
 					// Both arguments are constants - we just return the product as a constant.
 					int num1 = ((Constant)val1).getValue();
-					int num2 = ((Constant)val1).getValue();
+					int num2 = ((Constant)val2).getValue();
 					result = new Constant(num1 * num2);
 				}
 				else {
+					if (targetVar == null) {
+						targetVar = mSymbols.getNewInternalVariable(this);
+					}
 					String maybeAt1 = (val1 instanceof Variable) ? "@" : "";
 					String maybeAt2 = (val2 instanceof Variable) ? "@" : "";
 					mOutput += "MUL " + maybeAt1 + val1.getRef(this) +
@@ -428,6 +443,9 @@ public class LOBECompiler {
 						+ op.name());		
 		}	
 		if (forceVariable && !(result instanceof Variable)) {
+			if (targetVar == null) {
+				targetVar = mSymbols.getNewInternalVariable(this);
+			}
 		    storeValue(result, targetVar);
 		    result = targetVar;
 		}
