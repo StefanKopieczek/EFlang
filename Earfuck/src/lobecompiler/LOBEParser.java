@@ -1,7 +1,6 @@
 package lobecompiler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +43,7 @@ public class LOBEParser {
 	public LOBEInstruction parseAssignment(String instString) 
 		throws InvalidOperationTokenException
 	{
-		Pattern equalityPattern = Pattern.compile("(\\w+)[^=]=[^=](\\w+)");
+		Pattern equalityPattern = Pattern.compile("([^<!=]+)=([^=]+)"); // Bit hacky - fix later.
 		Matcher equalityMatcher = equalityPattern.matcher(instString);
 		LOBEInstruction result = null;
 		if (equalityMatcher.find()) {
@@ -86,7 +85,7 @@ public class LOBEParser {
 				int predLength = p.name().length();				
 				Evaluable LHS = parseArg(argString.substring(0, idx));
 				Evaluable RHS = parseArg(argString.substring(idx + predLength, 
-						                                           argString.length()));
+						                                     argString.length()));
 				result = new Conditional(p, LHS, RHS);
 				matchFound = true;
 				break;
