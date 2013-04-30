@@ -17,6 +17,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import lobecompiler.LOBECompiler;
+import lobecompiler.LobeCompilationException;
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
 import earfuck.Parser;
@@ -230,7 +231,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 				EARCode = mLOBECompiler.compile(LOBECode);
 				mFrame.setEARCode(EARCode);
 				mHighLevelLineStartPositions = mLOBECompiler.getCommandStartPositions();
-			} catch (Exception e) {
+			} catch (LobeCompilationException e) {	
 				mFrame.setEARCode(e.getMessage());
 			}
 		}

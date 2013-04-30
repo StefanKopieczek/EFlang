@@ -11,11 +11,19 @@ public class Conditional implements Evaluable {
 		mRight = arg2;		
 	}	
 	
-	public Variable evaluate(LOBECompiler compiler) {
+	public Variable evaluate(LOBECompiler compiler)
+	    throws LobeCompilationException 
+	{
+	    return evaluate(compiler, compiler.getNewInternalVariable());
+	}
+	
+	public Variable evaluate(LOBECompiler compiler, Variable target) 	
+	    throws LobeCompilationException 
+	{
 		Value left = mLeft.evaluate(compiler);
 		Value right = mRight.evaluate(compiler);
-		return compiler.evaluate(mPredicate, left, right);
-	}
+		return compiler.evaluate(mPredicate, left, right, target);
+	}	
 	
 	public int getDepth() {
 		return 1 + Math.max(mLeft.getDepth(), mRight.getDepth());

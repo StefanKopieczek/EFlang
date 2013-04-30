@@ -1,6 +1,6 @@
 package lobecompiler;
 
-public class InvalidOperationTokenException extends RuntimeException {
+public class InvalidOperationTokenException extends LobeCompilationException {
 	public InvalidOperationTokenException() {
 		super();
 	}

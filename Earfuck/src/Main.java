@@ -1,8 +1,10 @@
 
+import lobecompiler.InvalidOperationTokenException;
 import lobecompiler.InvalidParameterException;
 import lobecompiler.LOBECompiler;
 import lobecompiler.LOBEInstruction;
 import lobecompiler.LOBEParser;
+import lobecompiler.LobeCompilationException;
 import earcompiler.EARException;
 import earfuck.Parser;
 
@@ -56,11 +58,18 @@ class Main {
 				
 		//String predTest = "SET a 3\nIF (a<3)\nPRINT 50\nENDIF";
 		//String LOBESTRINGOMG = "SET a 3\nIF (a==3)\nPRINT 17\nENDIF";
-		LOBEInstruction[] instructions = lobeParser.parseAll(LOBESTRINGOMG);
+		LOBEInstruction[] instructions = null;
+        try {
+            instructions = lobeParser.parseAll(LOBESTRINGOMG);
+        }
+        catch (InvalidOperationTokenException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
 		for (LOBEInstruction instruction : instructions) {
 			try {
 				lobeCompiler.execute(instruction);
-			} catch (InvalidParameterException e) {
+			} catch (LobeCompilationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
