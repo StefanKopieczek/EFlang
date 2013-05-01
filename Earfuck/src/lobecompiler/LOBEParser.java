@@ -40,10 +40,17 @@ public class LOBEParser {
 		return lobeInstructions.toArray(new LOBEInstruction[0]);
 	}
 	
+	/**
+	 * Determines whether the given instruction string is an assignment (of the form LHS = RHS).
+	 * If it is, returns a LOBEInstruction to SET the LHS to the RHS.
+	 * @param instString The code string to parse.
+	 * @return 
+	 * @throws InvalidOperationTokenException
+	 */
 	public LOBEInstruction parseAssignment(String instString) 
 		throws InvalidOperationTokenException
 	{
-		Pattern equalityPattern = Pattern.compile("([^<!=]+)=([^=]+)"); // Bit hacky - fix later.
+		Pattern equalityPattern = Pattern.compile("([^<!=]+)=([^=]+)"); // Bit hacky - fix later. @@SMK@@
 		Matcher equalityMatcher = equalityPattern.matcher(instString);
 		LOBEInstruction result = null;
 		if (equalityMatcher.find()) {

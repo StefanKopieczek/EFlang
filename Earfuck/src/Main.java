@@ -59,12 +59,13 @@ class Main {
 		//String predTest = "SET a 3\nIF (a<3)\nPRINT 50\nENDIF";
 		//String LOBESTRINGOMG = "SET a 3\nIF (a==3)\nPRINT 17\nENDIF";
 		LOBEInstruction[] instructions = null;
-		try {
-			instructions = lobeParser.parseAll(LOBESTRINGOMG);
-		} catch (InvalidOperationTokenException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+        try {
+            instructions = lobeParser.parseAll(LOBESTRINGOMG);
+        }
+        catch (InvalidOperationTokenException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
 		for (LOBEInstruction instruction : instructions) {
 			try {
 				lobeCompiler.execute(instruction);
