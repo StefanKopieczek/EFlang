@@ -81,6 +81,16 @@ public class MainFrame extends JFrame {
 	private JSlider mTempoSlider;
 	
 	/**
+	 * Label that shows the time the current program has been running for.
+	 */
+	private JLabel mTimerLabel;
+	
+	/**
+	 * Label that shows the current file name and a * to show if it needs saving.
+	 */
+	private JLabel mFileNameLabel;
+	
+	/**
 	 * Minimum selectable tempo for slider.
 	 */
 	private final static int MIN_TEMPO = 30;
@@ -222,8 +232,17 @@ public class MainFrame extends JFrame {
 		setJMenuBar(mMenuBar);
 		
 		//Create tool bar
+		JPanel mTopPane = new JPanel(new BorderLayout());
+		
+		mTimerLabel = new JLabel("00:00");
+		mTopPane.add(mTimerLabel,BorderLayout.EAST);
+		
+		mFileNameLabel = new JLabel("FILENAME");
+		mTopPane.add(mFileNameLabel,BorderLayout.WEST);
+		
 		mToolBar = new JPanel();
-		mContainer.add(mToolBar,BorderLayout.NORTH);
+		mTopPane.add(mToolBar,BorderLayout.CENTER);
+		mContainer.add(mTopPane,BorderLayout.NORTH);
 		JButton button = new JButton();
 		button.setText("Compile");
 		button.setActionCommand("compile");
@@ -454,5 +473,13 @@ public class MainFrame extends JFrame {
 	
 	public void updateMemoryVisualiser() {
 		mMemoryVisualiser.update();
+	}
+	
+	public void setFileNameLabel(String text) {
+		mFileNameLabel.setText(text);
+	}
+	
+	public void setTimerLabel(String text) {
+		mTimerLabel.setText(text);
 	}
 }

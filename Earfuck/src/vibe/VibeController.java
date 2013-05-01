@@ -75,6 +75,11 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 	private StepForwardWorker mStepWorker;
 	
 	/**
+	 * The timer that counts how long a program has been playing for.
+	 */
+	private ProgramTimer mTimer;
+	
+	/**
 	 * The mode describes which type of code we're currently editing.<br/>
 	 * It can be HIGHLEVEL, EAR or EF.
 	 */
@@ -136,6 +141,16 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		//Register us to handle keyboard events globally
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().
 		addKeyEventDispatcher(this);
+		
+		//Setup mTimer
+		mTimer = new ProgramTimer(1000,new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent action) {
+				int seconds = mTimer.getCycles()%60;
+				int minutes = mTimer.getCycles()/60;
+				mFrame.setTimerLabel(String.format("%02d:%02d",minutes,seconds));
+			}
+		});
 	}
 
 	/**
@@ -297,6 +312,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 					mFrame.setHighLevelCode(builder.toString());
 					setMode(VibeMode.HIGHLEVEL);
 				}
+				setCurrentFileName();
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -348,6 +364,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 			saveFile(file, getCurrentCode());
 			
 			mOpenFilePath = file.getPath();
+			setCurrentFileName();
 		}
 	}
 	
@@ -382,6 +399,20 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		case 2: setMode(VibeMode.EF);
 				break;
 		}
+		setCurrentFileName();
+	}
+	
+	/**
+	 * Uses mCurrentFilePath to get the name of the file and display it
+	 * in the window title and the filename label.
+	 */
+	private void setCurrentFileName() {
+		String fileName = "";
+		if (mOpenFilePath!=null) {
+			fileName = mOpenFilePath.replaceAll("^.*\\\\","");
+		}
+		mFrame.setFileNameLabel(fileName);
+		mFrame.setTitle("VIBE Earfuck IDE - "+fileName);
 	}
 	
 	/**
@@ -416,6 +447,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		mWorker.execute();
 		
 		setPlayState(PlayState.PLAYING);
+		mTimer.start();
 	}
 	
 	/**
@@ -427,6 +459,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 				mWorker.cancel(true);
 			}
 			setPlayState(PlayState.PAUSED);
+			mTimer.stop();
 		}
 	}
 	
@@ -448,6 +481,8 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		mFrame.getEARTextPane().setCurrentCommandIndex(-1);
 		mFrame.getEARTextPane().invalidate();
 		mFrame.updateMemoryVisualiser();
+		
+		mTimer.reset();
 	}
 	
 	/**
