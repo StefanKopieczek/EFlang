@@ -4,7 +4,7 @@ package beautifier;
  * Represents a single pitch.
  * @author Stefan
  * 
- * TODO: toString();
+ * TODO: Get notes in range, get note name, get octave.
  */
 
 public class Note implements Comparable<Note> {
