@@ -40,14 +40,9 @@ public class LOBEParser {
 		}
 		return result;
 	}
-<<<<<<< HEAD
-	
-	public Evaluable parseArg(String argString) {
-=======
 
 	public Evaluable parseArg(String argString) 
 	    throws InvalidOperationTokenException {
->>>>>>> 7125419ea2cfff90b3005910e4a0ddba740003cd
 		Evaluable result = null;
 		argString = argString.trim();
 		String topLevel = getTopLevel(argString);
@@ -123,80 +118,80 @@ public class LOBEParser {
 		}
 		return result;
 	}
-
-	public Evaluable parseArgOld(String argString) {
-		Evaluable result = null;
-		if (argString.charAt(0) != '(') {		
-			if (argString.matches("\\d+")) {
-				result = new Constant(Integer.parseInt(argString));
-				// System.out.println(Integer.parseInt(argString) + " - " + result);
-			} 
-			else if (argString.matches("[^\\d].*")) {
-				result = new Variable(argString);
-				//System.out.println("'"+argString+"'" + " - " +result);
-			} 
-			else {
-				throw new InvalidOperationTokenException(
-						"Invalid variable name " + argString);
-			}
-		} 
-		else if (argString.charAt(argString.length() - 1) == ')') {
-			argString = argString.substring(1, argString.length() - 1);
-			// System.out.println(argString);
-			int OpIdx = -1;
-			int bracketCount = 0;
-			for (int idx = 0; idx < argString.length(); idx++) {
-				char c = argString.charAt(idx);
-				if (c == '(') {
-					bracketCount++;
-					continue;
-				}
-				else if (c == ')') {
-					bracketCount--;
-					continue;
-				}
-				else {
-					if (bracketCount == 0) {
-						for (Operator op : Operator.values()) {							
-							if (c == op.mSymbol) {
-								String left = argString.substring(0, idx);
-								String right = argString.substring(idx + 1, argString.length());
-								// System.out.println("Valuetree(" + op + ","+ left+","+ right);
-								result =  new ValueTree(op, parseArg(left), parseArg(right));
-							}
-						}
-						boolean skipping = false;
-						for (Predicate pred : Predicate.values()) {
-							if (skipping) {
-								skipping = false;
-								continue;
-							}
-							String s = String.valueOf(c);							
-							String s2 = (idx+1 != argString.length()) ? String.valueOf(argString.charAt(idx+1)) : null;
-							
-							if (pred.mSymbol.equals(s+s2)) {
-								String left = argString.substring(0, idx);
-								String right = argString.substring(idx + 2, argString.length());
-								//System.out.println("Conditional(" + pred + ","+ left+","+ right);
-								result = new Conditional(pred, parseArg(left), parseArg(right));
-								skipping = true;
-							}	
-							else if (pred.mSymbol.equals(s)) {
-								String left = argString.substring(0, idx);
-								String right = argString.substring(idx + 1, argString.length());
-								//System.out.println("Conditional(" + pred + ","+ left+","+ right);
-								result = new Conditional(pred, parseArg(left), parseArg(right));
-							}
-						}
-					}
-				}			
-			}
-		}
-		if (result == null) {
-			throw new InvalidOperationTokenException("Invalid arg: '" + argString +"'");
-		}
-		return result;
-	}
+//
+//	public Evaluable parseArgOld(String argString) {
+//		Evaluable result = null;
+//		if (argString.charAt(0) != '(') {		
+//			if (argString.matches("\\d+")) {
+//				result = new Constant(Integer.parseInt(argString));
+//				// System.out.println(Integer.parseInt(argString) + " - " + result);
+//			} 
+//			else if (argString.matches("[^\\d].*")) {
+//				result = new Variable(argString);
+//				//System.out.println("'"+argString+"'" + " - " +result);
+//			} 
+//			else {
+//				throw new InvalidOperationTokenException(
+//						"Invalid variable name " + argString);
+//			}
+//		} 
+//		else if (argString.charAt(argString.length() - 1) == ')') {
+//			argString = argString.substring(1, argString.length() - 1);
+//			// System.out.println(argString);
+//			int OpIdx = -1;
+//			int bracketCount = 0;
+//			for (int idx = 0; idx < argString.length(); idx++) {
+//				char c = argString.charAt(idx);
+//				if (c == '(') {
+//					bracketCount++;
+//					continue;
+//				}
+//				else if (c == ')') {
+//					bracketCount--;
+//					continue;
+//				}
+//				else {
+//					if (bracketCount == 0) {
+//						for (Operator op : Operator.values()) {							
+//							if (c == op.mSymbol) {
+//								String left = argString.substring(0, idx);
+//								String right = argString.substring(idx + 1, argString.length());
+//								// System.out.println("Valuetree(" + op + ","+ left+","+ right);
+//								result =  new ValueTree(op, parseArg(left), parseArg(right));
+//							}
+//						}
+//						boolean skipping = false;
+//						for (Predicate pred : Predicate.values()) {
+//							if (skipping) {
+//								skipping = false;
+//								continue;
+//							}
+//							String s = String.valueOf(c);							
+//							String s2 = (idx+1 != argString.length()) ? String.valueOf(argString.charAt(idx+1)) : null;
+//							
+//							if (pred.mSymbol.equals(s+s2)) {
+//								String left = argString.substring(0, idx);
+//								String right = argString.substring(idx + 2, argString.length());
+//								//System.out.println("Conditional(" + pred + ","+ left+","+ right);
+//								result = new Conditional(pred, parseArg(left), parseArg(right));
+//								skipping = true;
+//							}	
+//							else if (pred.mSymbol.equals(s)) {
+//								String left = argString.substring(0, idx);
+//								String right = argString.substring(idx + 1, argString.length());
+//								//System.out.println("Conditional(" + pred + ","+ left+","+ right);
+//								result = new Conditional(pred, parseArg(left), parseArg(right));
+//							}
+//						}
+//					}
+//				}			
+//			}
+//		}
+//		if (result == null) {
+//			throw new InvalidOperationTokenException("Invalid arg: '" + argString +"'");
+//		}
+//		return result;
+//	}
 
 	public Evaluable[] parseArgs(String[] argStrings) 
 	    throws InvalidOperationTokenException {
