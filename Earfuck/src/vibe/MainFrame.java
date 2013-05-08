@@ -1,11 +1,11 @@
 package vibe;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,7 +19,6 @@ import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -239,9 +238,11 @@ public class MainFrame extends JFrame {
 		
 		mFileNameLabel = new JLabel("FILENAME");
 		mTopPane.add(mFileNameLabel,BorderLayout.WEST);
-		
+
 		mToolBar = new JPanel();
+		mTopPane.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 15));
 		mTopPane.add(mToolBar,BorderLayout.CENTER);
+		
 		mContainer.add(mTopPane,BorderLayout.NORTH);
 		JButton button = new JButton();
 		button.setText("Compile");

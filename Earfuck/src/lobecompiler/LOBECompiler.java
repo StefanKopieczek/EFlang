@@ -343,7 +343,7 @@ public class LOBECompiler {
 				if (val1 instanceof Constant && val2 instanceof Constant) {
 					// Both arguments are constants - we just return their sum as a constant.
 					int num1 = ((Constant)val1).getValue();
-					int num2 = ((Constant)val1).getValue();
+					int num2 = ((Constant)val2).getValue();
 					result = new Constant(num1 + num2);
 				}
 				else {
@@ -385,7 +385,7 @@ public class LOBECompiler {
 				if (val1 instanceof Constant && val2 instanceof Constant) {
 					// Both arguments are constants - we just return the answer as a constant.
 					int num1 = ((Constant)val1).getValue();
-					int num2 = ((Constant)val1).getValue();
+					int num2 = ((Constant)val2).getValue();
 					result = new Constant(num1 - num2);
 				}
 				else {
@@ -409,7 +409,7 @@ public class LOBECompiler {
 				if (val1 instanceof Constant && val2 instanceof Constant) {
 					// Both arguments are constants - we just return the product as a constant.
 					int num1 = ((Constant)val1).getValue();
-					int num2 = ((Constant)val1).getValue();
+					int num2 = ((Constant)val2).getValue();
 					result = new Constant(num1 * num2);
 				}
 				else {
