@@ -2,6 +2,12 @@ package vibe;
 
 import javax.swing.SwingUtilities;
 
+/**
+ * VIBE - Visual Interface for Building Earfuck
+ * @author Ryan Norris
+ *
+ */
+
 public class Main {
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
