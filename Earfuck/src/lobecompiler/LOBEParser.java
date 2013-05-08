@@ -2,6 +2,8 @@ package lobecompiler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LOBEParser {
 
@@ -38,9 +40,91 @@ public class LOBEParser {
 		}
 		return result;
 	}
+<<<<<<< HEAD
+	
+	public Evaluable parseArg(String argString) {
+=======
 
 	public Evaluable parseArg(String argString) 
 	    throws InvalidOperationTokenException {
+>>>>>>> 7125419ea2cfff90b3005910e4a0ddba740003cd
+		Evaluable result = null;
+		argString = argString.trim();
+		String topLevel = getTopLevel(argString);
+		
+		// First check to see if there is a predicate in the top level.
+		for (Predicate p : Predicate.values()) {
+			int idx = topLevel.indexOf(p.name());
+			if (idx != -1) {
+				// There is - let's return a Conditional based on it, evaluating the
+				// LHS and RHS recursively.
+				int predLength = p.name().length();				
+				Evaluable LHS = parseArg(argString.substring(0, idx-1));
+				Evaluable RHS = parseArg(argString.substring(idx + predLength, 
+						                                           argString.length()));
+				result = new Conditional(p, LHS, RHS);
+			}
+		}
+		
+		// The top level doesn't contain a predicate - check if it contains an operator.
+		for (Operator op : Operator.values()) {
+			int idx = topLevel.indexOf(op.name());
+			if (idx != -1) {
+				// There is - let's return a ValueTree based on it, evaluating the
+				// LHS and RHS recursively.
+				int opLength = op.name().length();
+				Evaluable LHS = parseArg(argString.substring(0, idx-1));
+				Evaluable RHS = parseArg(argString.substring(idx + opLength, 
+						                                           argString.length()));
+				result = new ValueTree(op, LHS, RHS);
+			}
+		}
+		
+		// Check to see if we're all just one big bracketed expression.
+		int idxLeft = argString.indexOf('(');
+		int idxRight = argString.lastIndexOf(')');
+		if (idxLeft != -1 && idxRight != -1) {
+			// We are - so just parse the bit inside the brackets.
+			result = parseArg(argString.substring(idxLeft+1, idxRight));
+		}
+		
+		// Check if we're a constant.
+		if (argString.matches("\\d+")) { 
+			result = new Constant(Integer.parseInt(argString));
+		}
+		
+		if (result == null) {
+			// Assume we're a variable. We should probably be more careful here,
+			// but good compilers don't write invalid code anyway so we don't
+			// need to worry.
+			result = new Variable(argString);
+		}
+		
+		return result;
+		
+	}
+	
+	public String getTopLevel(String expression) {
+		String result = "";
+		int bracketDepth = 0;
+		for (char c : expression.toCharArray()) {
+			if (c == '(') {
+				bracketDepth += 1;
+			}
+			else if (c == ')') {
+				bracketDepth -= 1;
+			}
+			if (bracketDepth == 0) {
+				result += c;
+			}
+			else {
+				result += " ";
+			}
+		}
+		return result;
+	}
+
+	public Evaluable parseArgOld(String argString) {
 		Evaluable result = null;
 		if (argString.charAt(0) != '(') {		
 			if (argString.matches("\\d+")) {
