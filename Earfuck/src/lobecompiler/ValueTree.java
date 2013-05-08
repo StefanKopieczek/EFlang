@@ -19,9 +19,8 @@ public class ValueTree implements Evaluable {
 	
 	public Value evaluate(LOBECompiler compiler) throws LobeCompilationException {	    
 	    Value leftVal = mLeft.evaluate(compiler);
-        Value rightVal = mRight.evaluate(compiler);
-        Variable target = compiler.getNewInternalVariable();
-        return compiler.evaluate(mOperator, leftVal, rightVal, target, false);
+        Value rightVal = mRight.evaluate(compiler);        
+        return compiler.evaluate(mOperator, leftVal, rightVal, null, false);
 	}
 	
 	public Variable evaluate(LOBECompiler compiler, Variable target)
