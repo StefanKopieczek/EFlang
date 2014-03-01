@@ -258,42 +258,17 @@ public class MainFrame extends JFrame {
 		mContainer.add(mTopPane,BorderLayout.NORTH);
 		
 		JPanel buttonsBar = new JPanel();
-		JButton button = new JButton();
-		button.setText("Compile");
-		button.setActionCommand("compile");
-		button.addActionListener(mController);
-		buttonsBar.add(button);
-		mButtons.put(ControlButton.COMPILE, button);
+        addButtonToBar(buttonsBar, "Compile", "compile", ControlButton.COMPILE);
 		
-		button = new JButton();
-		button.setText("|>");
-		button.setActionCommand("play");
-		button.addActionListener(mController);
-		buttonsBar.add(button);
-		mButtons.put(ControlButton.PLAY, button);
+        addButtonToBar(buttonsBar, "|>", "play", ControlButton.PLAY);
 		
-		button = new JButton();
-		button.setText("||");
-		button.setActionCommand("pause");
-		button.addActionListener(mController);
-		button.setEnabled(false);
-		buttonsBar.add(button);
-		mButtons.put(ControlButton.PAUSE, button);
+        addButtonToBar(buttonsBar, "||", "pause", ControlButton.PAUSE);
+        setButtonEnabled(ControlButton.PAUSE, false);
 		
-		button = new JButton();
-		button.setText("O");
-		button.setActionCommand("stop");
-		button.addActionListener(mController);
-		button.setEnabled(false);
-		buttonsBar.add(button);
-		mButtons.put(ControlButton.STOP, button);
+        addButtonToBar(buttonsBar, "O", "stop", ControlButton.STOP);
+        setButtonEnabled(ControlButton.STOP, false);
 		
-		button = new JButton();
-		button.setText("->");
-		button.setActionCommand("step");
-		button.addActionListener(mController);
-		buttonsBar.add(button);
-		mButtons.put(ControlButton.STEP, button);
+        addButtonToBar(buttonsBar, "->", "step", ControlButton.STEP);
 		
 		mToolBar.add(buttonsBar);
 		
@@ -337,6 +312,23 @@ public class MainFrame extends JFrame {
 		mContainer.add(frame,BorderLayout.SOUTH);
 	}
 	
+    /**
+     * Creates a new button with the given parameters and adds it to the given
+     * JPanel.
+     * @param buttonBar - the JPanel to add this button to.
+     * @param text - The text to display on the button.
+     * @param action - the action string to send when clicked.
+     * @param type - the ControlButton referring to this button.
+     */
+    private void addButtonToBar(JPanel buttonBar, String text, String action, ControlButton type) {
+		JButton button = new JButton();
+		button.setText(text);
+		button.setActionCommand(action);
+		button.addActionListener(mController);
+		buttonBar.add(button);
+		mButtons.put(type, button);
+    }
+
 	/**
 	 * Returns the contents of the EAR code pane.
 	 * @return
