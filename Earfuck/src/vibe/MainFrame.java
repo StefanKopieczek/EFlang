@@ -292,6 +292,10 @@ public class MainFrame extends JFrame {
 		
 		if (returnVal==JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
+			if (!file.getName().endsWith(".png"))
+			{
+				file = new File(file.getAbsoluteFile() + ".png");
+			}
 			String abcCode = EfToAbcConverter.convert(getEFCode());			
 			Scribe scribe = new Scribe(abcCode);
 			

@@ -44,7 +44,7 @@ public class EfToAbcConverter {
     } 
 
     private static String efNoteToAbc(String token, int length) {
-        char note = token.charAt(0);
+        char note = token.charAt(0);              
         char octave = token.charAt(1);
         int octaveIndex;
         String sharpOrFlat = "";
