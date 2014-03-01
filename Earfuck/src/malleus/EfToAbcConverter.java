@@ -1,7 +1,7 @@
 package malleus;
 
 public class EfToAbcConverter {
-    private static String DEFAULT_NOTE_LENGTH = "1/4";
+    private static String DEFAULT_NOTE_LENGTH = "1";
 
     public static void main(String[] args) {
         String ef = "c4 c5 d6 e4 fb4";
@@ -37,13 +37,12 @@ public class EfToAbcConverter {
             } 
             else {
                 builder.append(efNoteToAbc(token, noteLength));
+                if (noteIndex == 20) {
+                    builder.append("\n");
+                    noteIndex = 0;
+                }
+                noteIndex++;
             }
-
-            if (noteIndex == 20) {
-                builder.append("\n");
-                noteIndex = 0;
-            }
-            noteIndex++;
         }
 
         return builder.toString();
