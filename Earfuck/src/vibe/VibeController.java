@@ -146,8 +146,8 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		mTimer = new ProgramTimer(1000,new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent action) {
-				int seconds = mTimer.getCycles()%60;
-				int minutes = mTimer.getCycles()/60;
+				int seconds = mTimer.getTicks()%60;
+				int minutes = mTimer.getTicks()/60;
 				mFrame.setTimerLabel(String.format("%02d:%02d",minutes,seconds));
 			}
 		});
