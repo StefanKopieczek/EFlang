@@ -29,10 +29,10 @@ public class EfToAbcConverter {
         builder.append("K:" + key + "\n");
 
         for (String token : tokens) {
-            if (token == "(") {
+            if (token.equals("(")) {
                noteLength *= 2;
             }
-            else if (token == ")") {
+            else if (token.equals(")")) {
                noteLength /= 2;
             } 
             else {
