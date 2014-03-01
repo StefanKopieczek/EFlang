@@ -1,0 +1,87 @@
+<project name="Earfuck" default="dist" basedir=".">
+    <description>
+        Earfuck - a musical programming language.
+    </description>
+    <property name="src" location="src"/>
+    <property name="build" location="build"/>
+    <property name="dist" location="dist"/>
+    <property name="lib" location="lib"/>
+
+    <uptodate property="earfuck.buildNotRequired">
+        <srcfiles dir="${src}/earfuck" includes="**/*.java"/>
+        <mapper type="glob" from="${src}/earfuck/*.java" to="${build}/earfuck/*.class"/>
+    </uptodate>
+
+    <uptodate property="lobecompiler.buildNotRequired">
+        <srcfiles dir="${src}/lobecompiler" includes="**/*.java"/>
+        <mapper type="glob" from="${src}/lobecompiler/*.java" to="${build}/lobecompiler/*.class"/>
+    </uptodate>
+
+    <uptodate property="earcompiler.buildNotRequired">
+        <srcfiles dir="${src}/earcompiler" includes="**/*.java"/>
+        <mapper type="glob" from="${src}/earcompiler/*.java" to="${build}/earcompiler/*.class"/>
+    </uptodate>
+
+    <uptodate property="vibe.buildNotRequired">
+        <srcfiles dir="${src}/vibe" includes="**/*.java"/>
+        <mapper type="glob" from="${src}/vibe/*.java" to="${build}/vibe/*.class"/>
+    </uptodate>
+
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="buildef" depends="init" unless="earfuck.buildNotRequired" description="Compile the earfuck base">
+        <mkdir dir="${build}/earfuck"/>
+        <javac srcdir="${src}/earfuck" destdir="${build}">
+            <classpath>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="buildear" depends="init" unless="earcompiler.buildNotRequired" description="Compile the EAR compiler">
+        <mkdir dir="${build}/earcompiler"/>
+        <javac srcdir="${src}/earcompiler" destdir="${build}"/>
+    </target>
+
+    <target name="buildlobe" depends="init" unless="lobecompiler.buildNotRequired" description="Compile the LOBE compiler">
+        <mkdir dir="${build}/lobecompiler"/>
+        <javac srcdir="${src}/lobecompiler" destdir="${build}"/>
+    </target>
+
+    <target name="buildvibe" depends="buildef,buildear,buildlobe" description="Compile the VIBE IDE">
+        <mkdir dir="${build}/vibe"/>
+        <javac srcdir="${src}/vibe" destdir="${build}">
+            <classpath>
+                <fileset dir="${build}">
+                    <include name="earfuck/*.class"/>
+                    <include name="earcompiler/*.class"/>
+                    <include name="lobecompiler/*.class"/>
+                </fileset>
+                <fileset dir="${lib}">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="dist" depends="buildvibe" description="Generate a VIBE IDE jar file.">
+        <unjar dest="${build}">
+            <fileset dir="${lib}">
+                <include name="**/*.jar"/>
+            </fileset>
+        </unjar>
+        <mkdir dir="${dist}"/>
+        <jar jarfile="${dist}/VIBE-${DSTAMP}.jar">
+            <fileset dir="${build}"/>
+            <fileset dir="${lib}"/>
+            <manifest>
+                <attribute name="Main-Class" value="vibe/Main"/>
+            </manifest>
+        </jar>
+    </target>
+</project>
