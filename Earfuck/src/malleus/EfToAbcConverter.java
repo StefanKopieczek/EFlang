@@ -44,17 +44,26 @@ public class EfToAbcConverter {
     } 
 
     private static String efNoteToAbc(String token, int length) {
-        char note = token.charAt(0);              
-        char octave = token.charAt(1);
+        char note = token.charAt(0);
         int octaveIndex;
         String sharpOrFlat = "";
         char HIGH_OCTAVE_SUFFIX = '`';
         char LOW_OCTAVE_SUFFIX = ',';
         String SHARP_PREFIX = "^";
         String FLAT_PREFIX = "_";
+        char REST_CHAR = 'z';
 
         StringBuilder builder = new StringBuilder();
 
+        if (note == 'r') {
+            // If this is a rest, compile the note and return immedietely.
+            builder.append(REST_CHAR);
+            builder.append('/');
+            builder.append(length);
+            return builder.toString();
+        }
+
+        char octave = token.charAt(1);
         if (octave == '#' || octave == 'b') {
             // The second character wasn't an octave index like expected.
             // It was a sharp/flat modifier. Handle this here and then get
