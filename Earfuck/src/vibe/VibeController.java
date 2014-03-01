@@ -27,7 +27,7 @@ import earfuck.Parser;
  * @author Ryan Norris
  *
  */
-public class VibeController implements ActionListener, KeyEventDispatcher {
+public class VibeController implements ProgramTimer.TimerListener, ActionListener, KeyEventDispatcher {
 	/**
 	 * The application window JFrame.
 	 */
@@ -143,15 +143,17 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		addKeyEventDispatcher(this);
 		
 		//Setup mTimer
-		mTimer = new ProgramTimer(1000,new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent action) {
-				int seconds = mTimer.getTicks()%60;
-				int minutes = mTimer.getTicks()/60;
-				mFrame.setTimerLabel(String.format("%02d:%02d",minutes,seconds));
-			}
-		});
+		mTimer = new ProgramTimer(1000, this);
 	}
+
+    /**
+     * Callback function called each time the program timer ticks.
+     */
+    public void onTick() {
+        int seconds = mTimer.getTicks()%60;
+        int minutes = mTimer.getTicks()/60;
+        mFrame.setTimerLabel(String.format("%02d:%02d",minutes,seconds));
+    }
 
 	/**
 	 * Controls what happens when actions are called by the window.

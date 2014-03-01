@@ -482,5 +482,6 @@ public class MainFrame extends JFrame {
 	
 	public void setTimerLabel(String text) {
 		mTimerLabel.setText(text);
+        mTimerLabel.invalidate();
 	}
 }
