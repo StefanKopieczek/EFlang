@@ -6,7 +6,7 @@ public interface Performer {
 	public void onRest();
 	public void addNote(String note, float frac);
 	public void addNote(String note, float frac, int excitement);
-	public void changeInstrument(String instrumentString);
+	public void changeInstrument(byte instrumentCode);
 	public void setTempo(int tempoInt);
 	public int getTempo();
 }

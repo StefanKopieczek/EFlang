@@ -4,13 +4,6 @@ import java.util.concurrent.CountDownLatch;
 
 public class Parser {	
 	private static Integer INITIAL_ATTACK_VALUE = 63;
-	
-	/**
-	 * The performer understands the musical notation we use, and is able to
-	 * output audio (either to a MIDI file or to a current MIDI stream).
-	 */	
-	MidiStreamPerformer mPerformer = new MidiStreamPerformer();
-	
 	/**
 	 * This handles input/output.
 	 */
@@ -113,9 +106,16 @@ public class Parser {
 	 */
 	int mBracketsSkipped;		
 	
-	public Parser() {
+	/**
+	 * The performer understands the musical notation we use, and is able to
+	 * output audio (either to a MIDI file or to a current MIDI stream).
+	 */	
+	MidiStreamPerformer mPerformer;
+	
+	public Parser(byte instrumentCode) {
 		mOutputMode = "numeric";
-		refreshState();
+		mPerformer = new MidiStreamPerformer(instrumentCode);
+		refreshState();		
 	}
 	
 	/**
@@ -134,6 +134,15 @@ public class Parser {
 		mPreviousNote = null;
 		mBracketsSkipped = 0;
 		mBrackets = new Stack<Integer>();
+	}
+	
+	/**
+	 * Sets the playback instrument on the performer.
+	 * 
+	 * @param instrument The code of the instrument- should be in the range 0 <= n < 128.
+	 */
+	public void setInstrument(byte instrument) {
+		mPerformer.changeInstrument(instrument);
 	}
 	
 	/**

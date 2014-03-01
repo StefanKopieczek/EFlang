@@ -3,20 +3,19 @@ package earfuck;
 import java.io.File;
 import java.io.IOException;
 
+import org.jfugue.Instrument;
 import org.jfugue.MusicStringParser;
-import org.jfugue.Pattern;
-import org.jfugue.Player;
 import org.jfugue.StreamingPlayer;
 
 class MidiStreamPerformer implements Performer {
     StreamingPlayer mPlayer;
     String queue;
-    String instrument = "[46]";
+    byte instrument;
     String tempo = "120";
     String control_params = "";
 
-    public MidiStreamPerformer() {
-        mPlayer = new StreamingPlayer();
+    public MidiStreamPerformer(byte instrument) {
+        mPlayer = new StreamingPlayer();        
         changeInstrument(instrument);
     }
 
@@ -71,8 +70,8 @@ class MidiStreamPerformer implements Performer {
     }
 
     @Override
-    public void changeInstrument(String instrumentString) {
-        instrument = instrumentString;
-        mPlayer.stream("I" + instrument + " ");
+    public void changeInstrument(byte instrumentCode) {    	
+        instrument = instrumentCode;
+        mPlayer.stream("I" + String.valueOf(instrument) + " ");
     }
 }

@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import org.jfugue.Instrument;
+
 import vibe.MainFrame.ControlButton;
 
 import lobecompiler.LOBECompiler;
@@ -106,6 +108,13 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
 	 * Used for code highlighting.
 	 */
 	private ArrayList<Integer> mHighLevelLineStartPositions;
+
+	/**
+	 * The instrument to use for playing notes.
+	 * Codes are available at
+	 * http://www.cs.cofc.edu/~manaris/spring04/cs220-handouts/JFugue/JFugue-UserGuide.html#instruments
+	 */
+	private byte mInstrument = 0; // Default to 'piano'
 	
 	/**
 	 * The mode describes which type of code we're currently editing.<br/>
@@ -133,7 +142,7 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
 		mEARCompiler = new EARCompiler();
 		mLOBECompiler = new LOBECompiler();
 		mOpenFilePath = null;
-		mParser = new Parser();
+		mParser = new Parser(mInstrument);
 		mWorker = null;
 		mStepWorker = null;
 		mPlayState = PlayState.STOPPED;
@@ -446,8 +455,9 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
 			mParser.refreshState();
 		}
 		mFrame.clearConsole();
-		mPlayState = PlayState.PLAYING;
-		mParser.giveMusic(EFCode);
+		mPlayState = PlayState.PLAYING;		
+		mParser.giveMusic(EFCode);		
+		mParser.setInstrument(mInstrument);
 		mWorker = new ParserWorker(this);
 		mWorker.execute();
 		
@@ -575,6 +585,18 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
 	 */
 	public Parser getParser() {
 		return mParser;
+	}
+	
+	/**
+	 * Sets the instrument to be used for playback.
+	 * 
+	 * @param instrumentCode The instrument to use - should be in the range 0 =< n < 128.
+	 */
+	public void setInstrument(byte instrumentCode)
+	{
+		mInstrument = instrumentCode;
+				
+		mParser.setInstrument(instrumentCode);
 	}
 	
 	/**

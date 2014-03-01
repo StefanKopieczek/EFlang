@@ -9,11 +9,12 @@ import org.jfugue.Player;
 public class MidiFilePerformer implements Performer {
 	Player mPlayer;
 	String queue;
-	String instrument = "[GLOCKENSPIEL]";
+	byte instrument;
 	String tempo = "120";
 	String control_params = "";
 	
-	public MidiFilePerformer() {
+	public MidiFilePerformer(byte instrumentCode) {
+		instrument = instrumentCode;
 		mPlayer = new Player();
 		refreshQueue();
 	}
@@ -75,8 +76,8 @@ public class MidiFilePerformer implements Performer {
 
 
 	@Override
-	public void changeInstrument(String instrumentString) {
-		instrument = instrumentString;
+	public void changeInstrument(byte instrumentCode) {
+		instrument = instrumentCode;
 		queue += "I" + instrument + " ";
 	}
 }

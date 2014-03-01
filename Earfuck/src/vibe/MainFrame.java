@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -24,6 +26,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.jfugue.Instrument;
 
 /**
  * The main application frame.
@@ -205,7 +209,7 @@ public class MainFrame extends JFrame {
 		
 		//Create menu bar
 		mMenuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
+		JMenu menu = new JMenu("File");		
 		
 		JMenuItem menuItem;
 		
@@ -232,9 +236,11 @@ public class MainFrame extends JFrame {
 		menuItem = new JMenuItem("Exit");
 		menuItem.addActionListener(mController);
 		menuItem.setActionCommand("exit");
-		menu.add(menuItem);
+		menu.add(menuItem);			
 		
 		mMenuBar.add(menu);
+		
+		mMenuBar.add(createOptionsMenu());
 		
 		setJMenuBar(mMenuBar);
 		
@@ -335,6 +341,32 @@ public class MainFrame extends JFrame {
 		frame.add(scrollPane1);
 		
 		mContainer.add(frame,BorderLayout.SOUTH);
+	}
+	
+	/**
+	 * Create the options menu, avaliable from the main menu bar.
+	 * 
+	 * @return The menu created.
+	 */
+	private JMenu createOptionsMenu()
+	{
+		JMenu optionsMenu = new JMenu("Options");
+		
+		// Build the MIDI instrument selector.
+		// See http://www.cs.cofc.edu/~manaris/spring04/cs220-handouts/JFugue/JFugue-UserGuide.html#instruments.
+		JMenu instrumentsMenu = new JMenu("MIDI Instrument");
+		instrumentsMenu.add(new InstrumentItem("Church Organ", 19));
+		instrumentsMenu.add(new InstrumentItem("Flute", 73));		
+		instrumentsMenu.add(new InstrumentItem("French Horn", 60));
+		instrumentsMenu.add(new InstrumentItem("Glockenspiel", 9));		
+		instrumentsMenu.add(new InstrumentItem("Guitar", 24));
+		instrumentsMenu.add(new InstrumentItem("Music Box", 10));
+		instrumentsMenu.add(new InstrumentItem("Piano", 0));
+		instrumentsMenu.add(new InstrumentItem("Pizzicato Strings", 45));
+		instrumentsMenu.add(new InstrumentItem("Sitar", 104));
+		
+		optionsMenu.add(instrumentsMenu);		
+		return optionsMenu;
 	}
 	
 	/**
@@ -512,12 +544,43 @@ public class MainFrame extends JFrame {
 		mConsole.clearDisplay();
 	}
 	
-	public enum ControlButton
-	{
+	/**
+	 * Aliases for the buttons used to control program flow.
+	 * This is a shortcut to prevent us having to have separate enable/disable
+	 * methods for each button, and means that we don't have to make the buttons
+	 * public members.
+	 */
+	public enum ControlButton {
 		PLAY,
 		PAUSE,
 		STOP,
 		COMPILE,
 		STEP;
+	}
+	
+	/**
+	 * An item in the instrument selector submenu (Options > Midi Instrument).	 
+	 */
+	private class InstrumentItem extends JMenuItem implements ActionListener {
+		
+		private byte mCode;
+		
+		/**
+		 * Construct the InstrumentItem from a user-visible display name and
+		 * an instrument code (see
+		 * http://www.cs.cofc.edu/~manaris/spring04/cs220-handouts/JFugue/JFugue-UserGuide.html#instruments)
+		 * @param name The user-visible display name of the item.
+		 * @param code The instrument code, which should be in the range 0 <= n < 128.
+		 */
+		public InstrumentItem(String name, int code) {
+			super(name);
+			addActionListener(this);
+			mCode = (byte)code;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			mController.setInstrument(mCode);
+		}
 	}
 }
