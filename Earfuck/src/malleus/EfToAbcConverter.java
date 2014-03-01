@@ -58,8 +58,9 @@ public class EfToAbcConverter {
         if (note == 'r') {
             // If this is a rest, compile the note and return immedietely.
             builder.append(REST_CHAR);
-            builder.append('/');
-            builder.append(length);
+            if (length > 1) {
+                builder.append(length);
+            }
             return builder.toString();
         }
 
@@ -74,7 +75,7 @@ public class EfToAbcConverter {
 
         octaveIndex = Character.getNumericValue(octave);
 
-        if (octaveIndex >= 5) {
+        if (octaveIndex <= 4) {
             note = Character.toUpperCase(note);
         }
         else {
@@ -93,7 +94,6 @@ public class EfToAbcConverter {
         }
 
         if (length > 1) {
-            builder.append('/');
             builder.append(length);
         }
 
