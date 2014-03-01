@@ -1,10 +1,16 @@
-package malleus
+package malleus;
 
 public class EfToAbcConverter {
     private static String DEFAULT_NOTE_LENGTH = "1/4";
 
-    public static String convertToAbc(String efCode) {
-        String[] tokens = efCode.split();
+    public static void main(String[] args) {
+        String ef = "c4 c5 d6 e4 fb4";
+
+        System.out.println(EfToAbcConverter.convert(ef));
+    }
+
+    public static String convert(String efCode) {
+        String[] tokens = efCode.split("\\s+");
 
         StringBuilder builder = new StringBuilder();
 
@@ -16,17 +22,17 @@ public class EfToAbcConverter {
         String key = "C";
 
 
-        builder.append("X:" + String.parseInt(index) + "\n");
+        builder.append("X:" + Integer.toString(index) + "\n");
         builder.append("T:" + title + "\n");
         builder.append("M:" + meter + "\n");
         builder.append("L:" + DEFAULT_NOTE_LENGTH + "\n");
         builder.append("K:" + key + "\n");
 
         for (String token : tokens) {
-            if (token == '(') {
+            if (token == "(") {
                noteLength *= 2;
             }
-            else if (token == ')') {
+            else if (token == ")") {
                noteLength /= 2;
             } 
             else {
@@ -37,19 +43,19 @@ public class EfToAbcConverter {
         return builder.toString();
     } 
 
-    private static String efNoteToAbc(String token, String length) {
+    private static String efNoteToAbc(String token, int length) {
         char note = token.charAt(0);
         char octave = token.charAt(1);
         int octaveIndex;
-        char sharpOrFlat = null;
+        String sharpOrFlat = "";
         char HIGH_OCTAVE_SUFFIX = '`';
         char LOW_OCTAVE_SUFFIX = ',';
-        char SHARP_PREFIX = '^';
-        char FLAT_PREFIX = '_';
+        String SHARP_PREFIX = "^";
+        String FLAT_PREFIX = "_";
 
         StringBuilder builder = new StringBuilder();
 
-        if (octave == '#' or octave == 'b') {
+        if (octave == '#' || octave == 'b') {
             // The second character wasn't an octave index like expected.
             // It was a sharp/flat modifier. Handle this here and then get
             // the actual octave index from the next character.
@@ -69,11 +75,11 @@ public class EfToAbcConverter {
         builder.append(sharpOrFlat);
         builder.append(note);
 
-        for (int i=6; i <= octaveIndex; i++;) {
+        for (int i=6; i <= octaveIndex; i++) {
             builder.append(HIGH_OCTAVE_SUFFIX);
         }
 
-        for (int i=3; i >= octaveIndex; i--;) {
+        for (int i=3; i >= octaveIndex; i--) {
             builder.append(LOW_OCTAVE_SUFFIX);
         }
 
