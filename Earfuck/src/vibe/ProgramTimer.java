@@ -1,41 +1,19 @@
 package vibe;
 
-import java.awt.event.ActionEvent;
+import javax.swing.SwingUtilities;
 import java.awt.event.ActionListener;
 
-import javax.swing.Timer;
+/**
+ * ProgramTimer - A threaded timer for timing how long a program has been
+ * running for.
+ * @author Ryan Norris
+ *
+ */
 
-public class ProgramTimer extends Timer {
-	int mCycles;
-
-	public ProgramTimer(int delay, ActionListener listener) {
-		super(delay, listener);
-		mCycles = 0;
-	}
-	
-	@Override
-	protected void fireActionPerformed(ActionEvent e) {
-		mCycles++;
-		super.fireActionPerformed(e);
-	}
-
-	public int getCycles() {
-		return mCycles;
-	}
-	
-	public int getTime() {
-		return getDelay() * getCycles();
-	}
-	
-	@Override
-	public void restart() {
-		mCycles = 0;
-		super.restart();
-	}
-	
-	public void reset() {
-		restart();
-		stop();
-		mCycles = 0;
-	}
+public class ProgramTimer { 
+    public ProgramTimer(int msPerTick, ActionListener listener) {}
+    public void start() {}
+    public void stop() {}
+    public void reset() {}
+    public int getTicks() {return 0;}
 }
