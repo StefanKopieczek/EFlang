@@ -5,3 +5,4 @@ Earfuck/bin/
 Earfuck/src/.metadata
 Earfuck/build
 Earfuck/dist
+*.orig
