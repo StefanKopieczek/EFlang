@@ -31,6 +31,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import malleus.EfToAbcConverter;
 import malleus.Scribe;
 
 import org.jfugue.Instrument;
@@ -278,8 +279,8 @@ public class MainFrame extends JFrame {
 		mButtons.get(buttonType).setEnabled(enabled);
 	}
 	
-	public void showScore() {
-		String abcCode = "X:1\nT:Migalhas de Amor\nC:Jacob do Bandolim\nR:Choro\nQ:1/4=80\nM:2/4\nK:Bb\nD2B|^F4-FGBd-|d4df2e|A4-ABce-|e2<d2z D2B|\n^F4-FGBd-|d4df2e|A4-ABce-|e2<d2z def-|(3f2f2f2fede|\ne4ed2c|(3d2d2d2dc2B|(3A2^C2=E (3A2G2A2|(3[G,2^F2]G2A2\\n(3[=B2D2]^c2d2|(3[=E2G,2]^F2G2 (3[A2^C2][G2=B2][^c=G]\n(3[^F2=e2]d2c2 AFDE-|E4 z D2B | ^F4-FGB[d-D-]|[d4D4]df2e|A4ABce|\ne2<d2zD2B|^F4 FGBd-|d4 df2d|A4-ABcd|d2>c2zdef|\n(3f2f2f2 (3f2e2d2|e4-(3e2d2c2 | (3d2d2d2dcBc-|(3c2_A,2E2 (3c2B2A2|(3[B2D2]A2G2 B4|\n(3B2A2G2(3A2G2^F2|A2<G2-G4 |:z FG^G Ad2A-|A4 AB2F | E2[=B,F,] ED2=B,|\n[DG,E,]C2=B, CDE[G-G,-]|[GG,]E2F Ge2A-|A4 Ac2A|(3G2D,2A,2 [GE2]B2A | (3G2F2=E2 (3F2D2B,2\n(3F2G2^G2 Ad2A-|A4 AB2F | (3E2F,2=B,2 ED2=B, | DC2=B, CEGd-|dc2d cBA[cD]\n[cD]B2d [BG,]AG[B-D,-]|[BD,]G2B AGFB-|1B8 :|2 B8 B,CD EDCB, | A,G,^F,E,D,";
+	public void showScore() {		
+		String abcCode = EfToAbcConverter.convert(getEFCode());		
 		Scribe scribe = new Scribe(abcCode);
 		scribe.getScoreWindow().setVisible(true);
 	}
@@ -291,7 +292,7 @@ public class MainFrame extends JFrame {
 		
 		if (returnVal==JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			String abcCode = "X:1\nT:Migalhas de Amor\nC:Jacob do Bandolim\nR:Choro\nQ:1/4=80\nM:2/4\nK:Bb\nD2B|^F4-FGBd-|d4df2e|A4-ABce-|e2<d2z D2B|\n^F4-FGBd-|d4df2e|A4-ABce-|e2<d2z def-|(3f2f2f2fede|\ne4ed2c|(3d2d2d2dc2B|(3A2^C2=E (3A2G2A2|(3[G,2^F2]G2A2\\n(3[=B2D2]^c2d2|(3[=E2G,2]^F2G2 (3[A2^C2][G2=B2][^c=G]\n(3[^F2=e2]d2c2 AFDE-|E4 z D2B | ^F4-FGB[d-D-]|[d4D4]df2e|A4ABce|\ne2<d2zD2B|^F4 FGBd-|d4 df2d|A4-ABcd|d2>c2zdef|\n(3f2f2f2 (3f2e2d2|e4-(3e2d2c2 | (3d2d2d2dcBc-|(3c2_A,2E2 (3c2B2A2|(3[B2D2]A2G2 B4|\n(3B2A2G2(3A2G2^F2|A2<G2-G4 |:z FG^G Ad2A-|A4 AB2F | E2[=B,F,] ED2=B,|\n[DG,E,]C2=B, CDE[G-G,-]|[GG,]E2F Ge2A-|A4 Ac2A|(3G2D,2A,2 [GE2]B2A | (3G2F2=E2 (3F2D2B,2\n(3F2G2^G2 Ad2A-|A4 AB2F | (3E2F,2=B,2 ED2=B, | DC2=B, CEGd-|dc2d cBA[cD]\n[cD]B2d [BG,]AG[B-D,-]|[BD,]G2B AGFB-|1B8 :|2 B8 B,CD EDCB, | A,G,^F,E,D,";
+			String abcCode = EfToAbcConverter.convert(getEFCode());			
 			Scribe scribe = new Scribe(abcCode);
 			
 			try {
