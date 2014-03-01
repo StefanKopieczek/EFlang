@@ -216,7 +216,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		}
 		else if (mMode==VibeMode.EAR){
 			compileEARCode();
-		}
+		}		
 	}
 	
 	/**
@@ -412,7 +412,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 			fileName = mOpenFilePath.replaceAll("^.*\\\\","");
 		}
 		mFrame.setFileNameLabel(fileName);
-		mFrame.setTitle("VIBE Earfuck IDE - "+fileName);
+		mFrame.setTitle("VIBE Earfuck IDE - "+fileName);		
 	}
 	
 	/**
@@ -441,6 +441,7 @@ public class VibeController implements ActionListener, KeyEventDispatcher {
 		if (mPlayState==PlayState.STOPPED) {
 			mParser.refreshState();
 		}
+		mFrame.clearConsole();
 		mPlayState = PlayState.PLAYING;
 		mParser.giveMusic(EFCode);
 		mWorker = new ParserWorker(this);
