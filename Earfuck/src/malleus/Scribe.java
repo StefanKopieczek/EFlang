@@ -31,10 +31,4 @@ public class Scribe {
 	public void writeToFile(File f) throws IOException {
 		mScore.writeScoreTo(f);
 	}
-	
-	public static void main(String[] args)
-	{
-		Scribe scribe = new Scribe("X:1\nT:Hello world\nM:4/4\nL:1/4\nK:C\nc d e");
-		scribe.getScoreWindow().setVisible(true);
-	}
 }
