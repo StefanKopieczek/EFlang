@@ -23,10 +23,8 @@ public class ProgramTimer {
     }
 
     public void start() {
-        if (mThread == null) {
+        if (mThread == null || !mThread.isRunning()) {
             mThread = new TimerThread(this, mMsPerTick);
-        }
-        if (!mThread.isRunning()) {
             mThread.start();
         }
     }
