@@ -153,179 +153,6 @@ public class MainFrame extends JFrame {
 		setVisible(true);
 		setupUI();
 	}
-	
-	/**
-	 * Initialises all components. </br>
-	 * Called from constructor, so should not contain any initialisation
-	 * that requires the components to be visible.
-	 */
-	private void initComponents() {
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		
-		mController = new VibeController(this);
-		
-		mContainer = getContentPane();
-		
-		//Create text panes
-		JPanel noWrapPanel;
-		JScrollPane scrollPane1, scrollPane2, scrollPane3;
-		mHighLevelTextPane = new CodePane();
-		mHighLevelTextPane.setDivider('\n');
-		noWrapPanel = new JPanel(new BorderLayout());
-		noWrapPanel.add(mHighLevelTextPane);
-		scrollPane1 = new JScrollPane(noWrapPanel);
-		
-		mEARTextPane = new CodePane();
-		mEARTextPane.setDivider('\n');
-		noWrapPanel = new JPanel(new BorderLayout());
-		noWrapPanel.add(mEARTextPane);
-		scrollPane2 = new JScrollPane(noWrapPanel);
-		
-		mEFTextPane = new CodePane();
-		scrollPane3 = new JScrollPane(mEFTextPane);
-		scrollPane3.setHorizontalScrollBarPolicy(
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		
-		//Create split panes
-		mEARAndEFPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					scrollPane2,scrollPane3);
-		mEditPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					scrollPane1,mEARAndEFPane);
-		mEARAndEFPane.setContinuousLayout(true);
-		mEditPane.setContinuousLayout(true);
-		
-		//Add to container
-		mContainer.add(mEditPane,BorderLayout.CENTER);
-		
-		//Set window size
-		Rectangle rect = this.getBounds();
-		rect.height = 480;
-		rect.width = 640;
-		this.setBounds(rect);
-		
-		//Create menu bar
-		mMenuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
-		
-		JMenuItem menuItem;
-		
-		menuItem = new JMenuItem("New");
-		menuItem.addActionListener(mController);
-		menuItem.setActionCommand("new");
-		menu.add(menuItem);
-		
-		menuItem = new JMenuItem("Open");
-		menuItem.addActionListener(mController);
-		menuItem.setActionCommand("open");
-		menu.add(menuItem);
-		
-		menuItem = new JMenuItem("Save");
-		menuItem.addActionListener(mController);
-		menuItem.setActionCommand("save");
-		menu.add(menuItem);
-		
-		menuItem = new JMenuItem("Save as");
-		menuItem.addActionListener(mController);
-		menuItem.setActionCommand("saveas");
-		menu.add(menuItem);
-		
-		menuItem = new JMenuItem("Exit");
-		menuItem.addActionListener(mController);
-		menuItem.setActionCommand("exit");
-		menu.add(menuItem);
-		
-		mMenuBar.add(menu);
-		
-		setJMenuBar(mMenuBar);
-		
-		//Create tool bar
-		mTopPane = new JPanel(new BorderLayout());
-		
-		mTimerLabel = new JLabel("00:00");
-		mTopPane.add(mTimerLabel,BorderLayout.EAST);
-		
-		JPanel fileNamePanel = new JPanel();
-		mFileNameLabel = new JLabel("FILENAME");				
-		fileNamePanel.add(mFileNameLabel);
-		mTopPane.add(fileNamePanel,BorderLayout.WEST);
-
-		mToolBar = new JPanel();
-		mToolBar.setLayout(new BoxLayout(mToolBar,BoxLayout.X_AXIS));
-				
-		mTopPane.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 15));
-		mTopPane.add(mToolBar,BorderLayout.CENTER);
-				
-		mContainer.add(mTopPane,BorderLayout.NORTH);
-		
-        // Create the bar containing the control buttons.
-		JPanel buttonsBar = new JPanel();
-        addButtonToBar(buttonsBar, "Compile", "compile", ControlButton.COMPILE);
-        addButtonToBar(buttonsBar, "|>", "play", ControlButton.PLAY);
-        addButtonToBar(buttonsBar, "||", "pause", ControlButton.PAUSE);
-        addButtonToBar(buttonsBar, "O", "stop", ControlButton.STOP);
-        addButtonToBar(buttonsBar, "->", "step", ControlButton.STEP);
-		
-        setButtonEnabled(ControlButton.PAUSE, false);
-        setButtonEnabled(ControlButton.STOP, false);
-
-		mToolBar.add(buttonsBar);
-		
-		//Tempo slider frame
-		mTempoSlider = new JSlider(MIN_TEMPO,MAX_TEMPO,INITIAL_TEMPO);
-		mTempoSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				//Set the label text
-				//All in one line, because I'm awesome and love unreadable code <_<
-				mTempoLabel.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));				
-			}
-		});
-		mTempoLabel = new JLabel();
-		mTempoLabel.setAlignmentY(CENTER_ALIGNMENT);
-		mTempoLabel.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));
-		mTempoSlider.setMinimumSize(mTempoSlider.getPreferredSize());
-		mToolBar.add(mTempoLabel);
-		mToolBar.add(mTempoSlider);
-//		mToolBar.add(frame);
-		
-		//SOUTH SECTION
-		JPanel frame = new JPanel();
-		frame.setLayout(new BoxLayout(frame,BoxLayout.LINE_AXIS));
-		
-		//Create the Memory Visualiser
-		mMemoryVisualiser = new MemoryVisualiser(mController.getParser());
-		frame.add(mMemoryVisualiser);
-		
-		//Create the console
-		mConsole = new Console();
-		mController.getParser().setIoManager(mConsole);
-		noWrapPanel = new JPanel(new BorderLayout());
-		noWrapPanel.add(mConsole);
-		scrollPane1 = new JScrollPane(noWrapPanel);
-		Dimension size = new Dimension(150,100);
-		scrollPane1.setPreferredSize(size);
-		
-		frame.add(scrollPane1);
-		
-		mContainer.add(frame,BorderLayout.SOUTH);
-	}
-	
-    /**
-     * Creates a new button with the given parameters and adds it to the given
-     * JPanel.
-     * @param buttonBar - the JPanel to add this button to.
-     * @param text - The text to display on the button.
-     * @param action - the action string to send when clicked.
-     * @param type - the ControlButton referring to this button.
-     */
-    private void addButtonToBar(JPanel buttonBar, String text, String action, ControlButton type) {
-		JButton button = new JButton();
-		button.setText(text);
-		button.setActionCommand(action);
-		button.addActionListener(mController);
-		buttonBar.add(button);
-		mButtons.put(type, button);
-    }
 
 	/**
 	 * Returns the contents of the EAR code pane.
@@ -510,4 +337,190 @@ public class MainFrame extends JFrame {
 		COMPILE,
 		STEP;
 	}
+	
+    // FROM HERE ON IS UI CREATION BULLSHIT
+    // BE CAREFUL
+    // HERE BE DRAGONS
+
+	/**
+	 * Initialises all components. </br>
+	 * Called from constructor, so should not contain any initialisation
+	 * that requires the components to be visible.
+	 */
+	private void initComponents() {
+		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		
+		mController = new VibeController(this);
+		
+		mContainer = getContentPane();
+		
+		//Create text panes
+		JPanel noWrapPanel;
+		JScrollPane scrollPane1, scrollPane2, scrollPane3;
+		mHighLevelTextPane = new CodePane();
+		mHighLevelTextPane.setDivider('\n');
+		noWrapPanel = new JPanel(new BorderLayout());
+		noWrapPanel.add(mHighLevelTextPane);
+		scrollPane1 = new JScrollPane(noWrapPanel);
+		
+		mEARTextPane = new CodePane();
+		mEARTextPane.setDivider('\n');
+		noWrapPanel = new JPanel(new BorderLayout());
+		noWrapPanel.add(mEARTextPane);
+		scrollPane2 = new JScrollPane(noWrapPanel);
+		
+		mEFTextPane = new CodePane();
+		scrollPane3 = new JScrollPane(mEFTextPane);
+		scrollPane3.setHorizontalScrollBarPolicy(
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		//Create split panes
+		mEARAndEFPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+					scrollPane2,scrollPane3);
+		mEditPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+					scrollPane1,mEARAndEFPane);
+		mEARAndEFPane.setContinuousLayout(true);
+		mEditPane.setContinuousLayout(true);
+		
+		//Add to container
+		mContainer.add(mEditPane,BorderLayout.CENTER);
+		
+		//Set window size
+		Rectangle rect = this.getBounds();
+		rect.height = 480;
+		rect.width = 640;
+		this.setBounds(rect);
+		
+		//Create menu bar
+		mMenuBar = new JMenuBar();
+		mMenuBar.add(createFileMenu());
+		
+		setJMenuBar(mMenuBar);
+		
+		// NORTH SECTION
+		mTopPane = new JPanel(new BorderLayout());
+		
+		mTimerLabel = new JLabel("00:00");
+		mTopPane.add(mTimerLabel,BorderLayout.EAST);
+		
+		JPanel fileNamePanel = new JPanel();
+		mFileNameLabel = new JLabel("FILENAME");				
+		fileNamePanel.add(mFileNameLabel);
+		mTopPane.add(fileNamePanel,BorderLayout.WEST);
+
+		mToolBar = createToolBar();
+
+		mTopPane.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 15));
+		mTopPane.add(mToolBar,BorderLayout.CENTER);
+				
+		mContainer.add(mTopPane,BorderLayout.NORTH);
+		
+		//SOUTH SECTION
+		JPanel frame = new JPanel();
+		frame.setLayout(new BoxLayout(frame,BoxLayout.LINE_AXIS));
+		
+		//Create the Memory Visualiser
+		mMemoryVisualiser = new MemoryVisualiser(mController.getParser());
+		frame.add(mMemoryVisualiser);
+		
+		//Create the console
+		mConsole = new Console();
+		mController.getParser().setIoManager(mConsole);
+		noWrapPanel = new JPanel(new BorderLayout());
+		noWrapPanel.add(mConsole);
+		scrollPane1 = new JScrollPane(noWrapPanel);
+		Dimension size = new Dimension(150,100);
+		scrollPane1.setPreferredSize(size);
+		
+		frame.add(scrollPane1);
+		
+		mContainer.add(frame,BorderLayout.SOUTH);
+	}
+
+    private JPanel createToolBar() {
+		JPanel toolBar = new JPanel();
+		toolBar.setLayout(new BoxLayout(toolBar,BoxLayout.X_AXIS));
+				
+        // Create the bar containing the control buttons.
+		JPanel buttonsBar = new JPanel();
+        addButtonToBar(buttonsBar, "Compile", "compile", ControlButton.COMPILE);
+        addButtonToBar(buttonsBar, "|>", "play", ControlButton.PLAY);
+        addButtonToBar(buttonsBar, "||", "pause", ControlButton.PAUSE);
+        addButtonToBar(buttonsBar, "O", "stop", ControlButton.STOP);
+        addButtonToBar(buttonsBar, "->", "step", ControlButton.STEP);
+		
+        setButtonEnabled(ControlButton.PAUSE, false);
+        setButtonEnabled(ControlButton.STOP, false);
+
+		toolBar.add(buttonsBar);
+		
+		//Tempo slider frame
+		mTempoSlider = new JSlider(MIN_TEMPO,MAX_TEMPO,INITIAL_TEMPO);
+		mTempoSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				//Set the label text
+				//All in one line, because I'm awesome and love unreadable code <_<
+				mTempoLabel.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));				
+			}
+		});
+		mTempoLabel = new JLabel();
+		mTempoLabel.setAlignmentY(CENTER_ALIGNMENT);
+		mTempoLabel.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));
+		mTempoSlider.setMinimumSize(mTempoSlider.getPreferredSize());
+		toolBar.add(mTempoLabel);
+		toolBar.add(mTempoSlider);
+		
+        return toolBar;
+    }
+	
+    private JMenu createFileMenu() {
+		JMenu menu = new JMenu("File");
+		
+		JMenuItem menuItem;
+		
+		menuItem = new JMenuItem("New");
+		menuItem.addActionListener(mController);
+		menuItem.setActionCommand("new");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Open");
+		menuItem.addActionListener(mController);
+		menuItem.setActionCommand("open");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Save");
+		menuItem.addActionListener(mController);
+		menuItem.setActionCommand("save");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Save as");
+		menuItem.addActionListener(mController);
+		menuItem.setActionCommand("saveas");
+		menu.add(menuItem);
+		
+		menuItem = new JMenuItem("Exit");
+		menuItem.addActionListener(mController);
+		menuItem.setActionCommand("exit");
+		menu.add(menuItem);
+		
+        return menu;
+    }
+    /**
+     * Creates a new button with the given parameters and adds it to the given
+     * JPanel.
+     * @param buttonBar - the JPanel to add this button to.
+     * @param text - The text to display on the button.
+     * @param action - the action string to send when clicked.
+     * @param type - the ControlButton referring to this button.
+     */
+    private void addButtonToBar(JPanel buttonBar, String text, String action, ControlButton type) {
+		JButton button = new JButton();
+		button.setText(text);
+		button.setActionCommand(action);
+		button.addActionListener(mController);
+		buttonBar.add(button);
+		mButtons.put(type, button);
+    }
+
 }
