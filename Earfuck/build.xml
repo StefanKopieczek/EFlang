@@ -32,7 +32,7 @@
         <mkdir dir="${build}"/>
     </target>
 
-    <target name="buildef" depends="init" unless="earfuck.buildNotRequired" description="Compile the earfuck base">
+    <target name="buildef" depends="init" description="Compile the earfuck base">
         <mkdir dir="${build}/earfuck"/>
         <javac srcdir="${src}/earfuck" destdir="${build}">
             <classpath>
@@ -43,12 +43,12 @@
         </javac>
     </target>
 
-    <target name="buildear" depends="init" unless="earcompiler.buildNotRequired" description="Compile the EAR compiler">
+    <target name="buildear" depends="init" description="Compile the EAR compiler">
         <mkdir dir="${build}/earcompiler"/>
         <javac srcdir="${src}/earcompiler" destdir="${build}"/>
     </target>
 
-    <target name="buildlobe" depends="init" unless="lobecompiler.buildNotRequired" description="Compile the LOBE compiler">
+    <target name="buildlobe" depends="init" description="Compile the LOBE compiler">
         <mkdir dir="${build}/lobecompiler"/>
         <javac srcdir="${src}/lobecompiler" destdir="${build}"/>
     </target>
