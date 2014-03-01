@@ -15,12 +15,12 @@ public class EfToAbcConverter {
         StringBuilder builder = new StringBuilder();
 
         int noteLength = 1;
+        int noteIndex = 1;
 
         int index = 1;
         String title = "Title";
         String meter = "4/4";
         String key = "C";
-
 
         builder.append("X:" + Integer.toString(index) + "\n");
         builder.append("T:" + title + "\n");
@@ -38,6 +38,12 @@ public class EfToAbcConverter {
             else {
                 builder.append(efNoteToAbc(token, noteLength));
             }
+
+            if (noteIndex == 20) {
+                builder.append("\n");
+                noteIndex = 0;
+            }
+            noteIndex++;
         }
 
         return builder.toString();
