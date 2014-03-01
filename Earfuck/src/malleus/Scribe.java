@@ -23,6 +23,7 @@ public class Scribe {
 	public JFrame getScoreWindow() {		
 		JFrame frame = new JFrame();
 		frame.add(mScore);
+		frame.setTitle("Earfuck Score - Preview");
 		frame.pack();
 		
 		return frame;
