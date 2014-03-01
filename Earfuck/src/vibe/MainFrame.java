@@ -257,19 +257,17 @@ public class MainFrame extends JFrame {
 				
 		mContainer.add(mTopPane,BorderLayout.NORTH);
 		
+        // Create the bar containing the control buttons.
 		JPanel buttonsBar = new JPanel();
         addButtonToBar(buttonsBar, "Compile", "compile", ControlButton.COMPILE);
-		
         addButtonToBar(buttonsBar, "|>", "play", ControlButton.PLAY);
-		
         addButtonToBar(buttonsBar, "||", "pause", ControlButton.PAUSE);
-        setButtonEnabled(ControlButton.PAUSE, false);
-		
         addButtonToBar(buttonsBar, "O", "stop", ControlButton.STOP);
-        setButtonEnabled(ControlButton.STOP, false);
-		
         addButtonToBar(buttonsBar, "->", "step", ControlButton.STEP);
 		
+        setButtonEnabled(ControlButton.PAUSE, false);
+        setButtonEnabled(ControlButton.STOP, false);
+
 		mToolBar.add(buttonsBar);
 		
 		//Tempo slider frame
