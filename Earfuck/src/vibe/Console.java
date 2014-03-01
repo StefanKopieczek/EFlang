@@ -158,4 +158,9 @@ public class Console extends JTextPane implements IoManager {
 	public void output(int value) {
 		addLine(String.valueOf(value));
 	}
+
+	public void clearDisplay() {
+		mText = new ArrayList<String>();
+		updateText();
+	}
 }

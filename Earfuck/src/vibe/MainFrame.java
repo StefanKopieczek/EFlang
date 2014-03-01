@@ -3,7 +3,9 @@ package vibe;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Rectangle;
+import java.awt.Window;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -73,6 +75,8 @@ public class MainFrame extends JFrame {
 	 * Contains useful buttons (compile/play/pause/stop/step) and tempo slider.
 	 */
 	private JPanel mToolBar;
+	
+	private JPanel mTopPane;
 	
 	/**
 	 * Slider to control the tempo of the code playback.
@@ -231,55 +235,60 @@ public class MainFrame extends JFrame {
 		setJMenuBar(mMenuBar);
 		
 		//Create tool bar
-		JPanel mTopPane = new JPanel(new BorderLayout());
+		mTopPane = new JPanel(new BorderLayout());
 		
 		mTimerLabel = new JLabel("00:00");
 		mTopPane.add(mTimerLabel,BorderLayout.EAST);
 		
-		mFileNameLabel = new JLabel("FILENAME");
-		mTopPane.add(mFileNameLabel,BorderLayout.WEST);
+		JPanel fileNamePanel = new JPanel();
+		mFileNameLabel = new JLabel("FILENAME");				
+		fileNamePanel.add(mFileNameLabel);
+		mTopPane.add(fileNamePanel,BorderLayout.WEST);
 
 		mToolBar = new JPanel();
+		mToolBar.setLayout(new BoxLayout(mToolBar,BoxLayout.X_AXIS));
+				
 		mTopPane.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 15));
 		mTopPane.add(mToolBar,BorderLayout.CENTER);
-		
+				
 		mContainer.add(mTopPane,BorderLayout.NORTH);
+		
+		JPanel buttonsBar = new JPanel();
 		JButton button = new JButton();
 		button.setText("Compile");
 		button.setActionCommand("compile");
 		button.addActionListener(mController);
-		mToolBar.add(button);
+		buttonsBar.add(button);
 		
 		button = new JButton();
 		button.setText("|>");
 		button.setActionCommand("play");
 		button.addActionListener(mController);
-		mToolBar.add(button);
+		buttonsBar.add(button);
 		
 		button = new JButton();
 		button.setText("||");
 		button.setActionCommand("pause");
 		button.addActionListener(mController);
 		button.setEnabled(false);
-		mToolBar.add(button);
+		buttonsBar.add(button);
 		
 		button = new JButton();
 		button.setText("O");
 		button.setActionCommand("stop");
 		button.addActionListener(mController);
 		button.setEnabled(false);
-		mToolBar.add(button);
+		buttonsBar.add(button);
 		
 		button = new JButton();
 		button.setText("->");
 		button.setActionCommand("step");
 		button.addActionListener(mController);
-		mToolBar.add(button);
+		buttonsBar.add(button);
+		
+		mToolBar.add(buttonsBar);
 		
 		//Tempo slider frame
-		JPanel frame = new JPanel();
-		frame.setLayout(new BoxLayout(frame,BoxLayout.PAGE_AXIS));
-		
 		mTempoSlider = new JSlider(MIN_TEMPO,MAX_TEMPO,INITIAL_TEMPO);
 		mTempoSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -293,12 +302,13 @@ public class MainFrame extends JFrame {
 		JLabel label = new JLabel();
 		label.setAlignmentY(CENTER_ALIGNMENT);
 		label.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));
-		frame.add(label);
-		frame.add(mTempoSlider);
-		mToolBar.add(frame);
+		mTempoSlider.setMinimumSize(mTempoSlider.getPreferredSize());
+		mToolBar.add(label);
+		mToolBar.add(mTempoSlider);
+//		mToolBar.add(frame);
 		
 		//SOUTH SECTION
-		frame = new JPanel();
+		JPanel frame = new JPanel();
 		frame.setLayout(new BoxLayout(frame,BoxLayout.LINE_AXIS));
 		
 		//Create the Memory Visualiser
@@ -477,11 +487,21 @@ public class MainFrame extends JFrame {
 	}
 	
 	public void setFileNameLabel(String text) {
+		int maxLength = 12;
+		if (text.length() > maxLength)
+		{
+			text = text.substring(0, maxLength) + "...";
+		}
 		mFileNameLabel.setText(text);
+		mToolBar.revalidate();
 	}
 	
 	public void setTimerLabel(String text) {
 		mTimerLabel.setText(text);
         mTimerLabel.invalidate();
+	}
+	
+	public void clearConsole() {
+		mConsole.clearDisplay();
 	}
 }
