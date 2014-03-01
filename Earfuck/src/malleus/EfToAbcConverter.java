@@ -59,6 +59,7 @@ public class EfToAbcConverter {
             // If this is a rest, compile the note and return immedietely.
             builder.append(REST_CHAR);
             if (length > 1) {
+                builder.append('/');
                 builder.append(length);
             }
             return builder.toString();
@@ -94,6 +95,7 @@ public class EfToAbcConverter {
         }
 
         if (length > 1) {
+            builder.append('/');
             builder.append(length);
         }
 
