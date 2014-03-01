@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import vibe.MainFrame.ControlButton;
+
 import lobecompiler.LOBECompiler;
 import lobecompiler.LobeCompilationException;
 import earcompiler.EARCompiler;
@@ -516,26 +518,26 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
 	public void setPlayState(PlayState state) {
 		mPlayState = state;
 		if (state==PlayState.PLAYING) {
-			mFrame.setButtonEnabled(1,false); //Play
-			mFrame.setButtonEnabled(2,true); //Pause
-			mFrame.setButtonEnabled(3,true); //Stop
-			mFrame.setButtonEnabled(4,false); //Step
+			mFrame.setButtonEnabled(ControlButton.PLAY, false);
+			mFrame.setButtonEnabled(ControlButton.PAUSE, true);
+			mFrame.setButtonEnabled(ControlButton.STOP, true); 		
+			mFrame.setButtonEnabled(ControlButton.STEP, false);
 			mFrame.setCodeEditable(false);
 			return;
 		}
 		if (state==PlayState.PAUSED) {
-			mFrame.setButtonEnabled(1,true); //Play
-			mFrame.setButtonEnabled(2,false); //Pause
-			mFrame.setButtonEnabled(3,true); //Stop
-			mFrame.setButtonEnabled(4,true); //Step
+			mFrame.setButtonEnabled(ControlButton.PLAY, true);
+			mFrame.setButtonEnabled(ControlButton.PAUSE, false);
+			mFrame.setButtonEnabled(ControlButton.STOP, true); 		
+			mFrame.setButtonEnabled(ControlButton.STEP, true);			
 			mFrame.setCodeEditable(false);
 			return;
 		}
 		if (state==PlayState.STOPPED) {
-			mFrame.setButtonEnabled(1,true); //Play
-			mFrame.setButtonEnabled(2,false); //Pause
-			mFrame.setButtonEnabled(3,false); //Stop
-			mFrame.setButtonEnabled(4,true); //Step
+			mFrame.setButtonEnabled(ControlButton.PLAY, true);
+			mFrame.setButtonEnabled(ControlButton.PAUSE, false);
+			mFrame.setButtonEnabled(ControlButton.STOP, false); 		
+			mFrame.setButtonEnabled(ControlButton.STEP, true);			
 			mFrame.setCodeEditable(true);
 			return;
 		}

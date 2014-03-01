@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -31,7 +32,6 @@ import javax.swing.event.ChangeListener;
  *
  */
 public class MainFrame extends JFrame {
-
 	/**
 	 * Container for the whole UI.
 	 */
@@ -78,6 +78,8 @@ public class MainFrame extends JFrame {
 	
 	private JPanel mTopPane;
 	
+	private JLabel mTempoLabel;
+	
 	/**
 	 * Slider to control the tempo of the code playback.
 	 */
@@ -118,10 +120,12 @@ public class MainFrame extends JFrame {
 	 */
 	private Console mConsole;
 	
+	private HashMap<ControlButton, JButton> mButtons = new HashMap<ControlButton, JButton>();
+	
 	/**
 	 * Controller to handle all events on this window.
 	 */
-	private VibeController mController;
+	private VibeController mController;	
 	
 	public MainFrame() {
 		initComponents();
@@ -259,12 +263,14 @@ public class MainFrame extends JFrame {
 		button.setActionCommand("compile");
 		button.addActionListener(mController);
 		buttonsBar.add(button);
+		mButtons.put(ControlButton.COMPILE, button);
 		
 		button = new JButton();
 		button.setText("|>");
 		button.setActionCommand("play");
 		button.addActionListener(mController);
 		buttonsBar.add(button);
+		mButtons.put(ControlButton.PLAY, button);
 		
 		button = new JButton();
 		button.setText("||");
@@ -272,6 +278,7 @@ public class MainFrame extends JFrame {
 		button.addActionListener(mController);
 		button.setEnabled(false);
 		buttonsBar.add(button);
+		mButtons.put(ControlButton.PAUSE, button);
 		
 		button = new JButton();
 		button.setText("O");
@@ -279,12 +286,14 @@ public class MainFrame extends JFrame {
 		button.addActionListener(mController);
 		button.setEnabled(false);
 		buttonsBar.add(button);
+		mButtons.put(ControlButton.STOP, button);
 		
 		button = new JButton();
 		button.setText("->");
 		button.setActionCommand("step");
 		button.addActionListener(mController);
 		buttonsBar.add(button);
+		mButtons.put(ControlButton.STEP, button);
 		
 		mToolBar.add(buttonsBar);
 		
@@ -295,15 +304,14 @@ public class MainFrame extends JFrame {
 			public void stateChanged(ChangeEvent e) {
 				//Set the label text
 				//All in one line, because I'm awesome and love unreadable code <_<
-				((JLabel) ((JPanel) mToolBar.getComponent(5)).getComponent(0)).setText(
-						"Tempo: "+String.valueOf(mTempoSlider.getValue()));
+				mTempoLabel.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));				
 			}
 		});
-		JLabel label = new JLabel();
-		label.setAlignmentY(CENTER_ALIGNMENT);
-		label.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));
+		mTempoLabel = new JLabel();
+		mTempoLabel.setAlignmentY(CENTER_ALIGNMENT);
+		mTempoLabel.setText("Tempo: "+String.valueOf(mTempoSlider.getValue()));
 		mTempoSlider.setMinimumSize(mTempoSlider.getPreferredSize());
-		mToolBar.add(label);
+		mToolBar.add(mTempoLabel);
 		mToolBar.add(mTempoSlider);
 //		mToolBar.add(frame);
 		
@@ -432,12 +440,11 @@ public class MainFrame extends JFrame {
 	
 	/**
 	 * Sets buttons enabled or disabled. <br/>
-	 * @param index 0 = compile, 1 = play, 2 = pause, 3 = stop, 4 = step
+	 * @param buttonType The ControlButton to enable/disable
 	 * @param enabled true/false
 	 */
-	public void setButtonEnabled(int index, boolean enabled) {
-		JButton button = (JButton) mToolBar.getComponent(index);
-		button.setEnabled(enabled);
+	public void setButtonEnabled(ControlButton buttonType, boolean enabled) {		
+		mButtons.get(buttonType).setEnabled(enabled);
 	}
 	
 	/**
@@ -503,5 +510,14 @@ public class MainFrame extends JFrame {
 	
 	public void clearConsole() {
 		mConsole.clearDisplay();
+	}
+	
+	public enum ControlButton
+	{
+		PLAY,
+		PAUSE,
+		STOP,
+		COMPILE,
+		STEP;
 	}
 }
