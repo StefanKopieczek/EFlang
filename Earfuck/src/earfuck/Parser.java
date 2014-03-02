@@ -161,7 +161,7 @@ public class Parser {
 	 * by whitespace.
 	 */
 	public void perform() {	
-		while (mPlace < mComposition.length - 1) {
+		while (mPlace < mComposition.length) {
 			stepForward();
 		}
 		
