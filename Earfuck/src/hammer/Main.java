@@ -34,10 +34,13 @@ public class Main {
 		lobeTest.addOutputTask(6);
 		lobeTest.addOutputTask(7);
 		
-		ioTest.run();
-		loopTest.run();
-		earAddTest.run();
-		earSubTest.run();
-		lobeTest.run();
+		HammerSuite suite = new HammerSuite("Test Suite");
+		suite.addTest(ioTest);
+		suite.addTest(loopTest);
+		suite.addTest(earAddTest);
+		suite.addTest(earSubTest);
+		suite.addTest(lobeTest);
+
+		suite.run();
 	}
 }
