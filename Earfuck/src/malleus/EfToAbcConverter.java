@@ -1,7 +1,8 @@
 package malleus;
 
 public class EfToAbcConverter {
-    private static String DEFAULT_NOTE_LENGTH = "1";
+    private static final int NOTES_PER_LINE = 40;
+	private static String DEFAULT_NOTE_LENGTH = "1/2";
 
     public static void main(String[] args) {
         String ef = "c4 c5 d6 e4 fb4";
@@ -24,7 +25,7 @@ public class EfToAbcConverter {
 
         builder.append("X:" + Integer.toString(index) + "\n");
         builder.append("T:" + title + "\n");
-        builder.append("M:" + meter + "\n");
+        //builder.append("M:" + meter + "\n");
         builder.append("L:" + DEFAULT_NOTE_LENGTH + "\n");
         builder.append("K:" + key + "\n");
 
@@ -37,7 +38,7 @@ public class EfToAbcConverter {
             } 
             else {
                 builder.append(efNoteToAbc(token, noteLength));
-                if (noteIndex == 20) {
+                if (noteIndex == NOTES_PER_LINE) {
                     builder.append("\n");
                     noteIndex = 0;
                 }

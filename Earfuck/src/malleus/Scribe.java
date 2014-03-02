@@ -15,6 +15,7 @@ public class Scribe {
 	private JScoreComponent mScore;
 	
 	public Scribe(String abcString) {
+		System.out.println(abcString);
 		Tune tune = new TuneParser().parse(abcString);
 		mScore = new JScoreComponent();
 		mScore.setJustification(true);
