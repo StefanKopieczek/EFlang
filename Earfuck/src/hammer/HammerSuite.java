@@ -2,6 +2,11 @@ package hammer;
 
 import java.util.ArrayList;
 
+/**
+ * A collection of HAMMER tests to be run in one go.
+ * @author rynor_000
+ *
+ */
 public class HammerSuite {
 	private String mName;
 	private ArrayList<HammerTest> mTests;
@@ -11,10 +16,17 @@ public class HammerSuite {
 		mTests = new ArrayList<HammerTest>();
 	}
 
+	/**
+	 * Adds a test to the test suite.
+	 * @param test
+	 */
 	public void addTest(HammerTest test) {
 		mTests.add(test);
 	}
 	
+	/**
+	 * Runs all the tests in the suite in the order they were added.
+	 */
 	public void run() {
 		ArrayList<HammerTest> failedTests = new ArrayList<HammerTest>();
 		
