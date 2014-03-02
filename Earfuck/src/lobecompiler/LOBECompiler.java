@@ -438,6 +438,40 @@ public class LOBECompiler {
 					result = targetVar;
 				}
 				break;
+			case DIV:
+				if (val1 instanceof Variable) {
+					// 1st arg is destroyed by DIV, so use a temp copy.
+					val1 = backup((Variable)val1, mWorkingMemory[0], mWorkingMemory[2]);					
+				}
+				if (val2 instanceof Variable) {
+					// 2nd arg is destroyed by MUL, so use a temp copy.
+					val2 = backup((Variable)val2, mWorkingMemory[1], mWorkingMemory[2]);					
+				}
+				if (val1 instanceof Constant && val2 instanceof Constant) {
+					// Both arguments are constants - we just return the product as a constant.
+					int num1 = ((Constant)val1).getValue();
+					int num2 = ((Constant)val2).getValue();
+					result = new Constant(num1 / num2);
+				}
+				else {
+					if (targetVar == null) {
+						targetVar = mSymbols.getNewInternalVariable(this);
+					}
+					String maybeAt1 = (val1 instanceof Variable) ? "@" : "";
+					String maybeAt2 = (val2 instanceof Variable) ? "@" : "";
+					mOutput += "DIV " + maybeAt1 + val1.getRef(this) +
+				                  " " + maybeAt2 + val2.getRef(this) +
+				                   " " + targetVar.getRef(this) +
+				                   " " + mWorkingMemory[2].getRef(this) +
+				                   " " + mWorkingMemory[3].getRef(this) +
+				                   " " + mWorkingMemory[4].getRef(this) +
+				                   " " + mWorkingMemory[5].getRef(this) +
+				                   " " + mWorkingMemory[6].getRef(this) +
+				                   " " + mWorkingMemory[7].getRef(this) +
+				                   "\n";
+					result = targetVar;
+				}
+				break;				
 			default:
 				throw new InvalidOperationTokenException("Unknown operation token "
 						+ op.name());		

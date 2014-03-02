@@ -2,7 +2,7 @@ package malleus;
 
 public class EfToAbcConverter {
     private static final int NOTES_PER_LINE = 40;
-	private static String DEFAULT_NOTE_LENGTH = "1/2";
+	private static String DEFAULT_NOTE_LENGTH = "1/1";
 
     public static void main(String[] args) {
         String ef = "c4 c5 d6 e4 fb4";

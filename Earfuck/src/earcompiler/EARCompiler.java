@@ -17,9 +17,9 @@ import earfuck.EarfuckMemory;
 public class EARCompiler {
 	private static Note STARTING_NOTE = Note.c4;
 	private enum Note {		
-		f3, g3, a3, bb3, c4, d4, e4, 
-		f4, g4, a4, bb4, c5, d5, e5, 
-		f5, g5, a5, bb5, c6, d6, e6;
+		a3, b3, c4, d4, e4, f4, g4, 
+		a4, b4, c5, d5, e5, f5, g5,
+		a5, b5;
 		
 		public Note getNext() {
 			if (ordinal()==Note.values().length-1) {
@@ -80,6 +80,7 @@ public class EARCompiler {
 		instructions.put("ADD", ADD);
 		instructions.put("SUB", SUB);
 		instructions.put("MUL", MUL);
+		instructions.put("DIV", DIV);
 		instructions.put("WHILE", WHILE);
 		instructions.put("ENDWHILE", ENDWHILE);
 		instructions.put("ZERO", ZERO);
@@ -701,6 +702,132 @@ public class EARCompiler {
 			return output;
 		}
 	};
+	
+	/**
+	 * Divides the first argument by the second, and puts the result
+	 * in the cell specified by the third argument.
+	 * The final arguments specify working cells (6 in total)
+	 * THE TWO DIVISANDS ARE DESTROYED (zeroed).
+	 * By an awesome coincidence, the numerator will be left as the remainder.
+	 * THE WORKING CELLS ARE NOT ZEROED
+	 * e.g.
+	 * DIV @5 @3 1 0 2 4 6 7
+	 * Divides cell 5 by cell 3, stores the answer in cell 1, 
+	 * and uses cells 0, 2, 4, 6 and 7 for working.
+	 */
+	public EARInstruction DIV = new EARInstruction(
+			"DIV\\s+((@|@-)?\\d+\\s*){2}(-?\\d+\\s+){6}-?\\d+") {
+		public String compile(String[] args) {
+			String tempA,tempB;
+			String output = "";
+			String numerator = args[0];
+			String denominator = args[1];
+			String targetCell = args[2];
+			//This cell will contain a flag for if the division fails
+			String flag = args[3];
+			String workingCell1 = args[4];
+			String workingCell2 = args[5];
+			String workingCell3 = args[6];
+			String workingCell4 = args[7];
+			String workingCell5 = args[8];
+			boolean numeratorIsReference = (numerator.charAt(0) == '@');
+			boolean denominatorIsReference = (denominator.charAt(0) == '@');
+			
+			//Zero the target cell
+			output += ZERO.compile(new String[]{targetCell});
+			
+			if (!numeratorIsReference && !denominatorIsReference) {
+				//Both absolute, just do the division at compile time.
+				int a = Integer.parseInt(numerator);
+				int b = Integer.parseInt(denominator);
+				output += MOV.compile(new String[]{Integer.toString(a/b), targetCell});
+			}
+			else {
+				//We now know at least one arg isn't absolute.
+				//If one IS absolute, put it in the working cell.
+				if (!numeratorIsReference) {
+					output += MOV.compile(new String[]{numerator, workingCell1});
+					numerator = "@" + workingCell1;
+				}
+				else if (!denominatorIsReference) {
+					output += MOV.compile(new String[]{denominator, workingCell1});
+					denominator = "@" + workingCell1;
+				}
+				
+				//Strip off @s
+				numerator = numerator.substring(1, numerator.length());
+				denominator = denominator.substring(1, denominator.length());
+				
+				//Now we have 2 values in cells. We should divide them.
+				//Note: we may no longer use workingCell1, as it may contain
+				//one of the numbers we're calculating with.
+				
+				//Zero the working cells we'll use for the division
+				output += ZERO.compile(new String[]{workingCell2});
+				output += ZERO.compile(new String[]{workingCell3});
+				output += ZERO.compile(new String[]{workingCell4});
+				output += ZERO.compile(new String[]{workingCell5});
+				
+				//Set the flag to 1
+				output += MOV.compile(new String[]{"1",flag});
+				
+				//Copy the denominator to working cell 2
+				output += COPY.compile(new String[]{"@" + denominator, workingCell2, workingCell4});
+				
+				//While numerator not 0
+				output += WHILE.compile(new String[]{numerator});
+				
+				//Use workingCell3 to indicate if one of the numbers hit 0, so we
+				//don't try to subtract from it.
+				output += MOV.compile(new String[]{"1", workingCell3});
+				
+				output += WHILE.compile(new String[]{workingCell3});
+				
+				//Subtract one from each
+				output += SUB.compile(new String[]{"1",numerator});
+				output += SUB.compile(new String[]{"1",denominator});
+				
+				//Work out if either hit 0
+				//Proc for this is:
+				//Copy into WC4, use WC5 as flag.
+				
+				//If numerator is 0
+				output += COPY.compile(new String[]{"@" + numerator, workingCell4, workingCell5});
+				output += MOV.compile(new String[]{"1", workingCell5});
+				output += WHILE.compile(new String[]{workingCell4});
+				output += ZERO.compile(new String[]{workingCell5});
+				output += ZERO.compile(new String[]{workingCell4});
+				output += ENDWHILE.compile(new String[]{});
+				output += WHILE.compile(new String[]{workingCell5});
+				//Set flag
+				output += ZERO.compile(new String[]{workingCell3});
+				output += ZERO.compile(new String[]{workingCell5});
+				output += ENDWHILE.compile(new String[]{});
+				
+				//If denominator is 0
+				output += COPY.compile(new String[]{"@" + denominator, workingCell4, workingCell5});
+				output += MOV.compile(new String[]{"1", workingCell5});
+				output += WHILE.compile(new String[]{workingCell4});
+				output += ZERO.compile(new String[]{workingCell5});
+				output += ZERO.compile(new String[]{workingCell4});
+				output += ENDWHILE.compile(new String[]{});
+				output += WHILE.compile(new String[]{workingCell5});
+				//Set flag, increment counter and refill denominator
+				output += ZERO.compile(new String[]{workingCell3});
+				output += ZERO.compile(new String[]{workingCell5});
+				output += ADD.compile(new String[]{"1", targetCell});
+				output += COPY.compile(new String[]{"@" + workingCell2, denominator, workingCell4});
+				output += ENDWHILE.compile(new String[]{});
+				
+				output += ENDWHILE.compile(new String[]{});
+				
+				output += ENDWHILE.compile(new String[]{});
+			}
+			
+			return output;
+		}
+	};
+	
 	
 	/**
 	 * Copies one cell into all the given targets.
