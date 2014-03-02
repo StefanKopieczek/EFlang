@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
+import vibe.VibeController.VibeMode;
+
 /**
  * This worker runs the EF Parser on a background thread for one EF command
  * and then stops. <br/>
@@ -62,18 +64,24 @@ public class StepForwardWorker extends SwingWorker<Void, Integer> {
 			}
 		}
 		
+		//Highlight the correct command in each code pane
 		mController.getFrame().getEFTextPane().
 				setCurrentCommandIndex(currentEFCommand);
 		mController.getFrame().getEFTextPane().invalidate();
 		
-		mController.getFrame().getEARTextPane().
-				setCurrentCommandIndex(currentEARLine);
-		mController.getFrame().getEARTextPane().invalidate();
+		if ((mController.getMode() == VibeMode.EAR) || 
+			(mController.getMode() == VibeMode.HIGHLEVEL)) {
+			mController.getFrame().getEARTextPane().
+					setCurrentCommandIndex(currentEARLine);
+			mController.getFrame().getEARTextPane().invalidate();
+		}
 		
-		mController.getFrame().getHighLevelTextPane().
-			setCurrentCommandIndex(currentHighLevelLine);
-		mController.getFrame().getHighLevelTextPane().invalidate();
-		
+		if (mController.getMode() == VibeMode.HIGHLEVEL) {
+			mController.getFrame().getHighLevelTextPane().
+				setCurrentCommandIndex(currentHighLevelLine);
+			mController.getFrame().getHighLevelTextPane().invalidate();
+		}
+				
 		mController.getFrame().updateMemoryVisualiser();
 	}
 }
