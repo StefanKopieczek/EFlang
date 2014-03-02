@@ -361,52 +361,42 @@ public class LOBECompiler {
 				}
 				break;
 				
-			case SUB:
-				if (val2 instanceof Variable) {
-					// 2nd arg is destroyed by SUB, so use a temp copy.
-					if (targetVar == null) {
-						targetVar = mSymbols.getNewInternalVariable(this);
-					}
-					val2 = backup((Variable)val2, targetVar, mWorkingMemory[0]);					
-				}				
-				if (val1 instanceof Variable) {
-					if (val2 instanceof Constant) {
-						// Can't use a constant as the second argument, so back 1st arg up
-						// and switch the order of the arguments.
-						if (targetVar == null) {
-							targetVar = mSymbols.getNewInternalVariable(this);
-						}
-						Value temp = backup((Variable)val1, targetVar, mWorkingMemory[0]);
-						val1 = val2;
-						val2 = temp;
-					}
-					else {
-						// Back up the first argument.						
-						val1 = backup((Variable)val1, 
-								      mSymbols.getNewInternalVariable(this),
-								      mWorkingMemory[0]);
-					}				
-				}
-				if (val1 instanceof Variable && val2 instanceof Constant) {
-					// 2nd arg is a constant - this isn't allowed in EAR but since 1st arg is a 
-					// variable we can swap them over.
-					Value temp = val1;
-					val1 = val2;
-					val2 = temp;					
-				}
+			case SUB:			
 				if (val1 instanceof Constant && val2 instanceof Constant) {
-					// Both arguments are constants - we just return the answer as a constant.
-					int num1 = ((Constant)val1).getValue();
-					int num2 = ((Constant)val2).getValue();
-					result = new Constant(num1 - num2);
+					// Both arguments are constants; just calculate the result now and dump
+					// the result to the target cell.
+					int answer = ((Constant)val1).getValue() - ((Constant)val2).getValue();
+					result = new Constant(answer);
+					
+					assert (targetVar == null);
+														
+					break;
 				}
+				
+				if (targetVar == null) {
+					targetVar = mSymbols.getNewInternalVariable(this);
+				}
+				
+				if (val1 instanceof Variable) {
+					// SUB stores its result in the memory location of the second argument.
+					// Copy val1 (which will be the 2nd argument of SUB) to the target cell.
+					backup((Variable)val1, targetVar, mWorkingMemory[0]);
+				}				
 				else {
-					String maybeAt = (val1 instanceof Variable) ? "@" : "";
-					mOutput += "SUB " + maybeAt + val1.getRef(this) +
-				                  " " + val2.getRef(this) +
-				                  "\n";
-					result = val2;
+					// SUB requires its second argument (our val1) to be a pointer,
+					// so dump val1 to memory as it's a constant.
+					mOutput += "MOV " + ((Constant)val1).getValue() + 
+							      " " + targetVar.getRef(this) + 
+							      "\n";
 				}
+					
+				String maybeAt = (val2 instanceof Variable) ? "@" : "";
+				
+				mOutput += "SUB " + maybeAt + val2.getRef(this) + 
+						      " " + targetVar.getRef(this) + 
+						      "\n";							
+				result = targetVar;
+				
 				break;
 				
 			case MUL:
