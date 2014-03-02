@@ -6,6 +6,7 @@
     <property name="build" location="build"/>
     <property name="dist" location="dist"/>
     <property name="lib" location="lib"/>
+    <property name="docs" location="docs"/>
 
     <uptodate property="earfuck.buildNotRequired">
         <srcfiles dir="${src}/earfuck" includes="**/*.java"/>
@@ -83,5 +84,9 @@
                 <attribute name="Main-Class" value="vibe/Main"/>
             </manifest>
         </jar>
+    </target>
+
+    <target name="docs" description="Generate javadocs.">
+        <javadoc sourcepath="${src}" destdir="${docs}"/>
     </target>
 </project>
