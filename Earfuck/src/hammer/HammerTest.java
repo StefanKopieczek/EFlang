@@ -62,6 +62,7 @@ public class HammerTest {
 	 */
 	public boolean run() {
 		if (setupFailed) {
+			// We failed to set up the test, so return failure.
 			HammerLog.error(
 					"== Test: " + mName + " failed to prepare ==");
 			HammerLog.error(failureMessage + "\n");
@@ -69,9 +70,15 @@ public class HammerTest {
 		}
 		
 		HammerLog.info("== Running test: " + mName + " ==");
+		
+		// Set the piece playing.
 		mHammer.setPiece(efCode);
 		mHammer.startPlaying();
 		
+		// For each IO task we have, execute it (either give input,
+		// or check output).
+		// If it fails (i.e. the output doesn't match expected) return
+		// failure.
 		for (IoTask task : mTasks) {
 			if (!task.execute()) {
 				HammerLog.info("Test Failed!\n");
@@ -79,6 +86,7 @@ public class HammerTest {
 			}
 		}
 		
+		// If we got this far, the test must have passed
 		HammerLog.info("Test Passed!\n");
 		return true;
 	}
