@@ -52,6 +52,10 @@ public class HammerTest {
 		this(name, code, new HammerFramework());
 	}
 	
+	public String getName() {
+		return mName;
+	}
+	
 	/**
 	 * Runs the test.
 	 * @return Whether the test passed or not (true/false)
