@@ -110,13 +110,17 @@ public class Parser {
 	 * The performer understands the musical notation we use, and is able to
 	 * output audio (either to a MIDI file or to a current MIDI stream).
 	 */	
-	MidiStreamPerformer mPerformer;
+	Performer mPerformer;
 	
-	public Parser(byte instrumentCode) {
+	public Parser(Performer performer) {
 		mOutputMode = "numeric";
-		mPerformer = new MidiStreamPerformer(instrumentCode);
+		mPerformer = performer;
 		refreshState();		
 	}
+
+    public Parser(byte instrumentCode) {
+        this(new MidiStreamPerformer(instrumentCode));
+    }
 	
 	/**
 	 * Clear all stateful data ready for a new run of code.
@@ -258,8 +262,8 @@ public class Parser {
 		}
 		
 		if ((mPreviousNote != null) && 
-		        (mPerformer.getNoteValue(command) == 
-		         mPerformer.getNoteValue(mPreviousNote))) {
+		        (getNoteValue(command) == 
+		         getNoteValue(mPreviousNote))) {
 			// We just played a repeated note.
 			// We increase the ambiance value in this mental state if the
 			// audience are optimistic, and decrease if we're pessimistic.
@@ -270,8 +274,8 @@ public class Parser {
 			// (distinct) note.
 			// We are optimistic if the pitch is now higher, and 
 			// pessimistic otherwise.
-			boolean isHappy = mPerformer.getNoteValue(command) > 
-			                  	mPerformer.getNoteValue(mPreviousNote);
+			boolean isHappy = getNoteValue(command) > 
+			                  	getNoteValue(mPreviousNote);
 			mOptimism = isHappy? 1 : -1;
 			mMentalState += mOptimism;
 		}
@@ -287,6 +291,31 @@ public class Parser {
 			mPreviousNote = command;
 		}
 	}
+
+    private float getNoteValue(String token) {
+        char note = token.charAt(0);
+        char nextChar = token.charAt(1);
+        int octave;
+        float value = 0;
+
+        value += (int) note;
+
+        if (nextChar == '#' || nextChar == 'b') {
+            value += (nextChar == '#') ? 0.5 : -0.5;
+            octave = Character.getNumericValue(token.charAt(2));
+        }
+        else {
+            octave = Character.getNumericValue(nextChar);
+        }
+
+        if (note == 'a' || note == 'b') {
+            octave += 1;
+        }
+
+        value += 8 * octave;
+
+        return value;
+    }
 	
 	public void giveInput(int value) {
 		mAmbiance.put(mMentalState,value);

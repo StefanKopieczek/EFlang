@@ -5,7 +5,7 @@ public class Main {
         String efCode = args[0];
 
         System.out.print("Loading new earfuck parser...");
-        Parser efParser = new Parser((byte) 42);
+        Parser efParser = new Parser(new NullPerformer());
         System.out.println("Done!");
 
         System.out.print("Handing music to performer...");
