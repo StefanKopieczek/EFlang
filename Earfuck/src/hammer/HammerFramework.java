@@ -8,7 +8,7 @@ import earfuck.Parser;
 
 /**
  * HammerFramework - The main class for interfacing with the earfuck
- * parser in code.
+ * parser programmatically.
  * @author rynor_000
  *
  */
@@ -16,13 +16,26 @@ public class HammerFramework implements IoManager {
 	private Object mLock = new Object();
 	private Parser mParser;
 	private ParserThread mThread;
-	private boolean mWaitingForOutput = false;
+	
+	/**
+	 * We use this SynchronousQueue for receiving output
+	 * from the earfuck parser.
+	 * It nicely handles blocking the threads for us so we never
+	 * run into a situation where the parser sends us two loads of
+	 * output before we have a chance to respond.
+	 */
 	private SynchronousQueue<Integer> mOutput;
+	
+	/**
+	 * Indicates if we are currently waiting to give input to
+	 * the parser.
+	 */
 	private boolean mWaitingToGiveInput = false;
+	
+	/**
+	 * Indicates if the parser has requested input from us.
+	 */
 	private boolean mInputRequested = false;
-	private boolean mReceivedOutput = false;
-	private int mInput = 0;
-	private boolean DEBUG = false;
 	
 	public HammerFramework() {
 		mParser = new Parser(new NullPerformer());
@@ -61,7 +74,10 @@ public class HammerFramework implements IoManager {
 	 * @return The output value
 	 */
 	public int waitandGetOutput() {
-		HammerLog.debug("Waiting to get output... ");
+		HammerLog.log("Waiting to get output... ", 
+					  HammerLog.LogLevel.DEBUG, 
+					  false);
+		
 		int output = 0;
 		
 		try {
@@ -81,22 +97,16 @@ public class HammerFramework implements IoManager {
 	 * @param value - The value to send as input.
 	 */
 	public void waitAndSendInput(int value) {
-		HammerLog.debug("Waiting to send input... ");
+		HammerLog.log("Waiting to send input... ", 
+				  HammerLog.LogLevel.DEBUG, 
+				  false);
 		
-		mWaitingToGiveInput = true;
-		mInput = value;
-		
-		while (!mInputRequested && mWaitingToGiveInput) {
-			try {
-				synchronized (mLock) {
-					mLock.wait();
-				}
-			} catch (InterruptedException e) {
-				// Do Nothing.
-			}
+		while (!mInputRequested) {
+			block();
 		}
 		
 		mInputRequested = false;
+		
 		mParser.giveInput(value);
 		
 		HammerLog.debug("Sent " + String.valueOf(value));
@@ -112,10 +122,10 @@ public class HammerFramework implements IoManager {
 
 	@Override
 	public void output(int value) {
-		mReceivedOutput = true;
-		mWaitingForOutput = false;
-		
 		try {
+			// This call will block the parsing thread until HAMMER
+			// has collected the output from the queue.
+			// This prevents HAMMER getting flooded with output.
 			mOutput.put(value);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -147,7 +157,24 @@ public class HammerFramework implements IoManager {
 		}
 		HammerLog.error("");
 	}
+	
+	private void block() {
+		try {
+			synchronized (mLock) {
+				mLock.wait();
+			}
+		} catch (InterruptedException e) {
+			// Do Nothing.
+		}
+	}
 
+	/**
+	 * The thread that drives the EF parser.
+	 * We implement it by iterating over stepFoward() so that
+	 * we are able to stop it at any point if necessary.
+	 * @author rynor_000
+	 *
+	 */
 	private static class ParserThread extends Thread{
 		public boolean isRunning = false;
 		private Parser mParser;
