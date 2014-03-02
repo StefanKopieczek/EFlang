@@ -1,5 +1,11 @@
 package hammer;
 
+/**
+ * A logging class for HAMMER.
+ * [TODO] Save logs to file.
+ * @author rynor_000
+ *
+ */
 public class HammerLog {
 	public static enum LogLevel implements Comparable<LogLevel> {
 		DEBUG,
@@ -14,10 +20,19 @@ public class HammerLog {
 		LEVEL = level;
 	}
 	
-	public static void log(String text, LogLevel level) {
+	public static void log(String text, LogLevel level, boolean newLine) {
 		if (level.compareTo(LEVEL) >= 0) {
-			System.out.println(text);
+			if (newLine) {
+				System.out.println(text);
+			}
+			else {
+				System.out.print(text);
+			}
 		}
+	}
+	
+	public static void log(String text, LogLevel level) {
+		log(text, level, true);
 	}
 	
 	public static void info(String text) {
