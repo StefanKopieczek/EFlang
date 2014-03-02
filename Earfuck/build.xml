@@ -54,7 +54,12 @@
         <javac srcdir="${src}/lobecompiler" destdir="${build}"/>
     </target>
 
-    <target name="buildvibe" depends="buildef,buildear,buildlobe" description="Compile the VIBE IDE">
+    <target name="buildmalleus" depends="init" description="Compile the Malleus sheet music renderer">
+        <mkdir dir="${build}/malleus"/>
+        <javac srcdir="${src}/malleus" destdir="${build}"/>
+    </target>
+
+    <target name="buildvibe" depends="buildef,buildear,buildlobe,buildmalleus" description="Compile the VIBE IDE">
         <mkdir dir="${build}/vibe"/>
         <javac srcdir="${src}/vibe" destdir="${build}">
             <classpath>
