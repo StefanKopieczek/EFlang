@@ -33,6 +33,7 @@ public class HammerSuite {
 		// Silence test output.
 		// In future this should only silence output to stdout.
 		// The log file should still be written.
+		HammerLog.LogLevel prevLevel = HammerLog.getLogLevel();
 		HammerLog.setLogLevel(HammerLog.LogLevel.NONE);
 		
 		System.out.println("  === Running HAMMER suite: " + mName + " ===");
@@ -55,10 +56,14 @@ public class HammerSuite {
 					 	   String.valueOf(failures) + " failed.\n");
 		
 		if (failures > 0) {
-			System.out.print("Failed tests: ");
+			System.out.println("Failed tests: ");
 			for (HammerTest test : failedTests) {
 				System.out.println("    " + test.getName());
 			}
+			System.out.println("");
 		}
+		
+		// Reset the log level to what it was before.
+		HammerLog.setLogLevel(prevLevel);
 	}
 }
