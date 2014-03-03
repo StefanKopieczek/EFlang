@@ -1,0 +1,13 @@
+[Name]
+IO Test
+
+[Type]
+EAR
+
+[Code]
+IN 2
+OUT 2
+
+[Test]
+> 42
+< 42

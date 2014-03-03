@@ -1,0 +1,13 @@
+[Name]
+IO Test
+
+[Type]
+LOBE
+
+[Code]
+input var
+print var
+
+[Test]
+> 42
+< 42

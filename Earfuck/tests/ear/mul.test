@@ -1,0 +1,26 @@
+[Name]
+MUL Test
+[Type]
+EAR
+[Code]
+MUL 5 3 2 3
+OUT 2
+
+MOV 5 0
+MUL @0 3 2 3
+OUT 2
+
+MOV 3 1
+MUL 5 @1 2 3
+OUT 2
+
+MOV 5 0
+MOV 3 1
+MUL @0 @1 2 3
+OUT 2
+
+[Test]
+< 15
+< 15
+< 15
+< 15

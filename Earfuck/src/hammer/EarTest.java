@@ -16,7 +16,7 @@ public class EarTest extends HammerTest {
 		EARCompiler compiler = new EARCompiler();
 		try {
 			efCode = compiler.compile(efCode);
-		} catch (EARException e) {
+		} catch (Exception e) {
 			failureMessage = "Failed to compile EAR code with error:\n" + e.getMessage();
 			setupFailed = true;
 		}
