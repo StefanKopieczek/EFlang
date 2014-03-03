@@ -6,3 +6,4 @@ Earfuck/src/.metadata
 Earfuck/build
 Earfuck/dist
 *.orig
+*.log
