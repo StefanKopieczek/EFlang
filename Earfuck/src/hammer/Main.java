@@ -6,6 +6,9 @@ import java.io.IOException;
 public class Main {
 	public static void main(String[] args) {
 		String testPath;
+		
+		HammerLog.wipeLog();
+		
 		if (args.length >= 1) {
 			testPath = args[0];
 		}
@@ -21,7 +24,8 @@ public class Main {
 				continue;
 			}
 			
-			HammerLog.setLogLevel(HammerLog.LogLevel.NONE);
+			HammerLog.setLogLevel(HammerLog.LogLevel.INFO);
+			HammerLog.setPrintLevel(HammerLog.LogLevel.ERROR);
 			HammerSuite loadedSuite = null;
 			try {
 				loadedSuite = HammerLoader.loadSuite(file);
@@ -30,7 +34,7 @@ public class Main {
 				e.printStackTrace();
 			}
 
-			HammerLog.setLogLevel(HammerLog.LogLevel.INFO);
+			HammerLog.setPrintLevel(HammerLog.LogLevel.INFO);
 			loadedSuite.run();
 		}
 	}
