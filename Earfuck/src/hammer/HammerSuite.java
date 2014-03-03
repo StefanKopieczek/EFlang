@@ -51,12 +51,14 @@ public class HammerSuite {
 		int numTests = mTests.size();
 		int failures = failedTests.size();
 		
+		HammerLog.info("");
+		
 		// Reset the log level to what it was before.
 		HammerLog.setPrintLevel(prevLevel);
 		
 		HammerLog.info("\nTest suite complete: out of " + 
 				 	   String.valueOf(numTests) + " tests, " + 
-				 	   String.valueOf(failures) + " failed.\n");
+				 	   String.valueOf(failures) + " failed.");
 		
 		if (failures > 0) {
 			HammerLog.info("Failed tests: ");

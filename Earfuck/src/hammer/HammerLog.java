@@ -13,6 +13,7 @@ import java.io.PrintWriter;
  */
 public class HammerLog {
 	public static enum LogLevel implements Comparable<LogLevel> {
+		DEV,
 		DEBUG,
 		INFO,
 		ERROR,

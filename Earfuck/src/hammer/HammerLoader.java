@@ -138,7 +138,7 @@ public class HammerLoader {
 		br.close();
 		
 		code = builder.toString();
-		HammerLog.debug("Test code: " + code);
+		HammerLog.log("Test code: " + code, HammerLog.LogLevel.DEV);
 		
 		switch (type) {
 		case EAR:
