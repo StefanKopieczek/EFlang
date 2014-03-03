@@ -20,6 +20,10 @@ public class HammerLog {
 		LEVEL = level;
 	}
 	
+	public static LogLevel getLogLevel() {
+		return LEVEL;
+	}
+	
 	public static void log(String text, LogLevel level, boolean newLine) {
 		if (level.compareTo(LEVEL) >= 0) {
 			if (newLine) {
