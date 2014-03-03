@@ -48,6 +48,7 @@ public class HammerFramework implements IoManager {
 	 * @param efCode - A valid ef piece as a String.
 	 */
 	public void setPiece(String efCode) {
+                mParser.refreshState();
 		mParser.giveMusic(efCode);
 	}
 	
