@@ -65,6 +65,11 @@
         </javac>
     </target>
 
+    <target name="buildhammer" depends="buildef" description="Compile the HAMMER test framework">
+        <mkdir dir="${build}/hammer"/>
+        <javac srcdir="${src}/hammer" destdir="${build}"/>
+    </target>
+
     <target name="buildvibe" depends="buildef,buildear,buildlobe,buildmalleus" description="Compile the VIBE IDE">
         <mkdir dir="${build}/vibe"/>
         <javac srcdir="${src}/vibe" destdir="${build}">
