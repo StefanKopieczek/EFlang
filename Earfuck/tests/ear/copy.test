@@ -1,0 +1,15 @@
+[Name]
+COPY Test
+
+[Type]
+EAR
+
+[Code]
+MOV 7 2
+COPY @2 4 3
+OUT 2
+OUT 4
+
+[Test]
+< 7
+< 7
