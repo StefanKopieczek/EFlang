@@ -2,7 +2,7 @@ package hammer;
 
 public class Main {
 	public static void main(String[] args) {
-		HammerLog.setLogLevel(HammerLog.LogLevel.INFO);
+		HammerLog.setLogLevel(HammerLog.LogLevel.DEBUG);
 		
 		HammerTest ioTest = new HammerTest("IO Test",
 				"c4 d4 c4 r b3 c4 c4 r");
@@ -26,6 +26,26 @@ public class Main {
 		earSubTest.addOutputTask(3);
 		earSubTest.addOutputTask(1);
 		
+		EarTest earMulTest = new EarTest("EAR MUL Test",
+				"MOV 5 0\n MOV 3 1\n MUL 5 3 2 3\n OUT 2\n " +
+				"MUL @0 3 2 3\n OUT 2\n MUL 5 @1 2 3\n OUT 2\n"+
+                                "MUL @0 @1 2 3\n OUT 2");
+		earMulTest.addOutputTask(15);
+		earMulTest.addOutputTask(15);
+		earMulTest.addOutputTask(15);
+		earMulTest.addOutputTask(15);
+
+                EarTest earDivTest = new EarTest("EAR DIV Test",
+                                "MOV 7 0\n MOV 3 1\n" +
+                                "DIV 7 3 2 3 4 5 6 7 8\n OUT 2\n" +
+                                "DIV @0 3 2 3 4 5 6 7 8\n OUT 2\n" +
+                                "DIV 7 @1 2 3 4 5 6 7 8\n OUT 2\n" +
+                                "DIV @0 @1 2 3 4 5 6 7 8\n OUT 2\n");
+                earDivTest.addOutputTask(2);
+                earDivTest.addOutputTask(2);
+                earDivTest.addOutputTask(2);
+                earDivTest.addOutputTask(2);
+		
 		LobeTest lobeTest = new LobeTest("LOBE Addition Test",
 				"x = 3\ny = 4\nprint x + y\n" +
 				"print x + 5\nprint 2 + y\nprint 3 + 4");
@@ -39,8 +59,11 @@ public class Main {
 		suite.addTest(loopTest);
 		suite.addTest(earAddTest);
 		suite.addTest(earSubTest);
+		suite.addTest(earMulTest);
+		suite.addTest(earDivTest);
 		suite.addTest(lobeTest);
 
+                earDivTest.run();
 		suite.run();
 	}
 }
