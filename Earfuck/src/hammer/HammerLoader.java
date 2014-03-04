@@ -155,13 +155,25 @@ public class HammerLoader {
 		for (String IO : IOs) {
 			String[] split = IO.split("\\s+");
 			if (split.length >= 2) {
+				if (split[0].equals("//")) {
+					// Comment
+					continue;
+				}
 				int value = Integer.parseInt(split[1]);
 				switch (split[0]) {
 				case ">":
-					test.addInputTask(value);
+					test.addTask(new HammerTest.InputTask(value));
 					break;
 				case "<":
-					test.addOutputTask(value);
+					test.addTask(new HammerTest.OutputTask(value));
+					break;
+				}
+			}
+			else if (split.length >= 1) {
+				switch (split[0]) {
+				case "=":
+					test.addTask(new HammerTest.RestartTask());
+					break;
 				}
 			}
 		}

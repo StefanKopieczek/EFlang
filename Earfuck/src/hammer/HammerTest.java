@@ -24,7 +24,7 @@ public class HammerTest {
 	 * These tasks will be performed in the order they appear in the list.
 	 * i.e. the order they are added in.
 	 */
-	private ArrayList<IoTask> mTasks;
+	private ArrayList<TestTask> mTasks;
 	
 	/**
 	 * The name of the test.
@@ -45,7 +45,7 @@ public class HammerTest {
 	public HammerTest(String name, String code, HammerFramework hammer) {
 		efCode = code;
 		mHammer = hammer;
-		mTasks = new ArrayList<IoTask>();
+		mTasks = new ArrayList<TestTask>();
 		mName = name;
 	}
 	
@@ -62,6 +62,8 @@ public class HammerTest {
 	 * @return Whether the test passed or not (true/false)
 	 */
 	public boolean run() {
+		boolean testPassed = true;
+		
 		if (setupFailed) {
 			// We failed to set up the test, so return failure.
 			HammerLog.error(
@@ -80,14 +82,15 @@ public class HammerTest {
 		// or check output).
 		// If it fails (i.e. the output doesn't match expected) return
 		// failure.
-		for (IoTask task : mTasks) {
-			if (!task.execute()) {
+		for (TestTask task : mTasks) {
+			if (!task.execute(mHammer)) {
 				HammerLog.info("Test Failed!");
-				return false;
+				testPassed = false;
+				break;
 			}
 		}
 
-                mHammer.tearDown();
+        mHammer.tearDown();
 		
 		// If we got this far, the test must have passed
 		HammerLog.info("Test Passed!");
@@ -96,53 +99,71 @@ public class HammerTest {
 	}
 	
 	/**
-	 * Adds an input task to the queue.
-	 * @param value - the value to input.
+	 * Adds a task to the queue.
+	 * @param task - the task to add.
 	 */
-	public void addInputTask(int value) {
-		mTasks.add(new IoTask(true, value));
+	public void addTask(TestTask task) {
+		mTasks.add(task);
 	}
 	
 	/**
-	 * Adds an output task to the queue.
-	 * @param value - the value to expect.
-	 */
-	public void addOutputTask(int value) {
-		mTasks.add(new IoTask(false, value));
-	}
-	
-	/**
-	 * A class representing a single task of either sending input to the
-	 * parser, or receiving output from it.
+	 * A class representing a single task for a test to execute.
 	 * @author rynor_000
 	 *
 	 */
-	private class IoTask {
-		private boolean isInput = true;
+	public static interface TestTask {
+		public boolean execute(HammerFramework hammer);
+	}
+	
+	public static class OutputTask implements TestTask {
+		private int expected;
+		
+		public OutputTask(int expected) {
+			this.expected = expected;
+		}
+		
+		public boolean execute(HammerFramework hammer) {
+			try {
+            	int output = hammer.waitAndGetOutput();
+                return hammer.hammerAssert(
+                        "Expected: " + String.valueOf(expected) +
+                        "  Got: " + String.valueOf(output), 
+                        output == expected);
+            }
+            catch (IOException e) {
+            	HammerLog.error(e.getMessage());
+                return false;
+            }
+		}
+	}
+	
+	public static class InputTask implements TestTask {
 		private int value;
 		
-		public IoTask(boolean input, int value) {
-			isInput = input;
+		public InputTask(int value) {
 			this.value = value;
 		}
 		
-		public boolean execute() {
-			if (isInput) {
-				mHammer.waitAndSendInput(value);
-				return true;
+		public boolean execute(HammerFramework hammer) {
+			try {
+				hammer.waitAndSendInput(value);
+			} catch (IOException e) {
+				HammerLog.error(e.getMessage());
+				return false;
 			}
-			else {
-                                try {
-        				int output = mHammer.waitAndGetOutput();
-                                    return mHammer.hammerAssert(
-                                                    "Expected: " + String.valueOf(value) +
-                                                    "  Got: " + String.valueOf(output), 
-                                                    output == value);
-                                }
-                                catch (IOException e) {
-                                    return false;
-                                }
-			}
+			return true;
+		}
+	}
+	
+	public static class RestartTask implements TestTask {
+		
+		public RestartTask() {
+		}
+		
+		public boolean execute(HammerFramework hammer) {
+			hammer.resetParser();
+			hammer.startPlaying();
+			return true;
 		}
 	}
 }

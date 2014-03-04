@@ -18,7 +18,7 @@ public class HammerFramework implements IoManager {
 	private Object mLock = new Object();
 	private Parser mParser;
 	private ParserThread mThread;
-        private static int DEFAULT_TIMEOUT = 5;
+    private static final int DEFAULT_TIMEOUT = 5;
 	
 	/**
 	 * We use this SynchronousQueue for receiving output
@@ -30,20 +30,23 @@ public class HammerFramework implements IoManager {
 	private SynchronousQueue<Integer> mOutput;
 	
 	/**
-	 * Indicates if we are currently waiting to give input to
-	 * the parser.
+	 * Also for receiving input.
+	 * This is not technically necessary here, since the
+	 * parser will wait for us to return input anyway, but
+	 * it makes our code cleaner.
 	 */
-	private boolean mWaitingToGiveInput = false;
-	
-	/**
-	 * Indicates if the parser has requested input from us.
-	 */
-	private boolean mInputRequested = false;
+	private SynchronousQueue<Integer> mInput;
 	
 	public HammerFramework() {
 		mParser = new Parser(new NullPerformer());
 		mParser.setIoManager(this);
 		mOutput = new SynchronousQueue<Integer>();
+		mInput = new SynchronousQueue<Integer>();
+	}
+	
+	public void resetParser() {
+		HammerLog.debug("Resetting Parser...");
+		mParser.refreshState();
 	}
 	
 	/**
@@ -51,7 +54,6 @@ public class HammerFramework implements IoManager {
 	 * @param efCode - A valid ef piece as a String.
 	 */
 	public void setPiece(String efCode) {
-                mParser.refreshState();
 		mParser.giveMusic(efCode);
 	}
 	
@@ -59,6 +61,7 @@ public class HammerFramework implements IoManager {
 	 * Kick off the parser. It runs in a separate thread.
 	 */
 	public void startPlaying() {
+		HammerLog.debug("Starting piece...");
 		mThread = new ParserThread();
 		mThread.setParser(mParser);
 		mThread.start();
@@ -70,11 +73,15 @@ public class HammerFramework implements IoManager {
 	public void tearDown() {
 		if (mThread != null && mThread.isRunning) {
 			mThread.stopRunning();
+			//Wake the thread up if it was blocking for input.
+			mThread.interrupt();
+			mThread = null;
 		}
 	}
 	
 	/**
 	 * Blocks until a value is output by the parser.
+	 * @param timeoutInSeconds - length of time to wait before failing
 	 * @return The output value
 	 */
 	public int waitAndGetOutput(long timeoutInSeconds) throws IOException {
@@ -82,55 +89,86 @@ public class HammerFramework implements IoManager {
 					  HammerLog.LogLevel.DEBUG, 
 					  false);
 		
-		Integer output = 0;
+		Integer output = null;
 		
 		try {
 			output = mOutput.poll(timeoutInSeconds, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (InterruptedException e) {
+			// Do nothing
 		}
 
-                if (output == null) {
-                    HammerLog.error("Timed out waiting for output.");
-                    throw new IOException("Timed out waiting for output.");
-                }
-                else {
-                    HammerLog.debug("Got " + String.valueOf(output));
-                }
+        if (output == null) {
+            throw new IOException("Timed out waiting for output.");
+        }
+        else {
+            HammerLog.debug("Got " + String.valueOf(output));
+        }
 		
 		return output;
 	}
 
-        public int waitAndGetOutput() throws IOException {
-            return waitAndGetOutput(DEFAULT_TIMEOUT);
-        }
+	/**
+	 * Blocks until a value is output by the parser.
+	 * @return The output value
+	 */
+    public int waitAndGetOutput() throws IOException {
+        return waitAndGetOutput(DEFAULT_TIMEOUT);
+    }
 	
 	/**
 	 * Waits until the parser requests input, and then sends it.
 	 * @param value - The value to send as input.
+	 * @param timeoutInSeconds - the length of time to wait before failing
+	 * @throws IOException 
 	 */
-	public void waitAndSendInput(int value) {
+	public void waitAndSendInput(int value, int timeoutInSeconds) throws IOException {
 		HammerLog.log("Waiting to send input... ", 
-				  HammerLog.LogLevel.DEBUG, 
-				  false);
+					  HammerLog.LogLevel.DEBUG, 
+					  false);
+		boolean success = false;
 		
-		while (!mInputRequested) {
-			block();
+		try {
+			success = mInput.offer(value, 
+								   timeoutInSeconds, 
+								   TimeUnit.SECONDS);
+		} 
+		catch (InterruptedException e) {
+			// Do Nothing
 		}
 		
-		mInputRequested = false;
-		
-		mParser.giveInput(value);
+		if (!success) {
+            throw new IOException("Timed out waiting to send input.");
+		}
 		
 		HammerLog.debug("Sent " + String.valueOf(value));
 	} 
+	
+	/**
+	 * Waits until the parser requests input, and then sends it.
+	 * @param value - The value to send as input.
+	 * @throws IOException 
+	 */
+	public void waitAndSendInput(int value) throws IOException {
+		waitAndSendInput(value, DEFAULT_TIMEOUT);
+	}
 
 	@Override
 	public void requestInput(Parser parser) {
-		mInputRequested = true;
-		synchronized (mLock) {
-			mLock.notify();
+		int input = 0;
+		try {
+			// This call will block the parsing thread until HAMMER
+			// provides input. 
+			// This is semi-unnecessary since the EF parser will wait
+			// for input anyway, however this way gives a nice symmetry
+			// to our input and output.
+			input = mInput.take();
+		} 
+		catch (InterruptedException e) {
+			// Do nothing
 		}
+		
+		mParser.giveInput(input);
 	}
 
 	@Override
@@ -140,9 +178,9 @@ public class HammerFramework implements IoManager {
 			// has collected the output from the queue.
 			// This prevents HAMMER getting flooded with output.
 			mOutput.put(value);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} 
+		catch (InterruptedException e) {
+			// Do nothing
 		}
 	}
 
@@ -169,16 +207,6 @@ public class HammerFramework implements IoManager {
 			HammerLog.error(ele.toString());
 		}
 		HammerLog.error("");
-	}
-	
-	private void block() {
-		try {
-			synchronized (mLock) {
-				mLock.wait();
-			}
-		} catch (InterruptedException e) {
-			// Do Nothing.
-		}
 	}
 
 	/**
