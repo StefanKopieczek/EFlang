@@ -1,0 +1,33 @@
+[Name]
+Addition Values Test
+
+[Type]
+LOBE
+
+[Code]
+input x
+input y
+
+z = x + y
+print z
+
+[Test]
+// Normal values
+> 3
+> 5
+< 8
+=
+// Zero in first place
+> 0
+> 5
+< 5
+=
+// Zero in second place
+> 3
+> 0
+< 3
+=
+// Zero in both places
+> 0
+> 0
+< 0

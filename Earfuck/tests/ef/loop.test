@@ -5,8 +5,17 @@ Loop Test
 EF
 
 [Code]
-c4 d4 c4 r ( d4 d4 d4 c4 c4 ) d4 r
+c4 d4 c4 r ( d4 d4 d4 d4 c4 c4 ) d4 r
 
 [Test]
+// Regular value
 > 4
-< 8
+< 12
+=
+// Try 0
+> 0
+< 0
+=
+// Try 1
+> 1
+< 3

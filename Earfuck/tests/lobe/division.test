@@ -1,0 +1,27 @@
+[Name]
+Division Basic Function Test
+
+[Type]
+LOBE
+
+[Code]
+x = 9
+y = 3
+
+z = x / y
+print z
+
+z = x / 2
+print z
+
+z = 7 / y
+print z
+
+z = 5 / 3
+print z
+
+[Test]
+< 3
+< 4
+< 2
+< 1

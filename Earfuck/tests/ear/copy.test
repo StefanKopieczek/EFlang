@@ -5,11 +5,24 @@ COPY Test
 EAR
 
 [Code]
-MOV 7 2
+IN 2
 COPY @2 4 3
+// Check still in original cell
 OUT 2
+// Check copied to new cell
+OUT 4
+// Try copying a 0
+COPY @1 4 3
+OUT 1
+OUT 4
+// Try an absolute COPY
+COPY 5 4 3
 OUT 4
 
 [Test]
+> 7
 < 7
 < 7
+< 0
+< 0
+< 5

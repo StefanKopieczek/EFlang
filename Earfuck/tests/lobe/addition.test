@@ -1,5 +1,5 @@
 [Name]
-Addition Test
+Addition Basic Function Test
 
 [Type]
 LOBE
@@ -8,10 +8,17 @@ LOBE
 x = 3
 y = 4
 
-print x + y
-print x + 5
-print 2 + y
-print 3 + 4
+z = x + y
+print z
+
+z = x + 5
+print z
+
+z = 2 + y
+print z
+
+z = 3 + 4
+print z
 
 [Test]
 < 7

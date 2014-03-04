@@ -1,0 +1,33 @@
+[Name]
+Division Values Test
+
+[Type]
+LOBE
+
+[Code]
+input x
+input y
+
+z = x / y
+print z
+
+[Test]
+// Divides cleanly
+> 10
+> 2
+< 5
+=
+// Divides uncleanly
+> 13
+> 3
+< 4
+=
+// Denominator is larger
+> 3
+> 8
+< 0
+=
+// Divide into 0
+> 0
+> 3
+< 0
