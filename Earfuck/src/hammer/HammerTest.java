@@ -89,7 +89,8 @@ public class HammerTest {
                 mHammer.tearDown();
 		
 		// If we got this far, the test must have passed
-		HammerLog.info("Test Passed!\n");
+		HammerLog.info("Test Passed!");
+		HammerLog.debug("");
 		return true;
 	}
 	

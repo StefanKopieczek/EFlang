@@ -24,7 +24,7 @@ public class Main {
 				continue;
 			}
 			
-			HammerLog.setLogLevel(HammerLog.LogLevel.INFO);
+			HammerLog.setLogLevel(HammerLog.LogLevel.ERROR);
 			HammerLog.setPrintLevel(HammerLog.LogLevel.ERROR);
 			HammerSuite loadedSuite = null;
 			try {
@@ -34,6 +34,7 @@ public class Main {
 				e.printStackTrace();
 			}
 
+			HammerLog.setLogLevel(HammerLog.LogLevel.INFO);
 			HammerLog.setPrintLevel(HammerLog.LogLevel.INFO);
 			loadedSuite.run();
 		}
