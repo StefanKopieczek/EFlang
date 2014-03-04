@@ -1,31 +1,51 @@
-<project name="Earfuck" default="dist" basedir=".">
+<project name="Earfuck" default="build" basedir=".">
     <description>
         Earfuck - a musical programming language.
     </description>
+
+    <tstamp prefix="start">
+        <format property="TIME" pattern="yyyy-mmmm-d hh:mm:ss" locale="en,GB"/>
+    </tstamp>
+
+    <record name="build.log"/>
+
+    <echo message="Build Initiated at ${start.TIME}"/>
+
     <property name="src" location="src"/>
     <property name="build" location="build"/>
     <property name="dist" location="dist"/>
     <property name="lib" location="lib"/>
     <property name="docs" location="docs"/>
+    <property name="tests" location="tests"/>
 
     <uptodate property="earfuck.buildNotRequired">
         <srcfiles dir="${src}/earfuck" includes="**/*.java"/>
-        <mapper type="glob" from="${src}/earfuck/*.java" to="${build}/earfuck/*.class"/>
+        <mapper type="glob" from="*.java" to="${build}/earfuck/*.class"/>
     </uptodate>
 
     <uptodate property="lobecompiler.buildNotRequired">
         <srcfiles dir="${src}/lobecompiler" includes="**/*.java"/>
-        <mapper type="glob" from="${src}/lobecompiler/*.java" to="${build}/lobecompiler/*.class"/>
+        <mapper type="glob" from="*.java" to="${build}/lobecompiler/*.class"/>
     </uptodate>
 
     <uptodate property="earcompiler.buildNotRequired">
         <srcfiles dir="${src}/earcompiler" includes="**/*.java"/>
-        <mapper type="glob" from="${src}/earcompiler/*.java" to="${build}/earcompiler/*.class"/>
+        <mapper type="glob" from="*.java" to="${build}/earcompiler/*.class"/>
     </uptodate>
 
     <uptodate property="vibe.buildNotRequired">
         <srcfiles dir="${src}/vibe" includes="**/*.java"/>
-        <mapper type="glob" from="${src}/vibe/*.java" to="${build}/vibe/*.class"/>
+        <mapper type="glob" from="*.java" to="${build}/vibe/*.class"/>
+    </uptodate>
+
+    <uptodate property="malleus.buildNotRequired">
+        <srcfiles dir="${src}/malleus" includes="**/*.java"/>
+        <mapper type="glob" from="*.java" to="${build}/malleus/*.class"/>
+    </uptodate>
+
+    <uptodate property="hammer.buildNotRequired">
+        <srcfiles dir="${src}/hammer" includes="**/*.java"/>
+        <mapper type="glob" from="*.java" to="${build}/hammer/*.class"/>
     </uptodate>
 
     <target name="init">
@@ -33,7 +53,7 @@
         <mkdir dir="${build}"/>
     </target>
 
-    <target name="buildef" depends="init" description="Compile the earfuck base">
+    <target name="buildef" depends="init" description="Compile the earfuck base" unless="earfuck.buildNotRequired">
         <mkdir dir="${build}/earfuck"/>
         <javac srcdir="${src}/earfuck" destdir="${build}">
             <classpath>
@@ -44,17 +64,17 @@
         </javac>
     </target>
 
-    <target name="buildear" depends="init" description="Compile the EAR compiler">
+    <target name="buildear" depends="init" description="Compile the EAR compiler" unless="earcompiler.buildNotRequired">
         <mkdir dir="${build}/earcompiler"/>
         <javac srcdir="${src}/earcompiler" destdir="${build}"/>
     </target>
 
-    <target name="buildlobe" depends="init" description="Compile the LOBE compiler">
+    <target name="buildlobe" depends="init" description="Compile the LOBE compiler" unless="lobecompiler.buildNotRequired">
         <mkdir dir="${build}/lobecompiler"/>
         <javac srcdir="${src}/lobecompiler" destdir="${build}"/>
     </target>
 
-    <target name="buildmalleus" depends="init" description="Compile the Malleus sheet music renderer">
+    <target name="buildmalleus" depends="init" description="Compile the Malleus sheet music renderer" unless="malleus.buildNotRequired">
         <mkdir dir="${build}/malleus"/>
         <javac srcdir="${src}/malleus" destdir="${build}">
             <classpath>
@@ -65,7 +85,21 @@
         </javac>
     </target>
 
-    <target name="buildvibe" depends="buildef,buildear,buildlobe,buildmalleus" description="Compile the VIBE IDE">
+    <target name="buildhammer" depends="buildef,buildear,buildlobe" description="Compile the HAMMER test framework" unless="hammer.buildNotRequired">
+        <mkdir dir="${build}/hammer"/>
+        <javac srcdir="${src}/hammer" destdir="${build}"/>
+    </target>
+
+    <target name="hammer" depends="buildhammer" description="Runs all HAMMER tests">
+        <java classname="hammer.Main">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+            <arg value="${tests}"/>
+        </java>
+    </target>
+
+    <target name="buildvibe" depends="buildef,buildear,buildlobe,buildmalleus" description="Compile the VIBE IDE" unless="vibe.buildNotRequired">
         <mkdir dir="${build}/vibe"/>
         <javac srcdir="${src}/vibe" destdir="${build}">
             <classpath>
@@ -80,6 +114,8 @@
             </classpath>
         </javac>
     </target>
+
+    <target name="build" depends="buildef,buildear,buildlobe,buildhammer,buildmalleus,buildvibe" description="Build everything."/>
 
     <target name="dist" depends="buildvibe" description="Generate a VIBE IDE jar file.">
         <unjar dest="${build}">

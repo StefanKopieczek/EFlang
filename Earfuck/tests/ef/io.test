@@ -1,0 +1,12 @@
+[Name]
+IO Test
+
+[Type]
+EF
+
+[Code]
+c4 d4 c4 r b3 c4 r
+
+[Test]
+> 3
+< 3
