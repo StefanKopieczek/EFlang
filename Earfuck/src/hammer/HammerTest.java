@@ -117,6 +117,13 @@ public class HammerTest {
 		public boolean execute(HammerFramework hammer);
 	}
 	
+	/**
+	 * Wait for output from the parser.
+	 * Compare the output with the expected value.
+	 * Fail if they don't match.
+	 * @author rynor_000
+	 *
+	 */
 	public static class OutputTask implements TestTask {
 		private int expected;
 		
@@ -139,6 +146,11 @@ public class HammerTest {
 		}
 	}
 	
+	/**
+	 * Send some input to the parser.
+	 * @author rynor_000
+	 *
+	 */
 	public static class InputTask implements TestTask {
 		private int value;
 		
@@ -157,6 +169,11 @@ public class HammerTest {
 		}
 	}
 	
+	/**
+	 * Restart the piece from the start.
+	 * @author rynor_000
+	 *
+	 */
 	public static class RestartTask implements TestTask {
 		
 		public RestartTask() {
