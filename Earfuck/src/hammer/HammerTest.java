@@ -93,9 +93,11 @@ public class HammerTest {
         mHammer.tearDown();
 		
 		// If we got this far, the test must have passed
-		HammerLog.info("Test Passed!");
+        if (testPassed) {
+        	HammerLog.info("Test Passed!");
+        }
 		HammerLog.debug("");
-		return true;
+		return testPassed;
 	}
 	
 	/**
@@ -161,6 +163,7 @@ public class HammerTest {
 		}
 		
 		public boolean execute(HammerFramework hammer) {
+			hammer.tearDown();
 			hammer.resetParser();
 			hammer.startPlaying();
 			return true;
