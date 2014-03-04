@@ -1,6 +1,7 @@
 package hammer;
 
 import java.util.ArrayList;
+import java.io.IOException;
 
 /**
  * A base ef test class.
@@ -81,7 +82,7 @@ public class HammerTest {
 		// failure.
 		for (IoTask task : mTasks) {
 			if (!task.execute()) {
-				HammerLog.info("Test Failed!\n");
+				HammerLog.info("Test Failed!");
 				return false;
 			}
 		}
@@ -131,11 +132,16 @@ public class HammerTest {
 				return true;
 			}
 			else {
-				int output = mHammer.waitandGetOutput();
-				return mHammer.hammerAssert(
-						"Expected: " + String.valueOf(value) +
-						"  Got: " + String.valueOf(output), 
-						output == value);
+                                try {
+        				int output = mHammer.waitAndGetOutput();
+                                    return mHammer.hammerAssert(
+                                                    "Expected: " + String.valueOf(value) +
+                                                    "  Got: " + String.valueOf(output), 
+                                                    output == value);
+                                }
+                                catch (IOException e) {
+                                    return false;
+                                }
 			}
 		}
 	}

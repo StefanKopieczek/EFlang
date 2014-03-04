@@ -1,6 +1,8 @@
 package hammer;
 
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
+import java.io.IOException;
 
 import earfuck.IoManager;
 import earfuck.NullPerformer;
@@ -16,6 +18,7 @@ public class HammerFramework implements IoManager {
 	private Object mLock = new Object();
 	private Parser mParser;
 	private ParserThread mThread;
+        private static int DEFAULT_TIMEOUT = 5;
 	
 	/**
 	 * We use this SynchronousQueue for receiving output
@@ -74,24 +77,33 @@ public class HammerFramework implements IoManager {
 	 * Blocks until a value is output by the parser.
 	 * @return The output value
 	 */
-	public int waitandGetOutput() {
+	public int waitAndGetOutput(long timeoutInSeconds) throws IOException {
 		HammerLog.log("Waiting to get output... ", 
 					  HammerLog.LogLevel.DEBUG, 
 					  false);
 		
-		int output = 0;
+		Integer output = 0;
 		
 		try {
-			output = mOutput.take();
+			output = mOutput.poll(timeoutInSeconds, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		
-		HammerLog.debug("Got " + String.valueOf(output));
+
+                if (output == null) {
+                    HammerLog.error("Timed out waiting for output.");
+                    throw new IOException("Timed out waiting for output.");
+                }
+                else {
+                    HammerLog.debug("Got " + String.valueOf(output));
+                }
 		
 		return output;
 	}
+
+        public int waitAndGetOutput() throws IOException {
+            return waitAndGetOutput(DEFAULT_TIMEOUT);
+        }
 	
 	/**
 	 * Waits until the parser requests input, and then sends it.
