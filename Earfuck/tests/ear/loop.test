@@ -1,0 +1,16 @@
+[Name]
+WHILE Test
+
+[Type]
+EAR
+
+[Code]
+MOV 7 2
+WHILE 2
+ADD 3 1
+SUB 1 2
+ENDWHILE
+OUT 1
+
+[Test]
+< 21
