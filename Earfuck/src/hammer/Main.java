@@ -34,7 +34,7 @@ public class Main {
 				e.printStackTrace();
 			}
 
-			HammerLog.setLogLevel(HammerLog.LogLevel.INFO);
+			HammerLog.setLogLevel(HammerLog.LogLevel.DEBUG);
 			HammerLog.setPrintLevel(HammerLog.LogLevel.INFO);
 			loadedSuite.run();
 		}
