@@ -4,7 +4,9 @@ public enum Predicate {
 	EQ("=="),
 	NEQ("!="),
 	LEQ("<="),
-	LT("<");
+	LT("<"),
+	GT(">"),
+	GEQ(">=");
 	
 	public String mSymbol;
 	

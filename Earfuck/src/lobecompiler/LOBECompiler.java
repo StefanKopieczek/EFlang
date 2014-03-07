@@ -389,6 +389,13 @@ public class LOBECompiler {
 							      " " + targetVar.getRef(this) + 
 							      "\n";
 				}
+				
+				if (val2 instanceof Variable && 
+					!mSymbols.isInternalVariable((Variable)val2)) {
+					val2 = backup((Variable)val2, 
+							      mSymbols.getNewInternalVariable(this), 
+							      mWorkingMemory[0]);
+				}
 					
 				String maybeAt = (val2 instanceof Variable) ? "@" : "";
 				
@@ -478,11 +485,22 @@ public class LOBECompiler {
 
 	public Variable evaluate(Predicate pred, Value val1, Value val2, Variable target) 
 	    throws InvalidOperationTokenException {
+		
+		if (pred == Predicate.GEQ || pred == Predicate.GT) {
+			Value tmp = val1;
+			val1 = val2;
+			val2 = tmp;
+			pred = (pred == Predicate.GT) ? Predicate.LT : Predicate.LEQ;
+		}			
+		
+		System.out.println(pred + " " + val1 + " " + val2);
+		
 		String arg1Name = val1.getRef(this);
 		String arg2Name = val2.getRef(this);
 		String resultCell;
 
-		String earCommand = "";
+		String earCommand = "";				
+		
 		String maybeAt1 = (val1 instanceof Variable) ? "@" : "";
 		String maybeAt2 = (val2 instanceof Variable) ? "@" : "";
 		earCommand += "COPY " + maybeAt1 + arg1Name + " [[0]] [[6]] \n";
@@ -589,8 +607,8 @@ public class LOBECompiler {
     					      "ZERO [[1]]\n" + 
     					      "ENDWHILE\n";
     			resultCell = "[[4]]";
-    			break;
-    		
+    			break;    			
+    			
     		default:
     			resultCell = "";
     			throw new InvalidOperationTokenException("Unknown operation token "

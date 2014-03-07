@@ -28,6 +28,11 @@ public class LOBESymbolTable extends HashMap<Variable, Integer> {
 		return var;
 	}
 	
+	public boolean isInternalVariable(Variable var)
+	{
+		return var.mName.startsWith("!v");
+	}
+	
 	public void addVariable(Variable var) {
 		Integer idx = mMinInternalIdx;
 		while (this.values().contains(idx)) {
