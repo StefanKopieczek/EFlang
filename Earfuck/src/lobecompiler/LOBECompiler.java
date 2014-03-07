@@ -1,13 +1,14 @@
 package lobecompiler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
 
 public class LOBECompiler {
 
 	private LOBESymbolTable mSymbols;
-	public String mOutput;
-	private Variable[] mWorkingMemory;
+	public String mOutput;	
 	private Stack<Variable> mIfs;
 	private Stack<Evaluable> mWhileConditions;
 	private Stack<Variable> mWhileVars;
@@ -21,8 +22,7 @@ public class LOBECompiler {
 	 * Resets state to that of a new compiler.
 	 */
 	private void reset() {
-		mSymbols = new LOBESymbolTable();
-		initWorkingMemory(10);
+		mSymbols = new LOBESymbolTable();		
 		mOutput = "";
 		mIfs = new Stack<Variable>();
 		mWhileConditions = new Stack<Evaluable>();
@@ -138,9 +138,18 @@ public class LOBECompiler {
     			// second argument is a variable, it must be preceded by an '@'.
     			String maybeAt = (argval instanceof Variable) ? "@" : "";
     			
+    			Variable[] siblings;
+    			if (argval instanceof Variable)
+    			{
+    				siblings = new Variable[] {(Variable)argval, target};
+    			}
+    			else
+    			{
+    				siblings = new Variable[] {target};
+    			}
     			mOutput += "COPY " + maybeAt + argval.getRef(this) 
     					+ " " + target.getRef(this) 
-    					+ " " + mWorkingMemory[0].getRef(this) 
+    					+ " " + mSymbols.getNewInternalVariable(this, siblings).getRef(this)
     					+ "\n\n";
     			break;
     	
@@ -166,7 +175,7 @@ public class LOBECompiler {
     			maybeAt = (conditional instanceof Variable) ? "@" : "";
     			mOutput += "COPY " + maybeAt + conditional.getRef(this)
     					+ " " + ifVar.getRef(this) 
-    					+ " " + mWorkingMemory[0].getRef(this) 
+    					+ " " + mSymbols.getNewInternalVariable(this, justVariables(ifVar)).getRef(this)
     					+ "\n";
     			mIfs.add(ifVar); // Remember for later ENDIF.
     			mSymbols.lockVariable(ifVar); // Don't garbage collect yet!
@@ -256,21 +265,59 @@ public class LOBECompiler {
 		mSymbols.clearInternalVars();
 	}
 
-	private void initWorkingMemory(int size) {
-		mWorkingMemory = new Variable[size];
-		for (int i = 0; i < size; i++) {
-			Variable v = new Variable("!w" + i);
-			mSymbols.put(v, -i);
-			mWorkingMemory[i] = v;
-		}
-	}
-
 	public String getRef(Constant c) {
 		return Integer.toString(c.getValue());
 	}
 
 	public String getRef(Variable v) {
 		return Integer.toString(getPointer(v));
+	}
+	
+	public void registerVariableNearSiblings(Variable v, Variable... siblings) {
+		if (mSymbols.containsKey(v)) {
+			throw new VariableAlreadyRegisteredException(v);
+		}
+		
+		ArrayList<Integer> siblingCells = new ArrayList<Integer>();
+		for (Variable sibling : siblings) {
+			siblingCells.add(mSymbols.get(sibling));
+		}
+		
+		// Not super-efficient, but the list should be short.
+		Integer[] sortedSiblings = siblingCells.toArray(new Integer[siblingCells.size()]);
+		Arrays.sort(sortedSiblings);		
+		int minSiblingCell = sortedSiblings[0];
+		int maxSiblingCell = sortedSiblings[sortedSiblings.length - 1];
+		
+		boolean minReached = false;
+		boolean maxReached = false;
+		int leftGuess = mSymbols.get(siblings[0]) - 1;
+		int rightGuess = leftGuess + 2;
+		int targetCell;
+		while (true) {
+			if (!minReached || maxReached) {
+				if (mSymbols.isCellFree(leftGuess)) {
+					targetCell = leftGuess;
+					break;
+				}
+				leftGuess--;
+				if (leftGuess <= minSiblingCell) {
+					minReached = true;
+				}
+			}
+			if (!maxReached || minReached) {
+				if (mSymbols.isCellFree(rightGuess)) {
+					targetCell = rightGuess;
+					break;
+				}
+				rightGuess++;
+				if (rightGuess >= maxSiblingCell) {
+					maxReached = true;
+				}
+			}
+		}
+		
+		mSymbols.addVariable(v, targetCell);
 	}
 
 	public int getPointer(Variable v) {
@@ -281,10 +328,13 @@ public class LOBECompiler {
 		return mSymbols.get(v);
 	}
 	
-	public Variable backup(Variable v, Variable target, Variable workingCell) {
+	public Variable backup(Variable v, Variable target) {
+		Variable workingCell = mSymbols.getNewInternalVariable(this, v, target);
 		mOutput += "COPY @" + v.getRef(this) + " " 
 	                        + target.getRef(this) + " " 
-				            + workingCell.getRef(this) + "\n";
+				            + workingCell.getRef(this)
+				            + "\n";
+		mSymbols.deleteVariable(workingCell);
 		return target;
 	}
 
@@ -312,31 +362,34 @@ public class LOBECompiler {
 		assert(val1 instanceof Variable || val1 instanceof Constant);
 		assert(val2 instanceof Variable || val2 instanceof Constant);
 		
+		// Temp working cells assigned during this evaluation which can be garbage
+		// collected afterward.
+		ArrayList<Variable> tempVars = new ArrayList<Variable>();
+		
 		switch (op) {
 			case ADD:
 				if (val2 instanceof Variable) {
-					// 2nd arg is destroyed by ADD, so use a temp copy.
+					// 2nd arg is destroyed by ADD, so use a temp copy.					
 					if (targetVar == null) {
-						targetVar = mSymbols.getNewInternalVariable(this);
+						targetVar = mSymbols.getNewInternalVariable(this, justVariables(val2, val1));
 					}
-					val2 = backup((Variable)val2, targetVar, mWorkingMemory[0]);					
+					val2 = backup((Variable)val2, targetVar);					
 				}				
 				if (val1 instanceof Variable) {
 					if (val2 instanceof Constant) {
 						// Can't use a constant as the second argument, so back 1st arg up
 						// and switch the order of the arguments.
 						if (targetVar == null) {
-							targetVar = mSymbols.getNewInternalVariable(this);
+							targetVar = mSymbols.getNewInternalVariable(this, justVariables(val1, val2));
 						}
-						Value temp = backup((Variable)val1, targetVar, mWorkingMemory[0]);
+						Value temp = backup((Variable)val1, targetVar);
 						val1 = val2;
 						val2 = temp;
 					}
 					else {
 						// Back up the first argument.						
 						val1 = backup((Variable)val1, 
-								      mSymbols.getNewInternalVariable(this),
-								      mWorkingMemory[0]);
+								      mSymbols.getNewInternalVariable(this, justVariables(val1, val2, targetVar)));
 					}				
 				}
 				if (val1 instanceof Variable && val2 instanceof Constant) {
@@ -374,13 +427,13 @@ public class LOBECompiler {
 				}
 				
 				if (targetVar == null) {
-					targetVar = mSymbols.getNewInternalVariable(this);
+					targetVar = mSymbols.getNewInternalVariable(this, justVariables(val1, val2));
 				}
 				
 				if (val1 instanceof Variable) {
 					// SUB stores its result in the memory location of the second argument.
 					// Copy val1 (which will be the 2nd argument of SUB) to the target cell.
-					backup((Variable)val1, targetVar, mWorkingMemory[0]);
+					backup((Variable)val1, targetVar);
 				}				
 				else {
 					// SUB requires its second argument (our val1) to be a pointer,
@@ -392,9 +445,9 @@ public class LOBECompiler {
 				
 				if (val2 instanceof Variable && 
 					!mSymbols.isInternalVariable((Variable)val2)) {
-					val2 = backup((Variable)val2, 
-							      mSymbols.getNewInternalVariable(this), 
-							      mWorkingMemory[0]);
+					Variable workingCell = mSymbols.getNewInternalVariable(this, justVariables(val2, val1, targetVar));
+					tempVars.add(workingCell);
+					val2 = backup((Variable)val2, workingCell);
 				}
 					
 				String maybeAt = (val2 instanceof Variable) ? "@" : "";
@@ -406,14 +459,18 @@ public class LOBECompiler {
 				
 				break;
 				
-			case MUL:
+			case MUL:					
 				if (val1 instanceof Variable) {
 					// 1st arg is destroyed by MUL, so use a temp copy.
-					val1 = backup((Variable)val1, mWorkingMemory[0], mWorkingMemory[2]);					
+					val1 = backup((Variable)val1, 
+							      mSymbols.getNewInternalVariable(this, justVariables(val1, val2, targetVar)));
+					tempVars.add((Variable)val1);
 				}
 				if (val2 instanceof Variable) {
 					// 2nd arg is destroyed by MUL, so use a temp copy.
-					val2 = backup((Variable)val2, mWorkingMemory[1], mWorkingMemory[2]);					
+					val2 = backup((Variable)val2, 
+							      mSymbols.getNewInternalVariable(this, justVariables(val1, val2, targetVar)));
+					tempVars.add((Variable)val2);
 				}
 				if (val1 instanceof Constant && val2 instanceof Constant) {
 					// Both arguments are constants - we just return the product as a constant.
@@ -423,26 +480,35 @@ public class LOBECompiler {
 				}
 				else {
 					if (targetVar == null) {
-						targetVar = mSymbols.getNewInternalVariable(this);
-					}
-					String maybeAt1 = (val1 instanceof Variable) ? "@" : "";
+						// We don't have an explicit target, so create an internal variable.
+						// Don't add it to the tempVars list as it needs to be returned to the caller.
+						targetVar = mSymbols.getNewInternalVariable(this, justVariables(val1, val2));
+					}									
+														
+					String maybeAt1 = (val1 instanceof Variable) ? "@" : "";					
 					String maybeAt2 = (val2 instanceof Variable) ? "@" : "";
+					Variable workingCell = mSymbols.getNewInternalVariable(this, justVariables(val1, targetVar, val2));
+					tempVars.add(workingCell);
 					mOutput += "MUL " + maybeAt1 + val1.getRef(this) +
 				                  " " + maybeAt2 + val2.getRef(this) +
 				                   " " + targetVar.getRef(this) +
-				                   " " + mWorkingMemory[2].getRef(this) +
+				                   " " + workingCell.getRef(this) +
 				                   "\n";
-					result = targetVar;
+					result = targetVar;					
 				}
 				break;
 			case DIV:
 				if (val1 instanceof Variable) {
 					// 1st arg is destroyed by DIV, so use a temp copy.
-					val1 = backup((Variable)val1, mWorkingMemory[0], mWorkingMemory[2]);					
+					Variable workingCell = mSymbols.getNewInternalVariable(this, justVariables(val1, val2, targetVar));
+					val1 = backup((Variable)val1, workingCell);
+					tempVars.add(workingCell);
 				}
 				if (val2 instanceof Variable) {
-					// 2nd arg is destroyed by MUL, so use a temp copy.
-					val2 = backup((Variable)val2, mWorkingMemory[1], mWorkingMemory[2]);					
+					// 2nd arg is destroyed by DIV, so use a temp copy.
+					Variable workingCell = mSymbols.getNewInternalVariable(this, justVariables(val1));					
+					val2 = backup((Variable)val2, workingCell);
+					tempVars.add(workingCell);
 				}
 				if (val1 instanceof Constant && val2 instanceof Constant) {
 					// Both arguments are constants - we just return the product as a constant.
@@ -452,20 +518,20 @@ public class LOBECompiler {
 				}
 				else {
 					if (targetVar == null) {
-						targetVar = mSymbols.getNewInternalVariable(this);
+						targetVar = mSymbols.getNewInternalVariable(this, justVariables(val1, val2));
 					}
+					
+					Variable[] workingCells = mSymbols.getNewInternalVariables(this, 6, justVariables(val1, val2, targetVar));
+					tempVars.addAll(Arrays.asList(workingCells));
 					String maybeAt1 = (val1 instanceof Variable) ? "@" : "";
 					String maybeAt2 = (val2 instanceof Variable) ? "@" : "";
 					mOutput += "DIV " + maybeAt1 + val1.getRef(this) +
 				                  " " + maybeAt2 + val2.getRef(this) +
-				                   " " + targetVar.getRef(this) +
-				                   " " + mWorkingMemory[2].getRef(this) +
-				                   " " + mWorkingMemory[3].getRef(this) +
-				                   " " + mWorkingMemory[4].getRef(this) +
-				                   " " + mWorkingMemory[5].getRef(this) +
-				                   " " + mWorkingMemory[6].getRef(this) +
-				                   " " + mWorkingMemory[7].getRef(this) +
-				                   "\n";
+				                   " " + targetVar.getRef(this);
+					for (Variable var : workingCells) {
+						mOutput += " " + var.getRef(this);
+					}
+				    mOutput += "\n";
 					result = targetVar;
 				}
 				break;				
@@ -480,6 +546,8 @@ public class LOBECompiler {
 		    storeValue(result, targetVar);
 		    result = targetVar;
 		}
+		
+		mSymbols.deleteVariables(tempVars.toArray(new Variable[tempVars.size()]));
 		return result;
 	}
 
@@ -491,9 +559,7 @@ public class LOBECompiler {
 			val1 = val2;
 			val2 = tmp;
 			pred = (pred == Predicate.GT) ? Predicate.LT : Predicate.LEQ;
-		}			
-		
-		System.out.println(pred + " " + val1 + " " + val2);
+		}							
 		
 		String arg1Name = val1.getRef(this);
 		String arg2Name = val2.getRef(this);
@@ -619,10 +685,16 @@ public class LOBECompiler {
 
 		earCommand += "COPY @" + resultCell + " " + targetPointer + " [[5]]\n";
 
-		for (int i = 0; i < 10; i++) {
+		Variable[] workingCells = mSymbols.getNewInternalVariables(this, 7, justVariables(val1, val2, target));
+		
+		for (int i = 0; i < 7; i++) {
 			String s = Integer.toString(i);
 			earCommand = earCommand.replaceAll("\\[\\[" + s + "\\]\\]",
-					mWorkingMemory[i].getRef(this));
+					workingCells[i].getRef(this));
+		}
+		
+		for (Variable var : workingCells) {
+			mSymbols.deleteVariable(var);
 		}
 
 		mOutput += earCommand;
@@ -636,9 +708,23 @@ public class LOBECompiler {
 	
 	public void storeValue(Value val, Variable var) {
 	    String maybeAt = (val instanceof Variable) ? "@" : "";
-	    mOutput += "COPY " + maybeAt + val.getRef(this) 
+	    Variable workingCell = mSymbols.getNewInternalVariable(this, justVariables(val, var));
+		mOutput += "COPY " + maybeAt + val.getRef(this) 
 	            + " " + var.getRef(this)
-	            + " " + mWorkingMemory[0].getRef(this)
+	            + " " + workingCell.getRef(this)
 	            + "\n";
+		mSymbols.deleteVariable(workingCell);
+	}
+	
+	public static Variable[] justVariables(Value... values)
+	{
+		ArrayList<Variable> variables = new ArrayList<Variable>();
+		for (Value value : values) {
+			if (value != null && value instanceof Variable) {
+				variables.add((Variable)value);
+			}
+		}		
+		
+		return variables.toArray(new Variable[variables.size()]);
 	}
 }
