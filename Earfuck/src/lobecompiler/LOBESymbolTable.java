@@ -1,7 +1,9 @@
 package lobecompiler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public class LOBESymbolTable extends HashMap<Variable, Integer> {
 	private Integer mMinInternalIdx;
@@ -16,17 +18,39 @@ public class LOBESymbolTable extends HashMap<Variable, Integer> {
 	}
 	
 	public Variable getNewInternalVariable(LOBECompiler compiler) {
+		return getNewInternalVariable(compiler, null);
+	}	
+	
+	public Variable getNewInternalVariable(LOBECompiler compiler, Variable... siblings) {
 		Integer idx = mMinInternalIdx;
 		while (this.values().contains(idx)) {
 			idx += 1;
 		}
 		String vName = "!v" + Integer.toString(idx);
 		Variable var = new Variable(vName); 
+		
+		if (siblings != null && siblings.length > 0) {
+			compiler.registerVariableNearSiblings(var, siblings);
+		}
+		
 		this.put(var, idx);
 		mTempVars.add(var);
+		
 		compiler.mOutput += "ZERO " + var.getRef(compiler) + "\n";
 		return var;
 	}
+	
+	public Variable[] getNewInternalVariables(LOBECompiler compiler, int numVars, Variable... siblings) {
+		ArrayList<Variable> variables = new ArrayList<Variable>();
+		while (variables.size() < numVars) {			
+			ArrayList<Variable> currentSiblings = new ArrayList<Variable>(Arrays.asList(siblings));			
+			currentSiblings.addAll(variables);
+			variables.add(getNewInternalVariable(compiler, currentSiblings.toArray(new Variable[currentSiblings.size()])));
+		}
+		
+		return variables.toArray(new Variable[variables.size()]);
+	}
+	
 	
 	public boolean isInternalVariable(Variable var)
 	{
@@ -34,15 +58,50 @@ public class LOBESymbolTable extends HashMap<Variable, Integer> {
 	}
 	
 	public void addVariable(Variable var) {
+		if (this.containsKey(var)) {
+			throw new VariableAlreadyRegisteredException(var);
+		}
+		
 		Integer idx = mMinInternalIdx;
-		while (this.values().contains(idx)) {
+		while (values().contains(idx)) {
 			idx += 1;
 		}
 		this.put(var, idx);		
 	}
 	
+	public void addVariable(Variable var, int cellIdx) {
+		if (this.containsKey(var)) {
+			throw new VariableAlreadyRegisteredException(var);
+		}
+		else if (values().contains(cellIdx)) {
+			throw new CellAlreadyInUseException(cellIdx, getVarFromCell(cellIdx), var);
+		}
+		else {
+			this.put(var, cellIdx);
+		}
+	}
+	
+	public Variable getVarFromCell(int cellIdx) {
+		for (Variable var : keySet()) {
+			if (get(var).intValue() == cellIdx)
+				return var;
+		}
+		
+		return null;
+	}
+	
+	public boolean isCellFree(int idx) {
+		return !this.values().contains(idx);
+	}
+	
 	public void deleteVariable(Variable var) {
 		this.remove(var);
+	}
+	
+	public void deleteVariables(Variable... vars) {
+		for (Variable var : vars) {
+			deleteVariable(var);
+		}
 	}
 	
 	public void lockVariable(Variable var) {
