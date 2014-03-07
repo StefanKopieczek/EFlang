@@ -13,6 +13,11 @@ public class Variable implements Value {
 		return mName.hashCode();
 	}
 	
+	@Override 
+	public String toString() {
+		return mName;
+	}
+	
 	@Override public boolean equals(Object obj) {
 		 if (obj == null)
 	            return false;

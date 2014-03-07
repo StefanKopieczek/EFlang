@@ -3,41 +3,52 @@ package lobecompiler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 public class LOBESymbolTable extends HashMap<Variable, Integer> {
 	private Integer mMinInternalIdx;
 	private ArrayList<Variable> mTempVars;
-	private ArrayList<Variable> mLockedVars;
+	private ArrayList<Variable> mLockedVars;	
 	
 	public LOBESymbolTable() {
 		super();
 		mMinInternalIdx = 1;		
 		mTempVars = new ArrayList<Variable>();
-		mLockedVars = new ArrayList<Variable>();
+		mLockedVars = new ArrayList<Variable>();		
 	}
 	
 	public Variable getNewInternalVariable(LOBECompiler compiler) {
 		return getNewInternalVariable(compiler, null);
 	}	
 	
-	public Variable getNewInternalVariable(LOBECompiler compiler, Variable... siblings) {
-		Integer idx = mMinInternalIdx;
-		while (this.values().contains(idx)) {
-			idx += 1;
-		}
-		String vName = "!v" + Integer.toString(idx);
+	public Variable getNewInternalVariable(LOBECompiler compiler, Variable... siblings) {		
+		String vName = getName();
 		Variable var = new Variable(vName); 
 		
 		if (siblings != null && siblings.length > 0) {
 			compiler.registerVariableNearSiblings(var, siblings);
 		}
-		
-		this.put(var, idx);
+		else {			
+			Integer idx = mMinInternalIdx;
+			while (values().contains(idx)) {
+				idx += 1;
+			}
+			this.put(var, idx);
+		}
 		mTempVars.add(var);
 		
 		compiler.mOutput += "ZERO " + var.getRef(compiler) + "\n";
 		return var;
+	}
+	
+	public String getName() {
+		String name = "!" + UUID.randomUUID().toString();
+		while (containsKey(new Variable(name))) {
+			name = "!" + UUID.randomUUID().toString();
+		}
+		return name;
 	}
 	
 	public Variable[] getNewInternalVariables(LOBECompiler compiler, int numVars, Variable... siblings) {
@@ -65,8 +76,21 @@ public class LOBESymbolTable extends HashMap<Variable, Integer> {
 		Integer idx = mMinInternalIdx;
 		while (values().contains(idx)) {
 			idx += 1;
-		}
+		}		
 		this.put(var, idx);		
+	}
+	
+	public void addVariable(Variable var, LOBECompiler compiler, Variable... siblings) {
+		if (siblings == null || siblings.length == 0) {
+			addVariable(var);
+			return;
+		}
+			
+		if (this.containsKey(var)) {
+			throw new VariableAlreadyRegisteredException(var);
+		}
+		
+		compiler.registerVariableNearSiblings(var, siblings);
 	}
 	
 	public void addVariable(Variable var, int cellIdx) {
@@ -76,7 +100,7 @@ public class LOBESymbolTable extends HashMap<Variable, Integer> {
 		else if (values().contains(cellIdx)) {
 			throw new CellAlreadyInUseException(cellIdx, getVarFromCell(cellIdx), var);
 		}
-		else {
+		else {			
 			this.put(var, cellIdx);
 		}
 	}
@@ -95,7 +119,7 @@ public class LOBESymbolTable extends HashMap<Variable, Integer> {
 	}
 	
 	public void deleteVariable(Variable var) {
-		this.remove(var);
+		this.remove(var);		
 	}
 	
 	public void deleteVariables(Variable... vars) {
