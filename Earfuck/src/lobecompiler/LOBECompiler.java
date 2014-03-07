@@ -127,12 +127,10 @@ public class LOBECompiler {
     			// second to either a Variable or a Constant.
     			target = (Variable) instruction.mArguments[0];    			    		
     			argval = instruction.mArguments[1].evaluate(this);
-    			
+    			        			
     			if (!mSymbols.containsKey(target)) {
-    			    // The given variable is not yet defined, so add an entry
-    			    // in the symbol table.
-    				mSymbols.addVariable(target);
-    			}
+    				mSymbols.addVariable(target, this, justVariables(argval));    				
+    			}    			    			
     			
     			// The format of EAR's 'IN' instruction is such that if the 
     			// second argument is a variable, it must be preceded by an '@'.
@@ -151,6 +149,7 @@ public class LOBECompiler {
     					+ " " + target.getRef(this) 
     					+ " " + mSymbols.getNewInternalVariable(this, siblings).getRef(this)
     					+ "\n\n";
+    			    			    	
     			break;
     	
     		// -- IF statement --
@@ -569,9 +568,10 @@ public class LOBECompiler {
 		
 		String maybeAt1 = (val1 instanceof Variable) ? "@" : "";
 		String maybeAt2 = (val2 instanceof Variable) ? "@" : "";
-		earCommand += "COPY " + maybeAt1 + arg1Name + " [[0]] [[6]] \n";
-		earCommand += "COPY " + maybeAt2 + arg2Name + " [[1]] [[6]] \n";
+		earCommand += "COPY " + maybeAt1 + arg1Name + " [[0]] [[2]] \n";
+		earCommand += "COPY " + maybeAt2 + arg2Name + " [[1]] [[2]] \n";
 
+		int workingCellsNeeded = 6;
 		switch (pred) {
 		    case EQ:
     			earCommand += "MOV 1 [[4]]\n" + 
@@ -685,9 +685,9 @@ public class LOBECompiler {
 
 		earCommand += "COPY @" + resultCell + " " + targetPointer + " [[5]]\n";
 
-		Variable[] workingCells = mSymbols.getNewInternalVariables(this, 7, justVariables(val1, val2, target));
+		Variable[] workingCells = mSymbols.getNewInternalVariables(this, workingCellsNeeded, justVariables(val1, val2, target));
 		
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < workingCellsNeeded; i++) {
 			String s = Integer.toString(i);
 			earCommand = earCommand.replaceAll("\\[\\[" + s + "\\]\\]",
 					workingCells[i].getRef(this));
