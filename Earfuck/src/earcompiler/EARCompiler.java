@@ -16,18 +16,18 @@ import earfuck.EarfuckMemory;
  */
 public class EARCompiler {
 	private static Note STARTING_NOTE = Note.c4;
-	private enum Note {		
-		a3, b3, c4, d4, e4, f4, g4, 
-		a4, b4, c5, d5, e5, f5, g5,
-		a5, b5;
-		
+	private enum Note {
+		ab3, bb3, b3, c4, d4, eb4, f4, g4,
+		ab4, bb4, b4, c5, d5, eb5, f5, g5,
+		ab5, bb5, b5;
+
 		public Note getNext() {
 			if (ordinal()==Note.values().length-1) {
 				return Note.values()[0];
 			}
 			return Note.values()[ordinal() + 1];
 		}
-		
+
 		public Note getPrev() {
 			if (ordinal()==0) {
 				return Note.values()[Note.values().length-1];
@@ -35,10 +35,10 @@ public class EARCompiler {
 			return Note.values()[ordinal() - 1];
 		}
 	}
-	
+
 	private HashMap<String,EARInstruction> instructionSet;
-		
-	
+
+
 	private int p; //Cell pointer
 	private EarfuckMemory memory;
 	private Note currentNote;
@@ -46,7 +46,7 @@ public class EARCompiler {
 	private Stack<Integer> branchLocStack;
 	private Stack<Note> branchNoteStack;
 	private Stack<Integer> branchOptimismStack;
-	
+
 	/**
 	 * This stores the start position in the compiled EF code for each
 	 * EAR command.
@@ -54,11 +54,11 @@ public class EARCompiler {
 	 * Value = first EF command index in the given EAR command
 	 */
 	private ArrayList<Integer> lineStartPositions;
-	
+
 	public EARCompiler() {
 		resetState();
 	}
-	
+
 	public void resetState() {
 		p=0;
 		memory = new EarfuckMemory();
@@ -70,9 +70,9 @@ public class EARCompiler {
 		branchOptimismStack = new Stack<Integer>();
 		lineStartPositions = new ArrayList<Integer>();
 	}
-	
+
 	private HashMap<String,EARInstruction> getInstructionSet() {
-		HashMap<String,EARInstruction> instructions = 
+		HashMap<String,EARInstruction> instructions =
 				new HashMap<String,EARInstruction>();
 		instructions.put("GOTO", GOTO);
 		instructions.put("IN", IN);
@@ -86,10 +86,10 @@ public class EARCompiler {
 		instructions.put("ZERO", ZERO);
 		instructions.put("COPY",COPY);
 		instructions.put("MOV",MOV);
-		
+
 		return instructions;
 	}
-	
+
 	/**
 	 * Compiles provided EARCode into an EF program
 	 * @param EARCode
@@ -98,28 +98,28 @@ public class EARCompiler {
 	public String compile(String EARCode) throws EARException {
 		resetState();
 		String output = "";
-		
+
 		//Discard comments (OLD COMMENT STYLE = "\\([^\\)]*\\)")
 		EARCode = EARCode.replaceAll("//.*\\n","\n");
 
 		//Split into individual instructions
 		String[] instructions = EARCode.split("(\\r?\\n)+");
-		
+
 		output += currentNote.toString()+" ";
-		
+
 		for (int i=0; i<instructions.length; i++) {
 			String compiledInstruction = "";
 			String instruction = instructions[i].replaceAll(" +", " ");
 			instruction = instruction.replaceAll("^ +", "");
 			if (!instruction.equals("")) {
 				String[] parsedInstruction = instruction.split(" ");
-				
-				String[] args = Arrays.copyOfRange(parsedInstruction, 1, 
+
+				String[] args = Arrays.copyOfRange(parsedInstruction, 1,
 												parsedInstruction.length);
 				String opcode = parsedInstruction[0];
-				
+
 				EARInstruction command = instructionSet.get(opcode);
-				
+
 				//Check opcode actually generated a command
 				if (command==null) {
 					String message = "Invalid opcode at instruction "+i+":";
@@ -132,7 +132,7 @@ public class EARCompiler {
 					}
 					throw new EARInvalidOpcodeException(message);
 				}
-				
+
 				//Check validity of command and throw helpful error message
 				if (!command.checkArgs(instruction)) {
 					String message = "Invalid instruction signature at instruction "+i+":";
@@ -147,7 +147,7 @@ public class EARCompiler {
 				}
 				compiledInstruction = command.compile(args);
 			}
-			
+
 			//calculate how many commands into the EF code we are
 			int commands = 0;
 			for (char c : output.toCharArray()) {
@@ -161,11 +161,11 @@ public class EARCompiler {
 		}
 		return output;
 	}
-	
+
 	public ArrayList<Integer> getCommandStartPositions() {
 		return lineStartPositions;
 	}
-	
+
 	//Some convenience methods, not accessible to the EAR programmer directly
 	/**
 	 * Safely moves the pointer one to the left.
@@ -173,12 +173,12 @@ public class EARCompiler {
 	 */
 	private String moveLeft() {
 		String output = "";
-		
+
 		//Decrement pointer
-		p--; 
+		p--;
 		//Set optimisim
 		optimism = -1;
-		
+
 		//Add correct notes to output code THIS CODE IS SHIT AND GROSS
 		output += currentNote.getPrev().toString()+" ";
 		if (currentNote.ordinal()<currentNote.getPrev().ordinal()) {
@@ -188,22 +188,22 @@ public class EARCompiler {
 		} else {
 			currentNote = currentNote.getPrev();
 		}
-		
+
 		return output;
 	}
-	
+
 	/**
 	 * Safely moves the pointer one to the right.
 	 * @return The EF code to make that happen.
 	 */
 	private String moveRight() {
 		String output = "";
-		
+
 		//Increment pointer
-		p++; 
+		p++;
 		//Set optimisim
 		optimism = 1;
-		
+
 		//Add correct notes to output code THIS CODE IS SHIT AND GROSS
 		output += currentNote.getNext().toString()+" ";
 		if (currentNote.ordinal()>currentNote.getNext().ordinal()) {
@@ -213,10 +213,10 @@ public class EARCompiler {
 		} else {
 			currentNote = currentNote.getNext();
 		}
-		
+
 		return output;
 	}
-	
+
 	/**
 	 * Safely adds one to current cell
 	 * @return The EF code to make it happen
@@ -231,7 +231,7 @@ public class EARCompiler {
 		output += currentNote.toString()+" ";
 		return output;
 	}
-	
+
 	/**
 	 * Safely adds one to current cell
 	 * @return The EF code to make it happen
@@ -246,7 +246,7 @@ public class EARCompiler {
 		output += currentNote.toString()+" ";
 		return output;
 	}
-	
+
 	/**
 	 * Changes current note to specified target note
 	 * without changing the pointer/optimism
@@ -272,7 +272,7 @@ public class EARCompiler {
 			currentNote = currentNote.getNext();
 			output += currentNote.toString()+" ";
 		}
-		
+
 		if (currentNote.ordinal()<target.ordinal()) {
 			output += currentNote.getPrev().toString()+" ";
 			tempOptimism = 1;
@@ -281,10 +281,10 @@ public class EARCompiler {
 			output += currentNote.getNext().toString()+" ";
 			tempOptimism = -1;
 		}
-		
+
 		output += target.toString()+" ";
 		currentNote = target;
-		
+
 		//Now we're at target, but may have changed the optimism
 		//here we restore optimism
 		//Note, optimism may be impossible if the target note is the highest/lowest
@@ -303,17 +303,17 @@ public class EARCompiler {
 			output += moveRight();
 			output += moveLeft();
 		}
-		
+
 		return output;
 	}
-	
+
 	public class EARInstruction{
 		private String signature;
-		
+
 		public EARInstruction(String sig) {
 			signature = sig;
 		}
-		
+
 		/**
 		 * Checks if the given arg string is of the correct signature.
 		 * @param args
@@ -322,14 +322,14 @@ public class EARCompiler {
 		public boolean checkArgs(String args) {
 			return args.matches(signature);
 		}
-		
+
 		public String compile(String[] args){
 			return "";
-		}	
+		}
 	}
-	
+
 	//Defines all the instructions
-	
+
 	/**
 	 * Moves the pointer to specified cell.
 	 * e.g.
@@ -349,7 +349,7 @@ public class EARCompiler {
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Resets target cell to zero
 	 * e.g.
@@ -370,7 +370,7 @@ public class EARCompiler {
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Takes input to target cell
 	 * e.g.
@@ -383,7 +383,7 @@ public class EARCompiler {
 				//goto cell
 				output += GOTO.compile(args);
 			}
-			
+
 			//ensure pessimism
 			if (optimism!=-1) {
 				output += moveRight();
@@ -391,11 +391,11 @@ public class EARCompiler {
 			}
 			//take input
 			output += "r ";
-			
+
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Outputs target cell.
 	 * e.g.
@@ -408,7 +408,7 @@ public class EARCompiler {
 				//goto cell
 				output += GOTO.compile(args);
 			}
-			
+
 			//ensure optimism
 			if (optimism!=1) {
 				output += moveLeft();
@@ -416,11 +416,11 @@ public class EARCompiler {
 			}
 			//give output
 			output += "r ";
-			
+
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Begins a loop conditional on the target cell.
 	 * Should be matched with an WHILE
@@ -434,18 +434,18 @@ public class EARCompiler {
 				//goto cell
 				output += GOTO.compile(args);
 			}
-			
+
 			output += "( ";
-			
+
 			//Store where we were when we came in
 			branchLocStack.push(p);
 			branchNoteStack.push(currentNote);
 			branchOptimismStack.push(optimism);
-			
+
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Returns to start of loop if conditioned cell is non-0
 	 * Conditioned cell chosen by previous maching IF.
@@ -473,14 +473,14 @@ public class EARCompiler {
 			//(to ensure same behaviour in each loop)
 			Note branchEntryNote = branchNoteStack.pop();
 			output += changeNoteTo(branchEntryNote);
-			
+
 			//exit branch
 			output += ") ";
-			
+
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Adds the value of the first argument (use @ for a pointer)
 	 * to the cells given by the remaining arguments (as many as you like)
@@ -494,14 +494,14 @@ public class EARCompiler {
 		public String compile(String[] args) {
 			String output = "";
 			int amount;
-			
+
 			//Parse & sort list of target cells
 			ArrayList<Integer> targets = new ArrayList<Integer>();
 			for (String s : Arrays.copyOfRange(args, 1, args.length)) {
 				targets.add(Integer.parseInt(s));
 			}
 			Collections.sort(targets);
-			
+
 			//If given pointer
 			if (args[0].charAt(0)=='@') { //If pointer
 				//Goto summand cell
@@ -513,7 +513,7 @@ public class EARCompiler {
 				//Until cell is 0
 				output += WHILE.compile(new String[]{args[0].substring(1)});
 				output += decrement();
-				
+
 				//for each target cell
 				for (int index : targets) {
 					//Goto target cell
@@ -538,13 +538,13 @@ public class EARCompiler {
 					for (int i=0;i<amount;i++) {
 						output += increment();
 					}
-					
+
 				}
 			}
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Subtracts the value of the first argument (use @ for a pointer)
 	 * from the cells given by the remaining arguments (as many as you like)
@@ -558,14 +558,14 @@ public class EARCompiler {
 		public String compile(String[] args) {
 			String output = "";
 			int amount;
-			
+
 			//Parse & sort list of target cells
 			ArrayList<Integer> targets = new ArrayList<Integer>();
 			for (String s : Arrays.copyOfRange(args, 1, args.length)) {
 				targets.add(Integer.parseInt(s));
 			}
 			Collections.sort(targets);
-			
+
 			//If given pointer
 			if (args[0].charAt(0)=='@') { //If pointer
 				//Goto summand cell
@@ -577,7 +577,7 @@ public class EARCompiler {
 				//Until cell is 0
 				output += WHILE.compile(new String[]{args[0].substring(1)});
 				output += decrement();
-				
+
 				//for each target cell
 				for (int index : targets) {
 					//Goto target cell
@@ -602,13 +602,13 @@ public class EARCompiler {
 					for (int i=0;i<amount;i++) {
 						output += decrement();
 					}
-					
+
 				}
 			}
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Multiplies two values into the given cell.
 	 * The final argument specifies a working cell
@@ -616,7 +616,7 @@ public class EARCompiler {
 	 * THE WORKING CELL IS NOT ZEROED
 	 * e.g.
 	 * MUL @5 @3 1 0
-	 * Multiplies cell 5 with cell 3, stores the answer in cell 1, 
+	 * Multiplies cell 5 with cell 3, stores the answer in cell 1,
 	 * and uses cell 0 for working.
 	 */
 	public EARInstruction MUL = new EARInstruction(
@@ -626,10 +626,10 @@ public class EARCompiler {
 			String output = "";
 			String targetCell = args[2];
 			String workingCell = args[3];
-			
+
 			//Zero the target cell
 			output += ZERO.compile(new String[]{targetCell});
-			
+
 			if (args[0].charAt(0)=='@') {
 				if (args[1].charAt(0)=='@') {
 					//BOTH REFERENCES - HARD CASE
@@ -638,12 +638,12 @@ public class EARCompiler {
 					//Get cell indices
 					tempA = args[0].substring(1);
 					tempB = args[1].substring(1);
-					
+
 					//loop on tempA
 					output += WHILE.compile(new String[]{tempA});
 					//subtract one from tempA
 					output += decrement();
-					
+
 					//move tempB back where it was
 					//Note, this doesn't really make sense in the first
 					//iteration, however it won't do anything the first time round
@@ -654,14 +654,14 @@ public class EARCompiler {
 					//This also makes behaviour consistent, in that
 					//both argument cells are destroyed after the algorithm is done.
 					output += ADD.compile(new String[]{"@"+workingCell,tempB});
-					
+
 					//add tempB to target & working space
 					output += ADD.compile(new String[]
 							{"@"+tempB,targetCell,workingCell});
-					
+
 					//end loop
 					output += ENDWHILE.compile(new String[]{});
-					
+
 					//DONE!
 					return output;
 				}
@@ -688,7 +688,7 @@ public class EARCompiler {
 					return output;
 				}
 			}
-			
+
 			//Now we're definitely in the 1 reference, 1 absolute case
 			//get value of absolute
 			int absoluteValue = Integer.parseInt(tempB);
@@ -702,7 +702,7 @@ public class EARCompiler {
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Divides the first argument by the second, and puts the result
 	 * in the cell specified by the third argument.
@@ -712,7 +712,7 @@ public class EARCompiler {
 	 * THE WORKING CELLS ARE NOT ZEROED
 	 * e.g.
 	 * DIV @5 @3 1 0 2 4 6 7
-	 * Divides cell 5 by cell 3, stores the answer in cell 1, 
+	 * Divides cell 5 by cell 3, stores the answer in cell 1,
 	 * and uses cells 0, 2, 4, 6 and 7 for working.
 	 */
 	public EARInstruction DIV = new EARInstruction(
@@ -732,10 +732,10 @@ public class EARCompiler {
 			String workingCell5 = args[8];
 			boolean numeratorIsReference = (numerator.charAt(0) == '@');
 			boolean denominatorIsReference = (denominator.charAt(0) == '@');
-			
+
 			//Zero the target cell
 			output += ZERO.compile(new String[]{targetCell});
-			
+
 			if (!numeratorIsReference && !denominatorIsReference) {
 				//Both absolute, just do the division at compile time.
 				int a = Integer.parseInt(numerator);
@@ -753,44 +753,44 @@ public class EARCompiler {
 					output += MOV.compile(new String[]{denominator, workingCell1});
 					denominator = "@" + workingCell1;
 				}
-				
+
 				//Strip off @s
 				numerator = numerator.substring(1, numerator.length());
 				denominator = denominator.substring(1, denominator.length());
-				
+
 				//Now we have 2 values in cells. We should divide them.
 				//Note: we may no longer use workingCell1, as it may contain
 				//one of the numbers we're calculating with.
-				
+
 				//Zero the working cells we'll use for the division
 				output += ZERO.compile(new String[]{workingCell2});
 				output += ZERO.compile(new String[]{workingCell3});
 				output += ZERO.compile(new String[]{workingCell4});
 				output += ZERO.compile(new String[]{workingCell5});
-				
+
 				//Set the flag to 1
 				output += MOV.compile(new String[]{"1",flag});
-				
+
 				//Copy the denominator to working cell 2
 				output += COPY.compile(new String[]{"@" + denominator, workingCell2, workingCell4});
-				
+
 				//While numerator not 0
 				output += WHILE.compile(new String[]{numerator});
-				
+
 				//Use workingCell3 to indicate if one of the numbers hit 0, so we
 				//don't try to subtract from it.
 				output += MOV.compile(new String[]{"1", workingCell3});
-				
+
 				output += WHILE.compile(new String[]{workingCell3});
-				
+
 				//Subtract one from each
 				output += SUB.compile(new String[]{"1",numerator});
 				output += SUB.compile(new String[]{"1",denominator});
-				
+
 				//Work out if either hit 0
 				//Proc for this is:
 				//Copy into WC4, use WC5 as flag.
-				
+
 				//If numerator is 0
 				output += COPY.compile(new String[]{"@" + numerator, workingCell4, workingCell5});
 				output += MOV.compile(new String[]{"1", workingCell5});
@@ -803,7 +803,7 @@ public class EARCompiler {
 				output += ZERO.compile(new String[]{workingCell3});
 				output += ZERO.compile(new String[]{workingCell5});
 				output += ENDWHILE.compile(new String[]{});
-				
+
 				//If denominator is 0
 				output += COPY.compile(new String[]{"@" + denominator, workingCell4, workingCell5});
 				output += MOV.compile(new String[]{"1", workingCell5});
@@ -818,17 +818,17 @@ public class EARCompiler {
 				output += ADD.compile(new String[]{"1", targetCell});
 				output += COPY.compile(new String[]{"@" + workingCell2, denominator, workingCell4});
 				output += ENDWHILE.compile(new String[]{});
-				
+
 				output += ENDWHILE.compile(new String[]{});
-				
+
 				output += ENDWHILE.compile(new String[]{});
 			}
-			
+
 			return output;
 		}
 	};
-	
-	
+
+
 	/**
 	 * Copies one cell into all the given targets.
 	 * Uses the final argument as a working cell.
@@ -842,44 +842,44 @@ public class EARCompiler {
 			"COPY\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)+-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
-			
+
 			//If copying an absolute, use MOV, it's faster
 			if (args[0].charAt(0)!='@') {
 				String[] movArgs = Arrays.copyOfRange(args, 0, args.length-1);
 				output += MOV.compile(movArgs);
 				return output;
 			}
-			
+
 			//Move last argument to beginning of argument list
 			//for use in moving values back from working cell later
-			//this makes sense if you think about it hard enough. 
+			//this makes sense if you think about it hard enough.
 			//I promise.
 			ArrayList<String> addArgs = new ArrayList<String>();
 			addArgs.add("@"+args[args.length-1]);
 			for (String item : Arrays.copyOfRange(args, 0, args.length-1)) {
 				addArgs.add(item);
 			}
-			
+
 			//Zero the working cell
 			output += ZERO.compile(new String[]{args[args.length-1]});
 			//Zero all target cells
 			for (int i=1; i<args.length-1; i++) {
 				output += ZERO.compile(new String[]{args[i]});
 			}
-			
+
 			//Move the cell to be copied to the working cell & all targets
 			output += ADD.compile(args);
-			
+
 			//Move it back from the working cell to the original if it was a reference.
 			if (args[0].charAt(0)=='@') {
 				output += ADD.compile(new String[]
 						{"@"+args[args.length-1],args[0].substring(1)});
 			}
-			
+
 			return output;
 		}
 	};
-	
+
 	/**
 	 * Moves one cell into all the given targets.
 	 * DESTROYS ORIGINAL
@@ -891,25 +891,25 @@ public class EARCompiler {
 			"MOV\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
 		public String compile(String[] args) {
 			String output = "";
-			
+
 			//Move last argument to beginning of argument list
 			//for use in moving values back from working cell later
-			//this makes sense if you think about it hard enough. 
+			//this makes sense if you think about it hard enough.
 			//I promise.
 			ArrayList<String> addArgs = new ArrayList<String>();
 			addArgs.add("@"+args[args.length-1]);
 			for (String item : Arrays.copyOfRange(args, 0, args.length-1)) {
 				addArgs.add(item);
 			}
-			
+
 			//Zero all target cells
 			for (int i=1; i<args.length; i++) {
 				output += ZERO.compile(new String[]{args[i]});
 			}
-			
+
 			//Move the cell to be copied to the working cell & all targets
 			output += ADD.compile(args);
-			
+
 			return output;
 		}
 	};
