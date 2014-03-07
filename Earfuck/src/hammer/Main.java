@@ -24,7 +24,7 @@ public class Main {
 				continue;
 			}
 			
-			HammerLog.setLogLevel(HammerLog.LogLevel.ERROR);
+			HammerLog.setLogLevel(HammerLog.LogLevel.DEV);
 			HammerLog.setPrintLevel(HammerLog.LogLevel.ERROR);
 			HammerSuite loadedSuite = null;
 			try {

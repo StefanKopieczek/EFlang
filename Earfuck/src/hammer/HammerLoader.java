@@ -83,6 +83,7 @@ public class HammerLoader {
 		String name = null;
 		TestType type = TestType.EF;
 		String code = null;
+        String sourceFile = null;
 		ArrayList<String> IOs = new ArrayList<String>();
 		
 		FileReader fr = new FileReader(file);
@@ -104,6 +105,11 @@ public class HammerLoader {
 			}
 			
 			switch (sectionName) {
+            case "Source":
+                sourceFile = line;
+                sectionName = "";
+                break;
+
 			case "Code":
 				builder.append(line);
 				builder.append("\n");
@@ -137,7 +143,24 @@ public class HammerLoader {
 		
 		br.close();
 		
-		code = builder.toString();
+        if (sourceFile != null) {
+            HammerLog.debug("Found source file: " + sourceFile);
+            sourceFile = file.getParent() + file.separator + sourceFile;
+            HammerLog.debug("Loading source file: " + sourceFile);
+            fr = new FileReader(sourceFile);
+            br = new BufferedReader(fr);
+            code = "";
+            for (String line = br.readLine(); 
+                    line != null; 
+                    line = br.readLine()) {
+                code += line + "\n";
+            }
+            br.close();
+        }
+        else {
+		    code = builder.toString();
+        }
+
 		HammerLog.log("Test code: " + code, HammerLog.LogLevel.DEV);
 		
 		switch (type) {
