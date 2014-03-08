@@ -520,15 +520,16 @@ public class LOBECompiler {
 						targetVar = mSymbols.getNewInternalVariable(this, justVariables(val1, val2));
 					}
 					
-					Variable[] workingCells = mSymbols.getNewInternalVariables(this, 6, justVariables(val1, val2, targetVar));
+					Variable[] workingCells = mSymbols.getNewInternalVariables(this, 6, justVariables(val1, val2, targetVar));					
 					tempVars.addAll(Arrays.asList(workingCells));
 					String maybeAt1 = (val1 instanceof Variable) ? "@" : "";
 					String maybeAt2 = (val2 instanceof Variable) ? "@" : "";
 					mOutput += "DIV " + maybeAt1 + val1.getRef(this) +
 				                  " " + maybeAt2 + val2.getRef(this) +
-				                   " " + targetVar.getRef(this);
-					for (Variable var : workingCells) {
-						mOutput += " " + var.getRef(this);
+				                   " " + targetVar.getRef(this);					
+					for (int ii = 5; ii >= 0; ii--) {
+						// Add working cells in reversed order, for efficiency.
+						mOutput += " " + workingCells[ii].getRef(this);
 					}
 				    mOutput += "\n";
 					result = targetVar;
