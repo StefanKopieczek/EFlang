@@ -578,18 +578,18 @@ public class LOBECompiler {
     			earCommand += "MOV 1 [[4]]\n" + 
     		                  "WHILE [[0]]\n" + 
     					      "MOV 0 [[4]]\n" +
-    					      "COPY @[[1]] [[2]] [[5]]\n" + 
-    					      "MOV 1 [[3]]\n" +
+    					      "COPY @[[1]] [[2]] [[3]]\n" + 
+    					      "MOV 1 [[5]]\n" +
     					      "WHILE [[2]]\n" + 
-    					      "MOV 0 [[3]]\n" + 
+    					      "MOV 0 [[5]]\n" + 
     					      "MOV 1 [[4]]\n" +
     					      "SUB 1 [[0]] [[1]]\n" + 
     					      "ZERO [[2]]\n" + 
     					      "ENDWHILE\n" +
-    					      "WHILE [[3]]\n" + 
+    					      "WHILE [[5]]\n" + 
     					      "ZERO [[0]]\n" + 
     					      "MOV 1 [[1]]\n" +
-    					      "ZERO [[3]]\n" + 
+    					      "ZERO [[5]]\n" + 
     					      "ENDWHILE\n" + 
     					      "ENDWHILE\n" +
     					      "WHILE [[1]]\n" + 
@@ -603,18 +603,18 @@ public class LOBECompiler {
     			earCommand += "MOV 0 [[4]]\n" + 
     		                  "WHILE [[0]]\n" + 
     					      "MOV 1 [[4]]\n" +
-    					      "COPY @[[1]] [[2]] [[5]]\n" + 
-    					      "MOV 1 [[3]]\n" +
+    					      "COPY @[[1]] [[2]] [[3]]\n" + 
+    					      "MOV 1 [[5]]\n" +
     					      "WHILE [[2]]\n" + 
-    					      "MOV 0 [[3]]\n" + 
+    					      "MOV 0 [[5]]\n" + 
     					      "MOV 0 [[4]]\n" +
     					      "SUB 1 [[0]] [[1]]\n" + 
     					      "ZERO [[2]]\n" + 
     					      "ENDWHILE\n" +
-    					      "WHILE [[3]]\n" + 
+    					      "WHILE [[5]]\n" + 
     					      "ZERO [[0]]\n" + 
     					      "MOV 1 [[1]]\n" +
-    					      "ZERO [[3]]\n" + 
+    					      "ZERO [[5]]\n" + 
     					      "ENDWHILE\n" + 
     					      "ENDWHILE\n" +
     					      "WHILE [[1]]\n" + 
@@ -628,18 +628,18 @@ public class LOBECompiler {
     			earCommand += "MOV 1 [[4]]\n" + 
     		                  "WHILE [[0]]\n" + 
     					      "MOV 0 [[4]]\n" +
-    					      "COPY @[[1]] [[2]] [[5]]\n" + 
-    					      "MOV 1 [[3]]\n" +
+    					      "COPY @[[1]] [[2]] [[3]]\n" + 
+    					      "MOV 1 [[5]]\n" +
     					      "WHILE [[2]]\n" + 
-    					      "MOV 0 [[3]]\n" + 
+    					      "MOV 0 [[5]]\n" + 
     					      "MOV 1 [[4]]\n" +
     					      "SUB 1 [[0]] [[1]]\n" + 
     					      "ZERO [[2]]\n" + 
     					      "ENDWHILE\n" +
-    					      "WHILE [[3]]\n" + 
+    					      "WHILE [[5]]\n" + 
     					      "ZERO [[0]]\n" + 
     					      "ZERO [[1]]\n" +
-    					      "ZERO [[3]]\n" + 
+    					      "ZERO [[5]]\n" + 
     					      "ENDWHILE\n" + 
     					      "ENDWHILE\n" +
     					      "WHILE [[1]]\n" + 
@@ -653,18 +653,18 @@ public class LOBECompiler {
     			earCommand += "MOV 0 [[4]]\n" + 
     		                  "WHILE [[0]]\n" + 
     					      "MOV 0 [[4]]\n" +
-    					      "COPY @[[1]] [[2]] [[5]]\n" + 
-    					      "MOV 1 [[3]]\n" +
+    					      "COPY @[[1]] [[2]] [[3]]\n" + 
+    					      "MOV 1 [[5]]\n" +
     					      "WHILE [[2]]\n" + 
-    					      "MOV 0 [[3]]\n" + 
+    					      "MOV 0 [[5]]\n" + 
     					      "MOV 1 [[4]]\n" +
     					      "SUB 1 [[0]] [[1]]\n" + 
     					      "ZERO [[2]]\n" + 
     					      "ENDWHILE\n" +
-    					      "WHILE [[3]]\n" + 
+    					      "WHILE [[5]]\n" + 
     					      "ZERO [[0]]\n" + 
     					      "ZERO [[1]]\n" +
-    					      "ZERO [[3]]\n" + 
+    					      "ZERO [[5]]\n" + 
     					      "ZERO [[4]]\n" + 
     					      "ENDWHILE\n" +
     					      "MOV 0 [[4]]\n" +
