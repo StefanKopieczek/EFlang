@@ -5,9 +5,9 @@ IO Test
 LOBE
 
 [Code]
-input var
-print var
+input x
+print x
 
 [Test]
-> 42
-< 42
+> 12
+< 12

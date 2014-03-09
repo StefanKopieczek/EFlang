@@ -1,0 +1,27 @@
+[Name]
+Subtraction Values Test
+
+[Type]
+LOBE
+
+[Code]
+input x
+input y
+z = x - y
+print z
+
+[Test]
+// Normal values
+> 8
+> 5
+< 3
+=
+// Zero in second place
+> 7
+> 0
+< 7
+=
+// Zero in both places
+> 0
+> 0
+< 0

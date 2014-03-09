@@ -1,0 +1,48 @@
+[Name]
+Equality Checking Test
+
+[Type]
+LOBE
+
+[Code]
+x = 3
+y = 5
+z = 3
+
+if x == y
+print 11
+endif
+
+if x == z
+print 22
+endif
+
+if x == 3
+print 33
+endif
+
+if x == 5
+print 44
+endif
+
+if 3 == x
+print 55
+endif
+
+if 5 == x
+print 66 
+endif
+
+if 3 == 5
+print 77
+endif
+
+if 3 == 3
+print 88
+endif
+
+[Test]
+< 22
+< 33
+< 55
+< 88

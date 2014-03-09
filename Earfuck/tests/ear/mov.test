@@ -10,8 +10,11 @@ OUT 2
 MOV @2 4
 OUT 2
 OUT 4
+MOV 0 4
+OUT 4
 
 [Test]
 < 7
 < 0
 < 7
+< 0

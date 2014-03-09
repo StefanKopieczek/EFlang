@@ -1,0 +1,47 @@
+[Name]
+Greater Than Test
+
+[Type]
+LOBE
+
+[Code]
+x = 3
+y = 5
+z = 3
+
+if y > x
+print 11
+endif
+
+if z > x
+print 22
+endif
+
+if 3 > x
+print 33
+endif
+
+if 5 > x
+print 44
+endif
+
+if x > 3
+print 55
+endif
+
+if x > 5
+print 66 
+endif
+
+if 5 > 3
+print 77
+endif
+
+if 3 > 3
+print 88
+endif
+
+[Test]
+< 11
+< 44
+< 77

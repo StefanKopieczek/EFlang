@@ -2,6 +2,7 @@ package hammer;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,6 +84,7 @@ public class HammerLoader {
 		String name = null;
 		TestType type = TestType.EF;
 		String code = null;
+        String sourceFile = null;
 		ArrayList<String> IOs = new ArrayList<String>();
 		
 		FileReader fr = new FileReader(file);
@@ -91,6 +93,8 @@ public class HammerLoader {
 		Pattern title = Pattern.compile("\\[(.*)\\]");
 		String sectionName = "";
 		StringBuilder builder = new StringBuilder();
+		
+		boolean cantFindSource = false;
 		
 		for (String line = br.readLine(); 
 				line != null; 
@@ -104,6 +108,11 @@ public class HammerLoader {
 			}
 			
 			switch (sectionName) {
+            case "Source":
+                sourceFile = line;
+                sectionName = "";
+                break;
+
 			case "Code":
 				builder.append(line);
 				builder.append("\n");
@@ -137,7 +146,30 @@ public class HammerLoader {
 		
 		br.close();
 		
-		code = builder.toString();
+        if (sourceFile != null) {
+            HammerLog.debug("Found source file: " + sourceFile);
+            sourceFile = file.getParent() + file.separator + sourceFile;
+            HammerLog.debug("Loading source file: " + sourceFile);
+            try {
+	            fr = new FileReader(sourceFile);
+	            br = new BufferedReader(fr);
+	            code = "";
+	            for (String line = br.readLine(); 
+	                    line != null; 
+	                    line = br.readLine()) {
+	                code += line + "\n";
+	            }
+	            br.close();
+            }
+            catch (FileNotFoundException e) {
+            	cantFindSource = true;
+            	code = "";
+            }
+        }
+        else {
+		    code = builder.toString();
+        }
+
 		HammerLog.log("Test code: " + code, HammerLog.LogLevel.DEV);
 		
 		switch (type) {
@@ -151,17 +183,33 @@ public class HammerLoader {
 			test = new HammerTest(name, code);	
 		}
 		
+		if (cantFindSource) {
+			test.setupFailed = true;
+			test.failureMessage = "Could not locate source file: " + sourceFile;
+		}
 
 		for (String IO : IOs) {
 			String[] split = IO.split("\\s+");
 			if (split.length >= 2) {
+				if (split[0].equals("//")) {
+					// Comment
+					continue;
+				}
 				int value = Integer.parseInt(split[1]);
 				switch (split[0]) {
 				case ">":
-					test.addInputTask(value);
+					test.addTask(new HammerTest.InputTask(value));
 					break;
 				case "<":
-					test.addOutputTask(value);
+					test.addTask(new HammerTest.OutputTask(value));
+					break;
+				}
+			}
+			else if (split.length >= 1) {
+				switch (split[0]) {
+				case "=":
+					test.addTask(new HammerTest.RestartTask());
+					break;
 				}
 			}
 		}

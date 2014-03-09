@@ -131,9 +131,9 @@ public class Parser {
 		mMentalState = 0;
 		mExcitement = INITIAL_ATTACK_VALUE;
 		mNoteDuration = 0.25f;
+
 		mAwaitingInput = new CountDownLatch(0);
 		
-		mComposition = new String[0];
 		mPlace = 0;
 		mPreviousNote = null;
 		mBracketsSkipped = 0;
