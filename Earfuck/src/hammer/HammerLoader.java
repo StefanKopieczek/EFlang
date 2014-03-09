@@ -2,6 +2,7 @@ package hammer;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,6 +94,8 @@ public class HammerLoader {
 		String sectionName = "";
 		StringBuilder builder = new StringBuilder();
 		
+		boolean cantFindSource = false;
+		
 		for (String line = br.readLine(); 
 				line != null; 
 				line = br.readLine()) {
@@ -147,15 +150,21 @@ public class HammerLoader {
             HammerLog.debug("Found source file: " + sourceFile);
             sourceFile = file.getParent() + file.separator + sourceFile;
             HammerLog.debug("Loading source file: " + sourceFile);
-            fr = new FileReader(sourceFile);
-            br = new BufferedReader(fr);
-            code = "";
-            for (String line = br.readLine(); 
-                    line != null; 
-                    line = br.readLine()) {
-                code += line + "\n";
+            try {
+	            fr = new FileReader(sourceFile);
+	            br = new BufferedReader(fr);
+	            code = "";
+	            for (String line = br.readLine(); 
+	                    line != null; 
+	                    line = br.readLine()) {
+	                code += line + "\n";
+	            }
+	            br.close();
             }
-            br.close();
+            catch (FileNotFoundException e) {
+            	cantFindSource = true;
+            	code = "";
+            }
         }
         else {
 		    code = builder.toString();
@@ -174,6 +183,10 @@ public class HammerLoader {
 			test = new HammerTest(name, code);	
 		}
 		
+		if (cantFindSource) {
+			test.setupFailed = true;
+			test.failureMessage = "Could not locate source file: " + sourceFile;
+		}
 
 		for (String IO : IOs) {
 			String[] split = IO.split("\\s+");
