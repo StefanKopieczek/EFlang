@@ -144,7 +144,7 @@ public class MainFrame extends JFrame {
 	
 	public MainFrame() {
 		initComponents();
-		this.setTitle("VIBE Earfuck IDE");
+		this.setTitle("VIBE Ef IDE");
 	}
 	
 	/**

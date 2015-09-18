@@ -5,7 +5,7 @@ import java.io.File;
 import javax.swing.SwingUtilities;
 
 /**
- * VIBE - Visual Interface for Building Earfuck
+ * VIBE - Visual Interface for Building Ef
  * @author Ryan Norris
  *
  */

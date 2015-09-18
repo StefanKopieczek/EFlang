@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
 
-import ef.EarfuckMemory;
+import ef.EfMemory;
 
 /**
  * Compiler for the EAR language. <br/>
@@ -40,7 +40,7 @@ public class EARCompiler {
 
 
 	private int p; //Cell pointer
-	private EarfuckMemory memory;
+	private EfMemory memory;
 	private Note currentNote;
 	private int optimism;
 	private Stack<Integer> branchLocStack;
@@ -61,7 +61,7 @@ public class EARCompiler {
 
 	public void resetState() {
 		p=0;
-		memory = new EarfuckMemory();
+		memory = new EfMemory();
 		currentNote = STARTING_NOTE;
 		optimism = 0;
 		instructionSet = getInstructionSet();

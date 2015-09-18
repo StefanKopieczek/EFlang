@@ -425,7 +425,7 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
 			fileName = mOpenFilePath.replaceAll("^.*\\\\","");
 		}
 		mFrame.setFileNameLabel(fileName);
-		mFrame.setTitle("VIBE Earfuck IDE - "+fileName);		
+		mFrame.setTitle("VIBE Ef IDE - "+fileName);		
 	}
 	
 	/**

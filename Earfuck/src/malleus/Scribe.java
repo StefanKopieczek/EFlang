@@ -26,7 +26,7 @@ public class Scribe {
 		JFrame frame = new JFrame();
 		JScrollPane scrollPane = new JScrollPane(mScore);
 		frame.add(scrollPane);
-		frame.setTitle("Earfuck Score - Preview");
+		frame.setTitle("Ef Score - Preview");
 		frame.pack();
 		
 		return frame;

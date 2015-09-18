@@ -8,7 +8,7 @@ import java.util.HashMap;
  * @author Stefan Kopieczek
  *
  */
-public class EarfuckMemory {
+public class EfMemory {
 		
 		/**
 		 * We store the cell data as a HashMap of indices against values.
@@ -16,7 +16,7 @@ public class EarfuckMemory {
 		 */
 		public HashMap<Integer, Integer> memory;
 		
-		public EarfuckMemory() {
+		public EfMemory() {
 			 memory = new HashMap<Integer, Integer>();
 		}
 		

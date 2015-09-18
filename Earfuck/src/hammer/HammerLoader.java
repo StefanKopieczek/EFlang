@@ -130,7 +130,7 @@ public class HammerLoader {
 				
 			case "Type":
 				switch (line) {
-				case "Earfuck":
+				case "Ef":
 					type = TestType.EF;
 					break;
 				case "EAR":

@@ -1,6 +1,6 @@
-<project name="Earfuck" default="build" basedir=".">
+<project name="Ef" default="build" basedir=".">
     <description>
-        Earfuck - a musical programming language.
+        Ef - a musical programming language.
     </description>
 
     <tstamp prefix="start">

@@ -33,7 +33,7 @@ public class Parser {
 	 * audience's current mental state, depending on whether the last change of
 	 * state was an optimistic or a pessimistic one. 
 	 */
-	EarfuckMemory mAmbiance;
+	EfMemory mAmbiance;
 	
 	/**
 	 * The 'mental state' of the audience represents which mental state in the 
@@ -126,7 +126,7 @@ public class Parser {
 	 * Clear all stateful data ready for a new run of code.
 	 */
 	public void refreshState() {		
-		mAmbiance = new EarfuckMemory();
+		mAmbiance = new EfMemory();
 		mOptimism = 0;
 		mMentalState = 0;
 		mExcitement = INITIAL_ATTACK_VALUE;
