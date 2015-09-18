@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public class HammerTest {
 	/**
-	 * The earfuck code to use for this test.
+	 * The ef code to use for this test.
 	 */
 	protected String efCode;
 	

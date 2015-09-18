@@ -2,7 +2,7 @@ package vibe;
 
 import javax.swing.JLabel;
 
-import earfuck.Parser;
+import ef.Parser;
 
 /**
  * This class takes an EF Parser, and displays the memory

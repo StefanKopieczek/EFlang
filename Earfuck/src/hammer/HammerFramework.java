@@ -4,12 +4,12 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.io.IOException;
 
-import earfuck.IoManager;
-import earfuck.NullPerformer;
-import earfuck.Parser;
+import ef.IoManager;
+import ef.NullPerformer;
+import ef.Parser;
 
 /**
- * HammerFramework - The main class for interfacing with the earfuck
+ * HammerFramework - The main class for interfacing with the ef
  * parser programmatically.
  * @author rynor_000
  *
@@ -22,7 +22,7 @@ public class HammerFramework implements IoManager {
 	
 	/**
 	 * We use this SynchronousQueue for receiving output
-	 * from the earfuck parser.
+	 * from the ef parser.
 	 * It nicely handles blocking the threads for us so we never
 	 * run into a situation where the parser sends us two loads of
 	 * output before we have a chance to respond.

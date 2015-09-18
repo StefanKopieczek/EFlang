@@ -24,7 +24,7 @@ import lobecompiler.LOBECompiler;
 import lobecompiler.LobeCompilationException;
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
-import earfuck.Parser;
+import ef.Parser;
 
 /**
  * This class manages the behind-the-scenes action of the IDE.

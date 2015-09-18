@@ -1,4 +1,4 @@
-package earfuck;
+package ef;
 
 public interface Performer {
 	public void onPieceStart();

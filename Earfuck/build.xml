@@ -18,9 +18,9 @@
     <property name="docs" location="docs"/>
     <property name="tests" location="tests"/>
 
-    <uptodate property="earfuck.buildNotRequired">
-        <srcfiles dir="${src}/earfuck" includes="**/*.java"/>
-        <mapper type="glob" from="*.java" to="${build}/earfuck/*.class"/>
+    <uptodate property="ef.buildNotRequired">
+        <srcfiles dir="${src}/ef" includes="**/*.java"/>
+        <mapper type="glob" from="*.java" to="${build}/ef/*.class"/>
     </uptodate>
 
     <uptodate property="lobecompiler.buildNotRequired">
@@ -53,9 +53,9 @@
         <mkdir dir="${build}"/>
     </target>
 
-    <target name="buildef" depends="init" description="Compile the earfuck base" unless="earfuck.buildNotRequired">
-        <mkdir dir="${build}/earfuck"/>
-        <javac srcdir="${src}/earfuck" destdir="${build}">
+    <target name="buildef" depends="init" description="Compile the ef base" unless="ef.buildNotRequired">
+        <mkdir dir="${build}/ef"/>
+        <javac srcdir="${src}/ef" destdir="${build}">
             <classpath>
                 <fileset dir="${lib}">
                     <include name="**/*.jar"/>
@@ -104,7 +104,7 @@
         <javac srcdir="${src}/vibe" destdir="${build}">
             <classpath>
                 <fileset dir="${build}">
-                    <include name="earfuck/*.class"/>
+                    <include name="ef/*.class"/>
                     <include name="earcompiler/*.class"/>
                     <include name="lobecompiler/*.class"/>
                 </fileset>

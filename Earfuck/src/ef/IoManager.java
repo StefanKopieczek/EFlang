@@ -1,4 +1,4 @@
-package earfuck;
+package ef;
 
 public interface IoManager {
 	public void requestInput(Parser parser);

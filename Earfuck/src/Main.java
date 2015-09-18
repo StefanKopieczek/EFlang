@@ -6,7 +6,7 @@ import lobecompiler.LOBEInstruction;
 import lobecompiler.LOBEParser;
 import lobecompiler.LobeCompilationException;
 import earcompiler.EARException;
-import earfuck.Parser;
+import ef.Parser;
 
 class Main {
 	public static void main(String args[]) throws EARException {

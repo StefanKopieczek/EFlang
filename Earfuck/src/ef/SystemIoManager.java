@@ -1,4 +1,4 @@
-package earfuck;
+package ef;
 
 import java.util.Scanner;
 

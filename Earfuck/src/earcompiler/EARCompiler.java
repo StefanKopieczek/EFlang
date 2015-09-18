@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
 
-import earfuck.EarfuckMemory;
+import ef.EarfuckMemory;
 
 /**
  * Compiler for the EAR language. <br/>

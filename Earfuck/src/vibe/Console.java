@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 import javax.swing.JTextPane;
 
-import earfuck.IoManager;
-import earfuck.Parser;
+import ef.IoManager;
+import ef.Parser;
 
 /**
  * This is a text pane console designed to handle IO

@@ -1,4 +1,4 @@
-package earfuck;
+package ef;
 import java.util.Stack;
 import java.util.concurrent.CountDownLatch;
 
