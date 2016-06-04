@@ -21,15 +21,17 @@ public class LobeTest extends HammerTest {
 		try {
 			efCode = lobeCompiler.compile(efCode);
 		} catch (Exception e) {
-			System.out.println("Failed to compile LOBE code.");
+			failureMessage = "Failed to compile LOBE code. \n" + efCode;
 			setupFailed = true;
+                        return;
 		}
-		
+
 		try {
 			efCode = earCompiler.compile(efCode);
 		} catch (Exception e) {
-			System.out.println("Failed to compile EAR code.");
+			failureMessage = "Failed to compile EAR code. \n" + efCode;
 			setupFailed = true;
+                        return;
 		}
 	}
 

@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class LOBEParser {
 
-	public LOBEInstruction parseInstruction(String instrString) 
+	public LOBEInstruction parseInstruction(String instrString)
 	    throws InvalidOperationTokenException {
 		LOBEInstruction result;
 		result = parseAssignment(instrString);
@@ -15,7 +15,7 @@ public class LOBEParser {
 			int firstSpace = instrString.indexOf(" ");
 			firstSpace = (firstSpace < 0) ? instrString.length() : firstSpace;
 			String commandString = instrString.substring(0, firstSpace);
-			LOBECommand command = parseCommand(commandString);		
+			LOBECommand command = parseCommand(commandString);
 			Evaluable[] args;
 			if (firstSpace < instrString.length()) {
 				String argString;
@@ -24,12 +24,12 @@ public class LOBEParser {
 			}
 			else {
 				args = new Evaluable[0];
-			}			
+			}
 			result = new LOBEInstruction(command, args);
 		}
 		return result;
 	}
-	
+
 	public LOBEInstruction[] parseAll(String instructions)
 	    throws InvalidOperationTokenException {
 		ArrayList<LOBEInstruction> lobeInstructions = new ArrayList<LOBEInstruction>();
@@ -39,18 +39,18 @@ public class LOBEParser {
 		}
 		return lobeInstructions.toArray(new LOBEInstruction[0]);
 	}
-	
+
 	/**
 	 * Determines whether the given instruction string is an assignment (of the form LHS = RHS).
 	 * If it is, returns a LOBEInstruction to SET the LHS to the RHS.
 	 * @param instString The code string to parse.
-	 * @return 
+	 * @return
 	 * @throws InvalidOperationTokenException
 	 */
-	public LOBEInstruction parseAssignment(String instString) 
+	public LOBEInstruction parseAssignment(String instString)
 		throws InvalidOperationTokenException
 	{
-		Pattern equalityPattern = Pattern.compile("([^<!=]+)=([^=]+)"); // Bit hacky - fix later. @@SMK@@
+		Pattern equalityPattern = Pattern.compile("([^<>!=]+)=([^=]+)"); // Bit hacky - fix later. @@SMK@@
 		Matcher equalityMatcher = equalityPattern.matcher(instString);
 		LOBEInstruction result = null;
 		if (equalityMatcher.find()) {
@@ -62,7 +62,7 @@ public class LOBEParser {
 		return result;
 	}
 
-	public LOBECommand parseCommand(String commandString) 
+	public LOBECommand parseCommand(String commandString)
 	    throws InvalidOperationTokenException {
 		LOBECommand result = null;
 		for (LOBECommand cmd : LOBECommand.values()) {
@@ -75,31 +75,31 @@ public class LOBEParser {
 		}
 		return result;
 	}
-	
-	public Evaluable parseArg(String argString) 
+
+	public Evaluable parseArg(String argString)
 	    throws InvalidOperationTokenException {
 		Evaluable result = null;
 		argString = argString.trim();
 		String topLevel = getTopLevel(argString);
-		
+
 		boolean matchFound = false;
-		
+
 		// First check to see if there is a predicate in the top level.
 		for (Predicate p : Predicate.values()) {
 			int idx = topLevel.indexOf(p.mSymbol);
 			if (idx != -1) {
 				// There is - let's return a Conditional based on it, evaluating the
 				// LHS and RHS recursively.
-				int predLength = p.name().length();				
+				int predLength = p.name().length();
 				Evaluable LHS = parseArg(argString.substring(0, idx));
-				Evaluable RHS = parseArg(argString.substring(idx + predLength, 
+				Evaluable RHS = parseArg(argString.substring(idx + predLength,
 						                                     argString.length()));
 				result = new Conditional(p, LHS, RHS);
 				matchFound = true;
 				break;
 			}
 		}
-		
+
 		// The top level doesn't contain a predicate - check if it contains an operator.
 		if (!matchFound) {
 			for (Operator op : Operator.values()) {
@@ -109,7 +109,7 @@ public class LOBEParser {
 					// LHS and RHS recursively.
 					int opLength = 1;
 					Evaluable LHS = parseArg(argString.substring(0, idx));
-					Evaluable RHS = parseArg(argString.substring(idx + opLength, 
+					Evaluable RHS = parseArg(argString.substring(idx + opLength,
 							                                     argString.length()));
 					result = new ValueTree(op, LHS, RHS);
 					matchFound = true;
@@ -117,7 +117,7 @@ public class LOBEParser {
 				}
 			}
 		}
-		
+
 		// Check to see if we're all just one big bracketed expression.
 		int idxLeft = argString.indexOf('(');
 		int idxRight = argString.lastIndexOf(')');
@@ -126,24 +126,24 @@ public class LOBEParser {
 			result = parseArg(argString.substring(idxLeft+1, idxRight));
 			matchFound = true;
 		}
-		
+
 		// Check if we're a constant.
-		if (!matchFound && argString.matches("\\d+")) { 
+		if (!matchFound && argString.matches("\\d+")) {
 			result = new Constant(Integer.parseInt(argString));
 			matchFound = true;
 		}
-		
+
 		if (!matchFound) {
 			// Assume we're a variable. We should probably be more careful here,
 			// but good compilers don't write invalid code anyway so we don't
 			// need to worry.d
 			result = new Variable(argString);
 		}
-		
+
 		return result;
-		
+
 	}
-	
+
 	public String getTopLevel(String expression) {
 		String result = "";
 		int bracketDepth = 0;
@@ -166,20 +166,20 @@ public class LOBEParser {
 //
 //	public Evaluable parseArgOld(String argString) {
 //		Evaluable result = null;
-//		if (argString.charAt(0) != '(') {		
+//		if (argString.charAt(0) != '(') {
 //			if (argString.matches("\\d+")) {
 //				result = new Constant(Integer.parseInt(argString));
 //				// System.out.println(Integer.parseInt(argString) + " - " + result);
-//			} 
+//			}
 //			else if (argString.matches("[^\\d].*")) {
 //				result = new Variable(argString);
 //				//System.out.println("'"+argString+"'" + " - " +result);
-//			} 
+//			}
 //			else {
 //				throw new InvalidOperationTokenException(
 //						"Invalid variable name " + argString);
 //			}
-//		} 
+//		}
 //		else if (argString.charAt(argString.length() - 1) == ')') {
 //			argString = argString.substring(1, argString.length() - 1);
 //			// System.out.println(argString);
@@ -197,7 +197,7 @@ public class LOBEParser {
 //				}
 //				else {
 //					if (bracketCount == 0) {
-//						for (Operator op : Operator.values()) {							
+//						for (Operator op : Operator.values()) {
 //							if (c == op.mSymbol) {
 //								String left = argString.substring(0, idx);
 //								String right = argString.substring(idx + 1, argString.length());
@@ -211,16 +211,16 @@ public class LOBEParser {
 //								skipping = false;
 //								continue;
 //							}
-//							String s = String.valueOf(c);							
+//							String s = String.valueOf(c);
 //							String s2 = (idx+1 != argString.length()) ? String.valueOf(argString.charAt(idx+1)) : null;
-//							
+//
 //							if (pred.mSymbol.equals(s+s2)) {
 //								String left = argString.substring(0, idx);
 //								String right = argString.substring(idx + 2, argString.length());
 //								//System.out.println("Conditional(" + pred + ","+ left+","+ right);
 //								result = new Conditional(pred, parseArg(left), parseArg(right));
 //								skipping = true;
-//							}	
+//							}
 //							else if (pred.mSymbol.equals(s)) {
 //								String left = argString.substring(0, idx);
 //								String right = argString.substring(idx + 1, argString.length());
@@ -229,7 +229,7 @@ public class LOBEParser {
 //							}
 //						}
 //					}
-//				}			
+//				}
 //			}
 //		}
 //		if (result == null) {
@@ -238,7 +238,7 @@ public class LOBEParser {
 //		return result;
 //	}
 
-	public Evaluable[] parseArgs(String[] argStrings) 
+	public Evaluable[] parseArgs(String[] argStrings)
 	    throws InvalidOperationTokenException {
 		ArrayList<Evaluable> resultList = new ArrayList<Evaluable>();
 		for (String argString : argStrings) {

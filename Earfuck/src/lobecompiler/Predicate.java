@@ -1,15 +1,15 @@
 package lobecompiler;
 
-public enum Predicate {	
+public enum Predicate {
 	EQ("=="),
 	NEQ("!="),
 	LEQ("<="),
 	LT("<"),
-	GT(">"),
-	GEQ(">=");
-	
+	GEQ(">="),
+	GT(">");
+
 	public String mSymbol;
-	
+
 	Predicate(String symbol) {
 		mSymbol = symbol;
 	}
