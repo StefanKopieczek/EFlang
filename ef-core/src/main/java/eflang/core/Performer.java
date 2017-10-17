@@ -1,4 +1,4 @@
-package eflang;
+package eflang.core;
 
 public interface Performer {
 	public void onPieceStart();

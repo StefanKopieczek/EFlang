@@ -4,5 +4,5 @@ dependencies {
     compile name: 'jfugue-4.0.3'
 }
 
-mainClassName = 'eflang.Main'
+mainClassName = 'eflang.core.Main'
 

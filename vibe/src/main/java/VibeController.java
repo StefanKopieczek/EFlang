@@ -22,7 +22,7 @@ import lobecompiler.LOBECompiler;
 import lobecompiler.LobeCompilationException;
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
-import eflang.Parser;
+import eflang.core.Parser;
 
 /**
  * This class manages the behind-the-scenes action of the IDE.

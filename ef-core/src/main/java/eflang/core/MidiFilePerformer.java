@@ -1,4 +1,4 @@
-package eflang;
+package eflang.core;
 import java.io.File;
 import java.io.IOException;
 

@@ -1,9 +1,5 @@
-package eflang;
+package eflang.core;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.jfugue.Instrument;
 import org.jfugue.MusicStringParser;
 import org.jfugue.StreamingPlayer;
 

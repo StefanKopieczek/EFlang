@@ -1,4 +1,4 @@
-package eflang;
+package eflang.core;
 
 import org.jfugue.MusicStringParser;
 

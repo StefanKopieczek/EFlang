@@ -2,7 +2,7 @@ package vibe;
 
 import javax.swing.JLabel;
 
-import eflang.Parser;
+import eflang.core.Parser;
 
 /**
  * This class takes an EF Parser, and displays the memory

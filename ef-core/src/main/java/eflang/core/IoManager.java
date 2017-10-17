@@ -1,4 +1,4 @@
-package eflang;
+package eflang.core;
 
 public interface IoManager {
 	public void requestInput(Parser parser);

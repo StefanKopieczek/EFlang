@@ -4,9 +4,9 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.io.IOException;
 
-import eflang.IoManager;
-import eflang.NullPerformer;
-import eflang.Parser;
+import eflang.core.IoManager;
+import eflang.core.NullPerformer;
+import eflang.core.Parser;
 
 /**
  * HammerFramework - The main class for interfacing with the earfuck
