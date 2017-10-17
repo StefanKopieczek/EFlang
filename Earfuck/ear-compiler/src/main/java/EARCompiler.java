@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
 
-import earfuck.EarfuckMemory;
-
 /**
  * Compiler for the EAR language. <br/>
  * Takes in EAR code and compiles to raw EF.
@@ -40,7 +38,6 @@ public class EARCompiler {
 
 
 	private int p; //Cell pointer
-	private EarfuckMemory memory;
 	private Note currentNote;
 	private int optimism;
 	private Stack<Integer> branchLocStack;
@@ -61,7 +58,6 @@ public class EARCompiler {
 
 	public void resetState() {
 		p=0;
-		memory = new EarfuckMemory();
 		currentNote = STARTING_NOTE;
 		optimism = 0;
 		instructionSet = getInstructionSet();
@@ -223,7 +219,6 @@ public class EARCompiler {
 	 */
 	private String increment() {
 		String output = "";
-		memory.put(p, memory.get(p) + 1);
 		if (optimism!=1) {
 			output += moveLeft() + moveRight();
 		}
@@ -238,7 +233,6 @@ public class EARCompiler {
 	 */
 	private String decrement() {
 		String output = "";
-		memory.put(p, memory.get(p) + 1);
 		if (optimism!=-1) {
 			output += moveRight() + moveLeft();
 		}

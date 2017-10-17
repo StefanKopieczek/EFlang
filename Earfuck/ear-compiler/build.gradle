@@ -1,5 +1,2 @@
 apply from: "${rootDir}/gradle/java.gradle"
 
-dependencies {
-    compile project(':earfuck')
-}
