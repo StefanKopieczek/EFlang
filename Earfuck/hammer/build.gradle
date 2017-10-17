@@ -1,0 +1,15 @@
+apply from: "${rootDir}/gradle/java.gradle"
+apply plugin: 'application'
+
+dependencies {
+    compile project(':earfuck')
+    compile project(':ear-compiler')
+    compile project(':lobe-compiler')
+}
+
+mainClassName = 'hammer.Main'
+
+run {
+    args = ["${rootDir}/tests"]
+}
+
