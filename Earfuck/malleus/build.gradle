@@ -1,0 +1,6 @@
+apply from: "${rootDir}/gradle/java.gradle"
+
+dependencies {
+    compile name: 'abc4j_v0.5'
+}
+
