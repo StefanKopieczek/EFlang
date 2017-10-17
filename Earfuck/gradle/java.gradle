@@ -1,0 +1,14 @@
+apply plugin: 'java'
+
+repositories {
+    flatDir {
+       dirs 'libs'
+    }
+
+    mavenCentral()
+}
+
+dependencies {
+    compile name: 'jfugue-4.0.3'
+}
+
