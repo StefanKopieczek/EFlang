@@ -6,7 +6,7 @@ dependencies {
     compile project(':lobe-compiler')
 }
 
-mainClassName = 'hammer.Main'
+mainClassName = 'eflang.hammer.Main'
 
 run {
     args = ["${rootDir}/tests"]

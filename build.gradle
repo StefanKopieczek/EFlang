@@ -2,16 +2,18 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.2.1'
 }
 
-apply plugin: 'idea'
+allprojects {
+    apply plugin: 'idea'
+}
 
 subprojects {
     apply plugin: 'java'
 
-      repositories {
-        flatDir {
-          dirs "${rootDir}/lib"
-        }
-
-        mavenCentral()
+    repositories {
+      flatDir {
+        dirs "${rootDir}/lib"
       }
+
+      mavenCentral()
+    }
 }

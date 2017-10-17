@@ -7,5 +7,5 @@ dependencies {
     compile project(':malleus')
 }
 
-mainClassName = 'vibe.Main'
+mainClassName = 'eflang.vibe.Main'
 
