@@ -1,4 +1,4 @@
-package earfuck;
+package eflang;
 
 public interface Performer {
 	public void onPieceStart();

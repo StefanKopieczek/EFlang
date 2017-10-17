@@ -16,15 +16,13 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import org.jfugue.Instrument;
-
 import vibe.MainFrame.ControlButton;
 
 import lobecompiler.LOBECompiler;
 import lobecompiler.LobeCompilationException;
 import earcompiler.EARCompiler;
 import earcompiler.EARException;
-import earfuck.Parser;
+import eflang.Parser;
 
 /**
  * This class manages the behind-the-scenes action of the IDE.

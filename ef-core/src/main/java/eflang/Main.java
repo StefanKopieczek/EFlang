@@ -1,4 +1,4 @@
-package earfuck;
+package eflang;
 
 public class Main {
     public static void main(String[] args) {

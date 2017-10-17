@@ -1,4 +1,4 @@
-package earfuck;
+package eflang;
 import java.util.HashMap;
 
 /**
