@@ -1,4 +1,9 @@
 apply from: "${rootDir}/gradle/java.gradle"
 apply plugin: 'application'
 
+dependencies {
+    compile name: 'jfugue-4.0.3'
+}
+
 mainClassName = 'earfuck.Main'
+

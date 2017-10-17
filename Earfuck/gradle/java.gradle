@@ -2,13 +2,9 @@ apply plugin: 'java'
 
 repositories {
     flatDir {
-       dirs 'libs'
+       dirs "${rootDir}/lib"
     }
 
     mavenCentral()
-}
-
-dependencies {
-    compile name: 'jfugue-4.0.3'
 }
 
