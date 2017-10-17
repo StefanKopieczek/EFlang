@@ -1,5 +1,5 @@
 
 dependencies {
-    compile name: 'abc4j_v0.5'
+    compile 'de.sciss:abc4j:0.6.0'
 }
 
