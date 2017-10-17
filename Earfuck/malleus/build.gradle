@@ -1,0 +1,5 @@
+
+dependencies {
+    compile name: 'abc4j_v0.5'
+}
+

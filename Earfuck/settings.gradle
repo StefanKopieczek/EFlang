@@ -1,0 +1,8 @@
+rootProject.name = 'eflang'
+
+include 'earfuck'
+include 'ear-compiler'
+include 'lobe-compiler'
+include 'hammer'
+include 'malleus'
+include 'vibe'
