@@ -1,7 +1,0 @@
-.gradle
-build
-dist
-
-*.ipr
-*.iws
-*.iml
