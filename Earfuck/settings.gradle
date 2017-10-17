@@ -2,3 +2,4 @@ rootProject.name = 'eflang'
 
 include 'earfuck'
 include 'ear-compiler'
+include 'lobe-compiler'
