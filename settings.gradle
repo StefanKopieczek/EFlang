@@ -1,6 +1,6 @@
 rootProject.name = 'eflang'
 
-include 'earfuck'
+include 'ef-core'
 include 'ear-compiler'
 include 'lobe-compiler'
 include 'hammer'
