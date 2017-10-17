@@ -1,7 +1,7 @@
 apply plugin: 'application'
 
 dependencies {
-    compile project(':earfuck')
+    compile project(':ef-core')
     compile project(':ear-compiler')
     compile project(':lobe-compiler')
     compile project(':malleus')
