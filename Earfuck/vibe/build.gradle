@@ -1,0 +1,12 @@
+apply from: "${rootDir}/gradle/java.gradle"
+apply plugin: 'application'
+
+dependencies {
+    compile project(':earfuck')
+    compile project(':ear-compiler')
+    compile project(':lobe-compiler')
+    compile project(':malleus')
+}
+
+mainClassName = 'vibe.Main'
+
