@@ -630,9 +630,23 @@ public class MainFrame extends JFrame {
 
 		// Build the Scale selector.
 		JMenu scaleMenu = new JMenu("Scale");
+		// Major Scales.
 		scaleMenu.add(new ScaleItem("CMajor", Scales.CMajor));
+		scaleMenu.add(new ScaleItem("FMajor", Scales.FMajor));
+		scaleMenu.add(new ScaleItem("GMajor", Scales.GMajor));
+		scaleMenu.addSeparator();
+
+		// Minor Scales.
 		scaleMenu.add(new ScaleItem("CMinor", Scales.CMinor));
+		scaleMenu.addSeparator();
+
+		// Pentatonic Scales.
 		scaleMenu.add(new ScaleItem("CMajorPentatonic", Scales.CMajorPentatonic));
+		scaleMenu.addSeparator();
+
+		// Blues Scales.
+		scaleMenu.add(new ScaleItem("Major Blues", Scales.BluesMajor));
+		scaleMenu.add(new ScaleItem("Minor Blues", Scales.BluesMinor));
 
 		optionsMenu.add(instrumentsMenu);
 		optionsMenu.add(scaleMenu);
