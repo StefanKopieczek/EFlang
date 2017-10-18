@@ -1,14 +1,12 @@
 package eflang.core;
 
-import org.jfugue.MusicStringParser;
 import org.jfugue.StreamingPlayer;
 
-class MidiStreamPerformer implements Performer {
-    StreamingPlayer mPlayer;
-    String queue;
-    byte instrument;
-    String tempo = "120";
-    String control_params = "";
+public class MidiStreamPerformer implements Performer {
+    private StreamingPlayer mPlayer;
+    private String queue;
+    private byte instrument;
+    private String tempo = "120";
 
     public MidiStreamPerformer(byte instrument) {
         mPlayer = new StreamingPlayer();        
@@ -54,10 +52,6 @@ class MidiStreamPerformer implements Performer {
     @Override
     public int getTempo() {
         return Integer.parseInt(tempo);
-    }
-
-    int getNoteValue(String a) {
-        return MusicStringParser.getNote(a).getValue();
     }
 
     @Override

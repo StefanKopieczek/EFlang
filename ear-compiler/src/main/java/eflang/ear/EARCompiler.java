@@ -41,7 +41,7 @@ public class EARCompiler {
         resetState();
     }
 
-    public void resetState() {
+    private void resetState() {
         p=0;
         currentNote = scale.getNoteAt(scale.size() / 2);
         optimism = 0;
@@ -53,8 +53,7 @@ public class EARCompiler {
     }
 
     private HashMap<String,EARInstruction> getInstructionSet() {
-        HashMap<String,EARInstruction> instructions =
-                new HashMap<String,EARInstruction>();
+        HashMap<String,EARInstruction> instructions = new HashMap<>();
         instructions.put("GOTO", GOTO);
         instructions.put("IN", IN);
         instructions.put("OUT", OUT);
@@ -73,12 +72,12 @@ public class EARCompiler {
 
     /**
      * Compiles provided EARCode into an EF program
-     * @param EARCode
+     * @param EARCode full program code.
      * @return String containing EF program
      */
     public String compile(String EARCode) throws EARException {
         resetState();
-        String output = "";
+        StringBuilder output = new StringBuilder();
 
         //Discard comments (OLD COMMENT STYLE = "\\([^\\)]*\\)")
         EARCode = EARCode.replaceAll("//.*\\n","\n");
@@ -86,7 +85,11 @@ public class EARCompiler {
         //Split into individual instructions
         String[] instructions = EARCode.split("(\\r?\\n)+");
 
-        output += currentNote + " ";
+        // Keep track of how many EF notes we've output.
+        int numNotes = 0;
+
+        output.append(currentNote);
+        output.append(" ");
 
         for (int i=0; i<instructions.length; i++) {
             String compiledInstruction = "";
@@ -130,17 +133,14 @@ public class EARCompiler {
             }
 
             //calculate how many commands into the EF code we are
-            int commands = 0;
-            for (char c : output.toCharArray()) {
-                if (c==' ') {
-                    commands++;
-                }
-            }
             //Add it to the array of start positions
-            lineStartPositions.add(commands);
-            output += compiledInstruction;
+            lineStartPositions.add(numNotes);
+
+            numNotes += compiledInstruction.split(" ").length;
+
+            output.append(compiledInstruction);
         }
-        return output;
+        return output.toString();
     }
 
     public ArrayList<Integer> getCommandStartPositions() {
@@ -235,8 +235,8 @@ public class EARCompiler {
     /**
      * Changes current note to specified target note
      * without changing the pointer/optimism
-     * @param target
-     * @return
+     * @param target note to change to
+     * @return compiled EF code
      */
     private String changeNoteTo(String target) {
         String output = "";
@@ -295,16 +295,16 @@ public class EARCompiler {
     public class EARInstruction{
         private String signature;
 
-        public EARInstruction(String sig) {
+        EARInstruction(String sig) {
             signature = sig;
         }
 
         /**
          * Checks if the given arg string is of the correct signature.
-         * @param args
+         * @param args arg string to check
          * @return True/False
          */
-        public boolean checkArgs(String args) {
+        boolean checkArgs(String args) {
             return args.matches(signature);
         }
 
@@ -320,18 +320,18 @@ public class EARCompiler {
      * e.g.
      * GOTO 5;
      */
-    public EARInstruction GOTO = new EARInstruction("GOTO\\s+-?\\d+\\s*") {
+    private EARInstruction GOTO = new EARInstruction("GOTO\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
             int destination = Integer.parseInt(args[0]);
-            String output = "";
+            StringBuilder output = new StringBuilder();
 
             while (p<destination) {
-                output += moveRight();
+                output.append(moveRight());
             }
             while (p>destination) {
-                output += moveLeft();
+                output.append(moveLeft());
             }
-            return output;
+            return output.toString();
         }
     };
 
@@ -340,7 +340,7 @@ public class EARCompiler {
      * e.g.
      * ZERO 5;
      */
-    public EARInstruction ZERO = new EARInstruction("ZERO\\s+-?\\d+\\s*") {
+    private EARInstruction ZERO = new EARInstruction("ZERO\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
             String output = "";
 
@@ -361,7 +361,7 @@ public class EARCompiler {
      * e.g.
      * IN 5;
      */
-    public EARInstruction IN = new EARInstruction("IN\\s+-?\\d+\\s*") {
+    private EARInstruction IN = new EARInstruction("IN\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
             String output = "";
             if (args.length!=0){
@@ -386,7 +386,7 @@ public class EARCompiler {
      * e.g.
      * OUT 5;
      */
-    public EARInstruction OUT = new EARInstruction("OUT\\s+-?\\d+\\s*") {
+    private EARInstruction OUT = new EARInstruction("OUT\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
             String output = "";
             if (args.length!=0){
@@ -412,7 +412,7 @@ public class EARCompiler {
      * e.g.
      * WHILE 5;
      */
-    public EARInstruction WHILE = new EARInstruction("WHILE\\s+-?\\d+\\s*") {
+    private EARInstruction WHILE = new EARInstruction("WHILE\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
             String output = "";
             if (args.length!=0){
@@ -437,7 +437,7 @@ public class EARCompiler {
      * e.g.
      * REPIF;
      */
-    public EARInstruction ENDWHILE = new EARInstruction("ENDWHILE") {
+    private EARInstruction ENDWHILE = new EARInstruction("ENDWHILE") {
         public String compile(String[] args) {
             String output = "";
             int branchExitPoint = branchLocStack.pop();
@@ -474,14 +474,14 @@ public class EARCompiler {
      * ADD @5 2 3 4;
      * Adds the value in cell 5 to cells 2, 3 and 4.
      */
-    public EARInstruction ADD = new EARInstruction(
+    private EARInstruction ADD = new EARInstruction(
             "ADD\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
         public String compile(String[] args) {
-            String output = "";
+            StringBuilder output = new StringBuilder();
             int amount;
 
             //Parse & sort list of target cells
-            ArrayList<Integer> targets = new ArrayList<Integer>();
+            ArrayList<Integer> targets = new ArrayList<>();
             for (String s : Arrays.copyOfRange(args, 1, args.length)) {
                 targets.add(Integer.parseInt(s));
             }
@@ -490,43 +490,45 @@ public class EARCompiler {
             //If given pointer
             if (args[0].charAt(0)=='@') { //If pointer
                 //Goto summand cell
-                output += GOTO.compile(new String[]{args[0].substring(1)});
+                output.append(GOTO.compile(new String[]{args[0].substring(1)}));
                 //Ensure pessimism
                 if (optimism!=-1) {
-                    output += moveRight() + moveLeft();
+                    output.append(moveRight());
+                    output.append(moveLeft());
                 }
                 //Until cell is 0
-                output += WHILE.compile(new String[]{args[0].substring(1)});
-                output += decrement();
+                output.append(WHILE.compile(new String[]{args[0].substring(1)}));
+                output.append(decrement());
 
                 //for each target cell
                 for (int index : targets) {
                     //Goto target cell
-                    output += GOTO.compile(new String[]{String.valueOf(index)});
-                    output += increment();
+                    output.append(GOTO.compile(new String[]{String.valueOf(index)}));
+                    output.append(increment());
                 }
                 //Return to summand cell
-                output += GOTO.compile(new String[]{args[0].substring(1)});
+                output.append(GOTO.compile(new String[]{args[0].substring(1)}));
                 //Ensure pessimism
                 if (optimism!=-1) {
-                    output += moveRight() + moveLeft();
+                    output.append(moveRight());
+                    output.append(moveLeft());
                 }
                 //end loop
-                output += ENDWHILE.compile(new String[]{});
+                output.append(ENDWHILE.compile(new String[]{}));
             }
             else { //If given absolute
                 amount = Integer.parseInt(args[0]);
                 //for each target cell
                 for (int index : targets) {
                     //Goto target cell
-                    output += GOTO.compile(new String[]{String.valueOf(index)});
+                    output.append(GOTO.compile(new String[]{String.valueOf(index)}));
                     for (int i=0;i<amount;i++) {
-                        output += increment();
+                        output.append(increment());
                     }
 
                 }
             }
-            return output;
+            return output.toString();
         }
     };
 
@@ -538,14 +540,14 @@ public class EARCompiler {
      * SUB @5 2 3 4;
      * Subtracts the value in cell 5 from cells 2, 3 and 4.
      */
-    public EARInstruction SUB = new EARInstruction(
+    private EARInstruction SUB = new EARInstruction(
             "SUB\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
         public String compile(String[] args) {
-            String output = "";
+            StringBuilder output = new StringBuilder();
             int amount;
 
             //Parse & sort list of target cells
-            ArrayList<Integer> targets = new ArrayList<Integer>();
+            ArrayList<Integer> targets = new ArrayList<>();
             for (String s : Arrays.copyOfRange(args, 1, args.length)) {
                 targets.add(Integer.parseInt(s));
             }
@@ -554,43 +556,46 @@ public class EARCompiler {
             //If given pointer
             if (args[0].charAt(0)=='@') { //If pointer
                 //Goto summand cell
-                output += GOTO.compile(new String[]{args[0].substring(1)});
+                output.append(GOTO.compile(new String[]{args[0].substring(1)}));
                 //Ensure pessimism
                 if (optimism!=-1) {
-                    output += moveRight() + moveLeft();
+                    output.append(moveRight());
+                    output.append(moveLeft());
                 }
                 //Until cell is 0
-                output += WHILE.compile(new String[]{args[0].substring(1)});
-                output += decrement();
+                output.append(WHILE.compile(new String[]{args[0].substring(1)}));
+                output.append(decrement());
 
                 //for each target cell
                 for (int index : targets) {
                     //Goto target cell
-                    output += GOTO.compile(new String[]{String.valueOf(index)});
-                    output += decrement();
+                    output.append(GOTO.compile(new String[]{String.valueOf(index)}));
+                    output.append(decrement());
                 }
                 //Return to summand cell
-                output += GOTO.compile(new String[]{args[0].substring(1)});
+                output.append(GOTO.compile(new String[]{args[0].substring(1)}));
                 //Ensure pessimism
                 if (optimism!=-1) {
-                    output += moveRight() + moveLeft();
+                    output.append(moveRight());
+                    output.append(moveLeft());
                 }
+
                 //end loop
-                output += ENDWHILE.compile(new String[]{});
+                output.append(ENDWHILE.compile(new String[]{}));
             }
             else { //If given absolute
                 amount = Integer.parseInt(args[0]);
                 //for each target cell
                 for (int index : targets) {
                     //Goto target cell
-                    output += GOTO.compile(new String[]{String.valueOf(index)});
+                    output.append(GOTO.compile(new String[]{String.valueOf(index)}));
                     for (int i=0;i<amount;i++) {
-                        output += decrement();
+                        output.append(decrement());
                     }
 
                 }
             }
-            return output;
+            return output.toString();
         }
     };
 
@@ -604,30 +609,30 @@ public class EARCompiler {
      * Multiplies cell 5 with cell 3, stores the answer in cell 1,
      * and uses cell 0 for working.
      */
-    public EARInstruction MUL = new EARInstruction(
+    private EARInstruction MUL = new EARInstruction(
             "MUL\\s+((@|@-)?\\d+\\s*){2}-?\\d+\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
             String tempA,tempB;
-            String output = "";
+            StringBuilder output = new StringBuilder();
             String targetCell = args[2];
             String workingCell = args[3];
 
-            //Zero the target cell
-            output += ZERO.compile(new String[]{targetCell});
+           //Zero the target cell
+            output.append(ZERO.compile(new String[]{targetCell}));
 
             if (args[0].charAt(0)=='@') {
                 if (args[1].charAt(0)=='@') {
                     //BOTH REFERENCES - HARD CASE
                     //Clear working cell
-                    output += ZERO.compile(new String[]{workingCell});
+                    output.append(ZERO.compile(new String[]{workingCell}));
                     //Get cell indices
                     tempA = args[0].substring(1);
                     tempB = args[1].substring(1);
 
                     //loop on tempA
-                    output += WHILE.compile(new String[]{tempA});
+                    output.append(WHILE.compile(new String[]{tempA}));
                     //subtract one from tempA
-                    output += decrement();
+                    output.append(decrement());
 
                     //move tempB back where it was
                     //Note, this doesn't really make sense in the first
@@ -638,17 +643,16 @@ public class EARCompiler {
                     //this is always a time-improvement.
                     //This also makes behaviour consistent, in that
                     //both argument cells are destroyed after the algorithm is done.
-                    output += ADD.compile(new String[]{"@"+workingCell,tempB});
+                    output.append(ADD.compile(new String[]{"@"+workingCell,tempB}));
 
                     //add tempB to target & working space
-                    output += ADD.compile(new String[]
-                            {"@"+tempB,targetCell,workingCell});
+                    output.append(ADD.compile(new String[] {"@"+tempB,targetCell,workingCell}));
 
                     //end loop
-                    output += ENDWHILE.compile(new String[]{});
+                    output.append(ENDWHILE.compile(new String[]{}));
 
                     //DONE!
-                    return output;
+                    return output.toString();
                 }
                 else {
                     //tempA = cell reference
@@ -668,9 +672,8 @@ public class EARCompiler {
                     //If both absolute, just do it and add
                     int a = Integer.parseInt(args[0]);
                     int b = Integer.parseInt(args[1]);
-                    output += ADD.compile(new String[]
-                            {String.valueOf(a*b),targetCell});
-                    return output;
+                    output.append(ADD.compile(new String[] {String.valueOf(a*b),targetCell}));
+                    return output.toString();
                 }
             }
 
@@ -678,13 +681,13 @@ public class EARCompiler {
             //get value of absolute
             int absoluteValue = Integer.parseInt(tempB);
             //Clear working cell
-            output += ZERO.compile(new String[]{workingCell});
+            output.append(ZERO.compile(new String[]{workingCell}));
             //just add that many times
             for (int i=0; i<absoluteValue; i++) {
-                output += ADD.compile(new String[]{tempA,targetCell,workingCell});
-                output += ADD.compile(new String[]{"@"+workingCell,tempA.substring(1)});
+                output.append(ADD.compile(new String[]{tempA,targetCell,workingCell}));
+                output.append(ADD.compile(new String[]{"@"+workingCell,tempA.substring(1)}));
             }
-            return output;
+            return output.toString();
         }
     };
 
@@ -700,11 +703,10 @@ public class EARCompiler {
      * Divides cell 5 by cell 3, stores the answer in cell 1,
      * and uses cells 0, 2, 4, 6 and 7 for working.
      */
-    public EARInstruction DIV = new EARInstruction(
+    private EARInstruction DIV = new EARInstruction(
             "DIV\\s+((@|@-)?\\d+\\s*){2}(-?\\d+\\s+){6}-?\\d+") {
         public String compile(String[] args) {
-            String tempA,tempB;
-            String output = "";
+            StringBuilder output = new StringBuilder();
             String numerator = args[0];
             String denominator = args[1];
             String targetCell = args[2];
@@ -719,23 +721,23 @@ public class EARCompiler {
             boolean denominatorIsReference = (denominator.charAt(0) == '@');
 
             //Zero the target cell
-            output += ZERO.compile(new String[]{targetCell});
+            output.append(ZERO.compile(new String[]{targetCell}));
 
             if (!numeratorIsReference && !denominatorIsReference) {
                 //Both absolute, just do the division at compile time.
                 int a = Integer.parseInt(numerator);
                 int b = Integer.parseInt(denominator);
-                output += MOV.compile(new String[]{Integer.toString(a/b), targetCell});
+                output.append(MOV.compile(new String[]{Integer.toString(a/b), targetCell}));
             }
             else {
                 //We now know at least one arg isn't absolute.
                 //If one IS absolute, put it in the working cell.
                 if (!numeratorIsReference) {
-                    output += MOV.compile(new String[]{numerator, workingCell1});
+                    output.append(MOV.compile(new String[]{numerator, workingCell1}));
                     numerator = "@" + workingCell1;
                 }
                 else if (!denominatorIsReference) {
-                    output += MOV.compile(new String[]{denominator, workingCell1});
+                    output.append(MOV.compile(new String[]{denominator, workingCell1}));
                     denominator = "@" + workingCell1;
                 }
 
@@ -748,68 +750,68 @@ public class EARCompiler {
                 //one of the numbers we're calculating with.
 
                 //Zero the working cells we'll use for the division
-                output += ZERO.compile(new String[]{workingCell2});
-                output += ZERO.compile(new String[]{workingCell3});
-                output += ZERO.compile(new String[]{workingCell4});
-                output += ZERO.compile(new String[]{workingCell5});
+                output.append(ZERO.compile(new String[]{workingCell2}));
+                output.append(ZERO.compile(new String[]{workingCell3}));
+                output.append(ZERO.compile(new String[]{workingCell4}));
+                output.append(ZERO.compile(new String[]{workingCell5}));
 
                 //Set the flag to 1
-                output += MOV.compile(new String[]{"1",flag});
+                output.append(MOV.compile(new String[]{"1",flag}));
 
                 //Copy the denominator to working cell 2
-                output += COPY.compile(new String[]{"@" + denominator, workingCell2, workingCell4});
+                output.append(COPY.compile(new String[]{"@" + denominator, workingCell2, workingCell4}));
 
                 //While numerator not 0
-                output += WHILE.compile(new String[]{numerator});
+                output.append(WHILE.compile(new String[]{numerator}));
 
                 //Use workingCell3 to indicate if one of the numbers hit 0, so we
                 //don't try to subtract from it.
-                output += MOV.compile(new String[]{"1", workingCell3});
+                output.append(MOV.compile(new String[]{"1", workingCell3}));
 
-                output += WHILE.compile(new String[]{workingCell3});
+                output.append(WHILE.compile(new String[]{workingCell3}));
 
                 //Subtract one from each
-                output += SUB.compile(new String[]{"1",numerator});
-                output += SUB.compile(new String[]{"1",denominator});
+                output.append(SUB.compile(new String[]{"1",numerator}));
+                output.append(SUB.compile(new String[]{"1",denominator}));
 
                 //Work out if either hit 0
                 //Proc for this is:
                 //Copy into WC4, use WC5 as flag.
 
                 //If numerator is 0
-                output += COPY.compile(new String[]{"@" + numerator, workingCell4, workingCell5});
-                output += MOV.compile(new String[]{"1", workingCell5});
-                output += WHILE.compile(new String[]{workingCell4});
-                output += ZERO.compile(new String[]{workingCell5});
-                output += ZERO.compile(new String[]{workingCell4});
-                output += ENDWHILE.compile(new String[]{});
-                output += WHILE.compile(new String[]{workingCell5});
+                output.append(COPY.compile(new String[]{"@" + numerator, workingCell4, workingCell5}));
+                output.append(MOV.compile(new String[]{"1", workingCell5}));
+                output.append(WHILE.compile(new String[]{workingCell4}));
+                output.append(ZERO.compile(new String[]{workingCell5}));
+                output.append(ZERO.compile(new String[]{workingCell4}));
+                output.append(ENDWHILE.compile(new String[]{}));
+                output.append(WHILE.compile(new String[]{workingCell5}));
                 //Set flag
-                output += ZERO.compile(new String[]{workingCell3});
-                output += ZERO.compile(new String[]{workingCell5});
-                output += ENDWHILE.compile(new String[]{});
+                output.append(ZERO.compile(new String[]{workingCell3}));
+                output.append(ZERO.compile(new String[]{workingCell5}));
+                output.append(ENDWHILE.compile(new String[]{}));
 
                 //If denominator is 0
-                output += COPY.compile(new String[]{"@" + denominator, workingCell4, workingCell5});
-                output += MOV.compile(new String[]{"1", workingCell5});
-                output += WHILE.compile(new String[]{workingCell4});
-                output += ZERO.compile(new String[]{workingCell5});
-                output += ZERO.compile(new String[]{workingCell4});
-                output += ENDWHILE.compile(new String[]{});
-                output += WHILE.compile(new String[]{workingCell5});
+                output.append(COPY.compile(new String[]{"@" + denominator, workingCell4, workingCell5}));
+                output.append(MOV.compile(new String[]{"1", workingCell5}));
+                output.append(WHILE.compile(new String[]{workingCell4}));
+                output.append(ZERO.compile(new String[]{workingCell5}));
+                output.append(ZERO.compile(new String[]{workingCell4}));
+                output.append(ENDWHILE.compile(new String[]{}));
+                output.append(WHILE.compile(new String[]{workingCell5}));
                 //Set flag, increment counter and refill denominator
-                output += ZERO.compile(new String[]{workingCell3});
-                output += ZERO.compile(new String[]{workingCell5});
-                output += ADD.compile(new String[]{"1", targetCell});
-                output += COPY.compile(new String[]{"@" + workingCell2, denominator, workingCell4});
-                output += ENDWHILE.compile(new String[]{});
+                output.append(ZERO.compile(new String[]{workingCell3}));
+                output.append(ZERO.compile(new String[]{workingCell5}));
+                output.append(ADD.compile(new String[]{"1", targetCell}));
+                output.append(COPY.compile(new String[]{"@" + workingCell2, denominator, workingCell4}));
+                output.append(ENDWHILE.compile(new String[]{}));
 
-                output += ENDWHILE.compile(new String[]{});
+                output.append(ENDWHILE.compile(new String[]{}));
 
-                output += ENDWHILE.compile(new String[]{});
+                output.append(ENDWHILE.compile(new String[]{}));
             }
 
-            return output;
+            return output.toString();
         }
     };
 
@@ -823,45 +825,34 @@ public class EARCompiler {
      * COPY @2 3 4 5;
      * Copies cell 2 into cells 3 & 4, using cell 5 as working space.
      */
-    public EARInstruction COPY = new EARInstruction(
+    private EARInstruction COPY = new EARInstruction(
             "COPY\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)+-?\\d+\\s*") {
         public String compile(String[] args) {
-            String output = "";
+            StringBuilder output = new StringBuilder();
 
             //If copying an absolute, use MOV, it's faster
             if (args[0].charAt(0)!='@') {
                 String[] movArgs = Arrays.copyOfRange(args, 0, args.length-1);
-                output += MOV.compile(movArgs);
-                return output;
-            }
-
-            //Move last argument to beginning of argument list
-            //for use in moving values back from working cell later
-            //this makes sense if you think about it hard enough.
-            //I promise.
-            ArrayList<String> addArgs = new ArrayList<String>();
-            addArgs.add("@"+args[args.length-1]);
-            for (String item : Arrays.copyOfRange(args, 0, args.length-1)) {
-                addArgs.add(item);
+                output.append(MOV.compile(movArgs));
+                return output.toString();
             }
 
             //Zero the working cell
-            output += ZERO.compile(new String[]{args[args.length-1]});
+            output.append(ZERO.compile(new String[]{args[args.length-1]}));
             //Zero all target cells
             for (int i=1; i<args.length-1; i++) {
-                output += ZERO.compile(new String[]{args[i]});
+                output.append(ZERO.compile(new String[]{args[i]}));
             }
 
             //Move the cell to be copied to the working cell & all targets
-            output += ADD.compile(args);
+            output.append(ADD.compile(args));
 
             //Move it back from the working cell to the original if it was a reference.
             if (args[0].charAt(0)=='@') {
-                output += ADD.compile(new String[]
-                        {"@"+args[args.length-1],args[0].substring(1)});
+                output.append(ADD.compile(new String[] {"@"+args[args.length-1],args[0].substring(1)}));
             }
 
-            return output;
+            return output.toString();
         }
     };
 
@@ -872,30 +863,20 @@ public class EARCompiler {
      * MOV @2 3 4;
      * Moves cell 2 into cells 3 & 4.
      */
-    public EARInstruction MOV = new EARInstruction(
+    private EARInstruction MOV = new EARInstruction(
             "MOV\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
         public String compile(String[] args) {
-            String output = "";
-
-            //Move last argument to beginning of argument list
-            //for use in moving values back from working cell later
-            //this makes sense if you think about it hard enough.
-            //I promise.
-            ArrayList<String> addArgs = new ArrayList<String>();
-            addArgs.add("@"+args[args.length-1]);
-            for (String item : Arrays.copyOfRange(args, 0, args.length-1)) {
-                addArgs.add(item);
-            }
+            StringBuilder output = new StringBuilder();
 
             //Zero all target cells
             for (int i=1; i<args.length; i++) {
-                output += ZERO.compile(new String[]{args[i]});
+                output.append(ZERO.compile(new String[]{args[i]}));
             }
 
             //Move the cell to be copied to the working cell & all targets
-            output += ADD.compile(args);
+            output.append(ADD.compile(args));
 
-            return output;
+            return output.toString();
         }
     };
 }

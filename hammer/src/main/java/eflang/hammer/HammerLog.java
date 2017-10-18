@@ -12,7 +12,7 @@ import java.io.PrintWriter;
  *
  */
 public class HammerLog {
-    public static enum LogLevel implements Comparable<LogLevel> {
+    public enum LogLevel implements Comparable<LogLevel> {
         DEV ("  DEV: "),
         DEBUG ("DEBUG: "),
         INFO (""),
@@ -124,8 +124,8 @@ public class HammerLog {
 
     /**
      * Logs the given message, ending with a newline.
-     * @param text
-     * @param level
+     * @param text text to log
+     * @param level level to log at
      */
     public static void log(String text, LogLevel level) {
         log(text, level, true);
@@ -133,7 +133,7 @@ public class HammerLog {
 
     /**
      * Logs the given message at level INFO
-     * @param text
+     * @param text text to log
      */
     public static void info(String text) {
         log(text, LogLevel.INFO);
@@ -141,7 +141,7 @@ public class HammerLog {
 
     /**
      * Logs the given message at level DEBUG
-     * @param text
+     * @param text text to log
      */
     public static void debug(String text) {
         log(text, LogLevel.DEBUG);
@@ -149,7 +149,7 @@ public class HammerLog {
 
     /**
      * Logs the given message at level ERROR
-     * @param text
+     * @param text text to log
      */
     public static void error(String text) {
         log(text, LogLevel.ERROR);

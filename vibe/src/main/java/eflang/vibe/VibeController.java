@@ -136,8 +136,8 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
         mWorker = null;
         mStepWorker = null;
         mPlayState = PlayState.STOPPED;
-        mEARLineStartPositions = new ArrayList<Integer>();
-        mHighLevelLineStartPositions = new ArrayList<Integer>();
+        mEARLineStartPositions = new ArrayList<>();
+        mHighLevelLineStartPositions = new ArrayList<>();
 
         //Register us to handle keyboard events globally
         KeyboardFocusManager.getCurrentKeyboardFocusManager().
@@ -162,45 +162,37 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      */
     @Override
     public void actionPerformed(ActionEvent action) {
-        if (action.getActionCommand().equals("compile")) {
-            compile();
-            return;
-        }
-        if (action.getActionCommand().equals("exit")) {
-            exitProgram();
-            return;
-        }
-        if (action.getActionCommand().equals("open")) {
-            openFile();
-            return;
-        }
-        if (action.getActionCommand().equals("save")) {
-            save();
-            return;
-        }
-        if (action.getActionCommand().equals("saveas")) {
-            saveAs();
-            return;
-        }
-        if (action.getActionCommand().equals("new")) {
-            newFile();
-            return;
-        }
-        if (action.getActionCommand().equals("play")) {
-            play();
-            return;
-        }
-        if (action.getActionCommand().equals("pause")) {
-            pause();
-            return;
-        }
-        if (action.getActionCommand().equals("step")) {
-            step();
-            return;
-        }
-        if (action.getActionCommand().equals("stop")) {
-            stop();
-            return;
+        switch (action.getActionCommand()) {
+            case "compile":
+                compile();
+                break;
+            case "exit":
+                exitProgram();
+                break;
+            case "open":
+                openFile();
+                break;
+            case "save":
+                save();
+                break;
+            case "saveas":
+                saveAs();
+                break;
+            case "new":
+                newFile();
+                break;
+            case "play":
+                play();
+                break;
+            case "pause":
+                pause();
+                break;
+            case "step":
+                step();
+                break;
+            case "stop":
+                stop();
+                break;
         }
     }
 
@@ -228,11 +220,9 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      */
     private void compileLOBECode() {
         String LOBECode = mFrame.getHighLevelCode();
-        String EARCode = null;
         if (mPlayState==PlayState.STOPPED) {
             try {
-                EARCode = mLOBECompiler.compile(LOBECode);
-                mFrame.setEARCode(EARCode);
+                mFrame.setEARCode(mLOBECompiler.compile(LOBECode));
                 mHighLevelLineStartPositions = mLOBECompiler.getCommandStartPositions();
             } catch (LobeCompilationException e) {
                 mFrame.setEARCode(e.getMessage());
@@ -246,11 +236,9 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      */
     private void compileEARCode() {
         String EARCode = mFrame.getEARCode();
-        String EFCode = null;
         if (mPlayState==PlayState.STOPPED) {
             try {
-                EFCode = mEARCompiler.compile(EARCode);
-                mFrame.setEFCode(EFCode);
+                mFrame.setEFCode(mEARCompiler.compile(EARCode));
                 mEARLineStartPositions = mEARCompiler.getCommandStartPositions();
             } catch (EARException e) {
                 mFrame.setEFCode(e.getMessage());
@@ -281,16 +269,16 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             mOpenFilePath = file.getPath();
-            BufferedReader br = null;
             try {
-                br = new BufferedReader(new FileReader(file));
+                BufferedReader br = new BufferedReader(new FileReader(file));
 
 
                 StringBuilder builder = new StringBuilder();
 
-                String currentLine = null;
+                String currentLine;
                 while ((currentLine = br.readLine()) != null) {
-                    builder.append(currentLine+'\n');
+                    builder.append(currentLine);
+                    builder.append('\n');
                 }
 
                 br.close();
@@ -303,17 +291,19 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
                     extension = name.substring(i+1).toLowerCase();
                 }
 
-                if (extension.equals("ef")) {
-                    mFrame.setEFCode(builder.toString());
-                    setMode(VibeMode.EF);
-                }
-                else if (extension.equals("ear")) {
-                    mFrame.setEARCode(builder.toString());
-                    setMode(VibeMode.EAR);
-                }
-                else if (extension.equals("lobe")) {
-                    mFrame.setHighLevelCode(builder.toString());
-                    setMode(VibeMode.HIGHLEVEL);
+                switch (extension) {
+                    case "ef":
+                        mFrame.setEFCode(builder.toString());
+                        setMode(VibeMode.EF);
+                        break;
+                    case "ear":
+                        mFrame.setEARCode(builder.toString());
+                        setMode(VibeMode.EAR);
+                        break;
+                    case "lobe":
+                        mFrame.setHighLevelCode(builder.toString());
+                        setMode(VibeMode.HIGHLEVEL);
+                        break;
                 }
                 setCurrentFileName();
 

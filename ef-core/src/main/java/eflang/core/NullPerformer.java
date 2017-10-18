@@ -1,7 +1,5 @@
 package eflang.core;
 
-import org.jfugue.MusicStringParser;
-
 public class NullPerformer implements Performer {
 
     @Override
@@ -35,9 +33,5 @@ public class NullPerformer implements Performer {
     @Override
     public int getTempo() {
         return 0;
-    }
-
-    int getNoteValue(String a) {
-        return MusicStringParser.getNote(a).getValue();
     }
 }

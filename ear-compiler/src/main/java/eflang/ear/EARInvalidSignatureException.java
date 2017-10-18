@@ -1,11 +1,7 @@
 package eflang.ear;
 
-public class EARInvalidSignatureException extends EARException {
-    public EARInvalidSignatureException() {
-        super();
-    }
-
-    public EARInvalidSignatureException(String message) {
+class EARInvalidSignatureException extends EARException {
+    EARInvalidSignatureException(String message) {
         super(message);
     }
 }

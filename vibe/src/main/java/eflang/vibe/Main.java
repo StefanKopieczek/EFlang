@@ -1,8 +1,6 @@
 package eflang.vibe;
 
-import java.io.File;
-
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 /**
  * VIBE - Visual Interface for Building Earfuck
@@ -12,11 +10,9 @@ import javax.swing.SwingUtilities;
 
 public class Main {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                MainFrame frame = new MainFrame();
-                frame.create();
-            }
+        SwingUtilities.invokeLater(() -> {
+            MainFrame frame = new MainFrame();
+            frame.create();
         });
     }
 }

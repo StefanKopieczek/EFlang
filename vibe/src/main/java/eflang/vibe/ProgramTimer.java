@@ -45,8 +45,8 @@ public class ProgramTimer {
         return mTicks;
     }
 
-    public static interface TimerListener {
-        public void onTick();
+    public interface TimerListener {
+        void onTick();
     }
 
     private static class TimerThread extends Thread {

@@ -1,11 +1,10 @@
 package eflang.vibe;
 
+import eflang.vibe.VibeController.VibeMode;
+
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.SwingWorker;
-
-import eflang.vibe.VibeController.VibeMode;
 
 /**
  * This worker runs the EF Parser on a background thread until told to stop. <br/>
@@ -14,7 +13,7 @@ import eflang.vibe.VibeController.VibeMode;
  *
  */
 public class ParserWorker extends SwingWorker<Void,Integer> {
-VibeController mController;
+    private VibeController mController;
 
     public ParserWorker(VibeController controller) {
         mController = controller;

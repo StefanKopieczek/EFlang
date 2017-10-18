@@ -21,7 +21,7 @@ public class LobeTest extends HammerTest {
         } catch (Exception e) {
             failureMessage = "Failed to compile LOBE code. \n" + efCode;
             setupFailed = true;
-                        return;
+            return;
         }
 
         try {
@@ -29,7 +29,6 @@ public class LobeTest extends HammerTest {
         } catch (Exception e) {
             failureMessage = "Failed to compile EAR code. \n" + efCode;
             setupFailed = true;
-                        return;
         }
     }
 

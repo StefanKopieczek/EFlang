@@ -1,8 +1,7 @@
 package eflang.vibe;
 
-import java.io.File;
-
 import javax.swing.filechooser.FileFilter;
+import java.io.File;
 
 /**
  * Lets through only files of type .lobe, .ear and .ef <br/>
@@ -24,13 +23,9 @@ public class EFCodeFilter extends FileFilter {
             extension = name.substring(i+1).toLowerCase();
         }
 
-        if (    (extension.equals("lobe")) ||
+        return ((extension.equals("lobe")) ||
                 (extension.equals("ear")) ||
-                (extension.equals("ef"))) {
-            return true;
-        }
-
-        return false;
+                (extension.equals("ef")));
     }
 
     @Override

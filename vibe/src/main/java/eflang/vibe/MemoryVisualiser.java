@@ -1,8 +1,8 @@
 package eflang.vibe;
 
-import javax.swing.JLabel;
-
 import eflang.core.Parser;
+
+import javax.swing.*;
 
 /**
  * This class takes an EF Parser, and displays the memory
@@ -56,7 +56,8 @@ public class MemoryVisualiser extends JLabel {
             rowNumber = 0;
         }
         int firstCell = (rowNumber - (mNumberOfRows/2)) * mCellsPerRow;
-        String text = "<html><font face=\"courier new\">";
+        StringBuilder text = new StringBuilder();
+        text.append("<html><font face=\"courier new\">");
         String cellText;
         String rowLabel;
         int cellValue;
@@ -65,7 +66,7 @@ public class MemoryVisualiser extends JLabel {
         for (int row=0; row<mNumberOfRows; row++) {
             rowLabel = String.format("%1$10s",firstCell+(row*mCellsPerRow)+": ");
             rowLabel = rowLabel.replaceAll(" ", "&nbsp;");
-            text += rowLabel;
+            text.append(rowLabel);
             for (int cell=0; cell<mCellsPerRow; cell++) {
                 memoryIndex = firstCell+(row*mCellsPerRow)+cell;
                 cellValue = mParser.getMemoryValueAt(memoryIndex);
@@ -77,12 +78,12 @@ public class MemoryVisualiser extends JLabel {
                 if (memoryIndex==mParser.getPointer()) {
                     cellText = "<font color=red>"+cellText+"</font>";
                 }
-                text += cellText;
+                text.append(cellText);
             }
-            text += "<br/>";
+            text.append("<br/>");
         }
-        text += "</font>";
-        setText(text);
+        text.append("</font>");
+        setText(text.toString());
     }
 
     /**

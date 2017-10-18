@@ -16,7 +16,7 @@ public class HammerLoader {
      * inside for files names *.test and loading them as tests.
      * @param folder - Directory to load
      * @return the HammerSuite loaded from the given directory
-     * @throws IOException
+     * @throws IOException upon failure to load the folder or any file within it.
      */
     public static HammerSuite loadSuite(File folder) throws IOException {
         // Check we were given a directory
@@ -69,9 +69,9 @@ public class HammerLoader {
 
     /**
      * Loads a HammerTest from a file.
-     * @param file
-     * @return
-     * @throws IOException
+     * @param file file to load the test from
+     * @return the loaded HammerTest
+     * @throws IOException upon failure to read the file
      */
     public static HammerTest loadTest(File file) throws IOException {
         if (!file.isFile()) {
@@ -83,9 +83,9 @@ public class HammerLoader {
 
         String name = null;
         TestType type = TestType.EF;
-        String code = null;
+        String code;
         String sourceFile = null;
-        ArrayList<String> IOs = new ArrayList<String>();
+        ArrayList<String> IOs = new ArrayList<>();
 
         FileReader fr = new FileReader(file);
         BufferedReader br = new BufferedReader(fr);
@@ -148,25 +148,26 @@ public class HammerLoader {
 
         if (sourceFile != null) {
             HammerLog.debug("Found source file: " + sourceFile);
-            sourceFile = file.getParent() + file.separator + sourceFile;
+            sourceFile = file.getParent() + File.separator + sourceFile;
             HammerLog.debug("Loading source file: " + sourceFile);
             try {
                 fr = new FileReader(sourceFile);
                 br = new BufferedReader(fr);
-                code = "";
+                builder = new StringBuilder();
                 for (String line = br.readLine();
                         line != null;
                         line = br.readLine()) {
-                    code += line + "\n";
+                    builder.append(line);
+                    builder.append("\n");
                 }
+                code = builder.toString();
                 br.close();
             }
             catch (FileNotFoundException e) {
                 cantFindSource = true;
                 code = "";
             }
-        }
-        else {
+        } else {
             code = builder.toString();
         }
 
@@ -233,7 +234,7 @@ public class HammerLoader {
         return extension;
     }
 
-    private static enum TestType {
+    private enum TestType {
         EF,
         EAR,
         LOBE

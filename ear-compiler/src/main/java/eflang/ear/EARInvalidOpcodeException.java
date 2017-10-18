@@ -1,11 +1,7 @@
 package eflang.ear;
 
-public class EARInvalidOpcodeException extends EARException {
-    public EARInvalidOpcodeException() {
-        super();
-    }
-
-    public EARInvalidOpcodeException(String message) {
+class EARInvalidOpcodeException extends EARException {
+    EARInvalidOpcodeException(String message) {
         super(message);
     }
 }
