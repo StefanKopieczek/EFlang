@@ -1,17 +1,16 @@
 package eflang.core;
+import org.jfugue.Player;
+
 import java.io.File;
 import java.io.IOException;
 
-import org.jfugue.MusicStringParser;
-import org.jfugue.Player;
-
 
 public class MidiFilePerformer implements Performer {
-    Player mPlayer;
-    String queue;
-    byte instrument;
-    String tempo = "120";
-    String control_params = "";
+    private Player mPlayer;
+    private String queue;
+    private byte instrument;
+    private String tempo = "120";
+    private static String control_params = "";
 
     public MidiFilePerformer(byte instrumentCode) {
         instrument = instrumentCode;
@@ -19,7 +18,7 @@ public class MidiFilePerformer implements Performer {
         refreshQueue();
     }
 
-    public void outputQueueToFile() {
+    private void outputQueueToFile() {
         try {
             mPlayer.saveMidi(queue, new File("output.mid"));
         } catch (IOException e) {
@@ -27,7 +26,7 @@ public class MidiFilePerformer implements Performer {
         }
     }
 
-    public void refreshQueue() {
+    private void refreshQueue() {
         queue = "I" + instrument + " " +
                 "T" + tempo + " " +
                 control_params + " ";
@@ -64,16 +63,10 @@ public class MidiFilePerformer implements Performer {
         return Integer.parseInt(tempo);
     }
 
-    int getNoteValue(String a) {
-        return MusicStringParser.getNote(a).getValue();
-    }
-
-
     @Override
     public void onPieceStart() {
 
     }
-
 
     @Override
     public void changeInstrument(byte instrumentCode) {

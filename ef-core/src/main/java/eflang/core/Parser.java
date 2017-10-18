@@ -7,20 +7,20 @@ public class Parser {
     /**
      * This handles input/output.
      */
-    IoManager mIoManager = new SystemIoManager();
+    private IoManager mIoManager = new SystemIoManager();
 
     /**
      * Either 'numeric' or 'ascii' - this determines how we render characters
      * when we print the contents of a cell to output.
      */
-    String mOutputMode;
+    private String mOutputMode;
 
     /**
      * If the conductor is currently waiting for input
      * from the audience, he will refuse to play any further through
      * the piece.
      */
-    CountDownLatch mAwaitingInput;
+    private CountDownLatch mAwaitingInput;
 
     /**
      * The 'ambiance' is the state of the audience's mind, as represented by a
@@ -33,7 +33,7 @@ public class Parser {
      * audience's current mental state, depending on whether the last change of
      * state was an optimistic or a pessimistic one.
      */
-    EarfuckMemory mAmbiance;
+    private EarfuckMemory mAmbiance;
 
     /**
      * The 'mental state' of the audience represents which mental state in the
@@ -41,7 +41,7 @@ public class Parser {
      * modelled by an index to a particular mind-state in the linear ambiance
      * array.
      */
-    Integer mMentalState;
+    private Integer mMentalState;
 
     /**
      * The audience is always either optimistic, pessimistic, or neutral.
@@ -50,7 +50,7 @@ public class Parser {
      * been played are the same (or no notes have been played), the audience
      * are neutral.
      */
-    Integer mOptimism;
+    private Integer mOptimism;
 
     /**
      * The excitement represents the - well, excitement - of the performers.
@@ -61,13 +61,13 @@ public class Parser {
      * loudly than usual - correspondingly, depressed performers play more
      * quietly.
      */
-    int mExcitement;
+    private int mExcitement;
 
     /**
      * The note duration represents the amount of time that each note should
      * be held for as a fraction of the whole note (breve).
      */
-    float mNoteDuration;
+    private float mNoteDuration;
 
     /**
      * This array contains all the musical tokens that the program is
@@ -76,7 +76,7 @@ public class Parser {
      *  - Rests (written as 'r')
      *  - Brackets '(' or ')'. Notes inside brackets are played double-time.
      */
-    String[] mComposition;
+    private String[] mComposition;
 
     /**
      * Current place in the music.
@@ -86,7 +86,7 @@ public class Parser {
     /**
      * The last note played.
      */
-    String mPreviousNote;
+    private String mPreviousNote;
 
     /**
      * The performers *love* playing changes in rhythm.
@@ -97,20 +97,20 @@ public class Parser {
      * characters' positions so that we can return to that position in the code
      * when we want to replay a section.
      */
-    Stack<Integer> mBrackets;
+    private Stack<Integer> mBrackets;
 
     /**
      * Bracketed sections are skipped if the ambiance value of the current
      * mental state is 0. This variable counts the number of left brackets we
      * have skipped so far, minus the number of right-brackets we have skipped.
      */
-    int mBracketsSkipped;
+    private int mBracketsSkipped;
 
     /**
      * The performer understands the musical notation we use, and is able to
      * output audio (either to a MIDI file or to a current MIDI stream).
      */
-    Performer mPerformer;
+    private Performer mPerformer;
 
     public Parser(Performer performer) {
         mOutputMode = "numeric";
@@ -137,7 +137,7 @@ public class Parser {
         mPlace = 0;
         mPreviousNote = null;
         mBracketsSkipped = 0;
-        mBrackets = new Stack<Integer>();
+        mBrackets = new Stack<>();
     }
 
     /**
@@ -160,9 +160,6 @@ public class Parser {
 
     /**
      * Perform the whole piece
-     *      *
-     * @param piece The piece to play - comprised of musical tokens separated
-     * by whitespace.
      */
     public void perform() {
         while (mPlace < mComposition.length) {
@@ -188,7 +185,7 @@ public class Parser {
     /**
      * Execute the given command.
      */
-    public void executeCommand(String command) {
+    private void executeCommand(String command) {
 
         if (command.equals("(")) {
             if (mAmbiance.get(mMentalState) == 0) {
@@ -355,7 +352,7 @@ public class Parser {
      * @param token The musical token to test.
      * @return True if the token represents a single note; false otherwise.
      */
-    static boolean isNote(String token) {
+    private static boolean isNote(String token) {
         // Everything other than a bracket or rest is a note, assuming the
         // token is valid.
         return (!(token.equals("(") ||
@@ -365,7 +362,6 @@ public class Parser {
 
     /**
      * Returns the piece we are currently playing.
-     * @return
      */
     public String[] getPiece() {
         return mComposition;
