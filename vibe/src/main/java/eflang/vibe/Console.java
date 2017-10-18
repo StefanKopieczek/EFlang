@@ -1,12 +1,11 @@
 package eflang.vibe;
 
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-
-import javax.swing.JTextPane;
-
 import eflang.core.IoManager;
 import eflang.core.Parser;
+
+import javax.swing.*;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 
 /**
  * This is a text pane console designed to handle IO
@@ -49,7 +48,7 @@ public class Console extends JTextPane implements IoManager {
 
     public Console() {
         super();
-        mText = new ArrayList<String>();
+        mText = new ArrayList<>();
         inputText = "";
         mParser = null;
         updateText();
@@ -160,7 +159,7 @@ public class Console extends JTextPane implements IoManager {
     }
 
     public void clearDisplay() {
-        mText = new ArrayList<String>();
+        mText = new ArrayList<>();
         updateText();
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
  *
  */
 public class StepForwardWorker extends SwingWorker<Void, Integer> {
-    VibeController mController;
+    private VibeController mController;
 
     public StepForwardWorker(VibeController controller) {
         mController = controller;
