@@ -12,7 +12,7 @@ public class HammerTest {
     /**
      * The earfuck code to use for this test.
      */
-    protected String efCode;
+    String efCode;
 
     /**
      * The HammerFramework object to use to control the parser.
@@ -35,17 +35,17 @@ public class HammerTest {
      * Indicates if this test failed to prepare.
      * If true, run() will immediately return false.
      */
-    protected boolean setupFailed = false;
+    boolean setupFailed = false;
 
     /**
      * A message indicating why setup failed.
      */
-    protected String failureMessage = "";
+    String failureMessage = "";
 
     public HammerTest(String name, String code, HammerFramework hammer) {
         efCode = code;
         mHammer = hammer;
-        mTasks = new ArrayList<TestTask>();
+        mTasks = new ArrayList<>();
         mName = name;
     }
 
@@ -113,8 +113,8 @@ public class HammerTest {
      * @author rynor_000
      *
      */
-    public static interface TestTask {
-        public boolean execute(HammerFramework hammer);
+    public interface TestTask {
+        boolean execute(HammerFramework hammer);
     }
 
     /**
@@ -127,7 +127,7 @@ public class HammerTest {
     public static class OutputTask implements TestTask {
         private int expected;
 
-        public OutputTask(int expected) {
+        OutputTask(int expected) {
             this.expected = expected;
         }
 
@@ -154,7 +154,7 @@ public class HammerTest {
     public static class InputTask implements TestTask {
         private int value;
 
-        public InputTask(int value) {
+        InputTask(int value) {
             this.value = value;
         }
 
@@ -176,7 +176,7 @@ public class HammerTest {
      */
     public static class RestartTask implements TestTask {
 
-        public RestartTask() {
+        RestartTask() {
         }
 
         public boolean execute(HammerFramework hammer) {

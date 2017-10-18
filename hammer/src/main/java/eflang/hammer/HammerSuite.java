@@ -13,7 +13,7 @@ public class HammerSuite {
 
     public HammerSuite(String name) {
         mName = name;
-        mTests = new ArrayList<HammerTest>();
+        mTests = new ArrayList<>();
     }
 
     /**
@@ -28,7 +28,7 @@ public class HammerSuite {
      * Runs all the tests in the suite in the order they were added.
      */
     public void run() {
-        ArrayList<HammerTest> failedTests = new ArrayList<HammerTest>();
+        ArrayList<HammerTest> failedTests = new ArrayList<>();
 
         HammerLog.info("  === Running HAMMER suite: " + mName + " ===");
 

@@ -1,12 +1,12 @@
 package eflang.hammer;
 
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.TimeUnit;
-import java.io.IOException;
-
 import eflang.core.IoManager;
 import eflang.core.NullPerformer;
 import eflang.core.Parser;
+
+import java.io.IOException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * HammerFramework - The main class for interfacing with the earfuck
@@ -15,7 +15,6 @@ import eflang.core.Parser;
  *
  */
 public class HammerFramework implements IoManager {
-    private Object mLock = new Object();
     private Parser mParser;
     private ParserThread mThread;
     private static final int DEFAULT_TIMEOUT = 5;
@@ -217,10 +216,10 @@ public class HammerFramework implements IoManager {
      *
      */
     private static class ParserThread extends Thread{
-        public boolean isRunning = false;
+        boolean isRunning = false;
         private Parser mParser;
 
-        public void setParser(Parser parser) {
+        void setParser(Parser parser) {
             mParser = parser;
         }
 
@@ -237,7 +236,7 @@ public class HammerFramework implements IoManager {
             }
         }
 
-        public void stopRunning() {
+        void stopRunning() {
             isRunning = false;
         }
     }
