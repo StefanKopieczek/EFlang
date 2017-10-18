@@ -1,11 +1,11 @@
 package eflang.ear;
 
 public class EARException extends Exception {
-    public EARException() {
+    EARException() {
         super();
     }
 
-    public EARException(String message) {
+    EARException(String message) {
         super(message);
     }
 }
