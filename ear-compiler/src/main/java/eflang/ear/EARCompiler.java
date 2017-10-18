@@ -15,7 +15,7 @@ import java.util.Stack;
 public class EARCompiler {
     private HashMap<String,EARInstruction> instructionSet;
 
-    private Scale scale;
+    private Composer composer;
 
     private int p; //Cell pointer
     private String currentNote;
@@ -33,17 +33,17 @@ public class EARCompiler {
     private ArrayList<Integer> lineStartPositions;
 
     public EARCompiler() {
-        this(Scales.CMajor);
+        this(new OnlyRunsComposer(Scales.CMajor));
     }
 
-    public EARCompiler(Scale scale) {
-        this.scale = scale;
+    public EARCompiler(Composer composer) {
+        this.composer = composer;
         resetState();
     }
 
     private void resetState() {
         p=0;
-        currentNote = scale.getNoteAt(scale.size() / 2);
+        currentNote = composer.getStartingNode();
         optimism = 0;
         instructionSet = getInstructionSet();
         branchLocStack = new Stack<>();
@@ -161,14 +161,14 @@ public class EARCompiler {
         optimism = -1;
 
         // Attempt to move left.
-        String note = scale.prevNote(currentNote);
+        String note = composer.prevNote(currentNote);
         output += note + " ";
-        if (currentNote.equals(scale.bottomNote())) {
+        if (currentNote.equals(composer.bottomNote())) {
             // Oops, we were already at the bottom, so we know we wrapped and actually moved right.
             // Move left twice to compensate.
-            note = scale.prevNote(note);
+            note = composer.prevNote(note);
             output += note + " ";
-            note = scale.prevNote(note);
+            note = composer.prevNote(note);
             output += note + " ";
         }
 
@@ -189,14 +189,14 @@ public class EARCompiler {
         optimism = 1;
 
         // Attempt to move right.
-        String note = scale.nextNote(currentNote);
+        String note = composer.nextNote(currentNote);
         output += note + " ";
-        if (currentNote.equals(scale.topNote())) {
+        if (currentNote.equals(composer.topNote())) {
             // Oops, we were already at the top, so we know we wrapped and actually moved left.
             // Move right twice to compensate.
-            note = scale.nextNote(note);
+            note = composer.nextNote(note);
             output += note + " ";
-            note = scale.nextNote(note);
+            note = composer.nextNote(note);
             output += note + " ";
         }
 
@@ -245,25 +245,25 @@ public class EARCompiler {
             return output;
         }
         //Move note away from ends
-        if (currentNote.equals(scale.bottomNote())) {
-            currentNote = scale.nextNote(scale.nextNote(currentNote));
+        if (currentNote.equals(composer.bottomNote())) {
+            currentNote = composer.nextNote(composer.nextNote(currentNote));
             output += currentNote + " ";
-            currentNote = scale.prevNote(currentNote);
+            currentNote = composer.prevNote(currentNote);
             output += currentNote + " ";
         }
-        if (currentNote.equals(scale.topNote())) {
-            currentNote = scale.prevNote(scale.prevNote(currentNote));
+        if (currentNote.equals(composer.topNote())) {
+            currentNote = composer.prevNote(composer.prevNote(currentNote));
             output += currentNote + " ";
-            currentNote = scale.nextNote(currentNote);
+            currentNote = composer.nextNote(currentNote);
             output += currentNote + " ";
         }
 
-        int noteCompare = scale.compareNotes(currentNote, target);
+        int noteCompare = composer.compareNotes(currentNote, target);
         if (noteCompare < 0) {
-            output += scale.prevNote(currentNote) + " ";
+            output += composer.prevNote(currentNote) + " ";
             tempOptimism = 1;
         } else if (noteCompare > 0) {
-            output += scale.nextNote(currentNote) + " ";
+            output += composer.nextNote(currentNote) + " ";
             tempOptimism = -1;
         }
 
@@ -275,14 +275,14 @@ public class EARCompiler {
         //Note, optimism may be impossible if the target note is the highest/lowest
         //in this case, we should throw an exception
         if (tempOptimism < optimism) {
-            if (currentNote.equals(scale.topNote())) {
+            if (currentNote.equals(composer.topNote())) {
                 throw new RuntimeException("Impossible to be happy on top note");
             }
             output += moveLeft();
             output += moveRight();
         }
         if (tempOptimism > optimism) {
-            if (currentNote.equals(scale.bottomNote())) {
+            if (currentNote.equals(composer.bottomNote())) {
                 throw new RuntimeException("Impossible to be happy on bottom note");
             }
             output += moveRight();
