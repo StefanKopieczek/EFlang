@@ -13,35 +13,16 @@ import java.util.Stack;
  *
  */
 public class EARCompiler {
-	private static Note STARTING_NOTE = Note.c4;
-	private enum Note {
-		ab3, bb3, b3, c4, d4, eb4, f4, g4,
-		ab4, bb4, b4, c5, d5, eb5, f5, g5,
-		ab5, bb5, b5;
-
-		public Note getNext() {
-			if (ordinal()==Note.values().length-1) {
-				return Note.values()[0];
-			}
-			return Note.values()[ordinal() + 1];
-		}
-
-		public Note getPrev() {
-			if (ordinal()==0) {
-				return Note.values()[Note.values().length-1];
-			}
-			return Note.values()[ordinal() - 1];
-		}
-	}
-
 	private HashMap<String,EARInstruction> instructionSet;
 
+	private Scale scale = Scales.CMajorPentatonic;
+	private String startingNote = "c4";
 
 	private int p; //Cell pointer
-	private Note currentNote;
+	private String currentNote;
 	private int optimism;
 	private Stack<Integer> branchLocStack;
-	private Stack<Note> branchNoteStack;
+	private Stack<String> branchNoteStack;
 	private Stack<Integer> branchOptimismStack;
 
 	/**
@@ -58,13 +39,13 @@ public class EARCompiler {
 
 	public void resetState() {
 		p=0;
-		currentNote = STARTING_NOTE;
+		currentNote = startingNote;
 		optimism = 0;
 		instructionSet = getInstructionSet();
-		branchLocStack = new Stack<Integer>();
-		branchNoteStack = new Stack<Note>();
-		branchOptimismStack = new Stack<Integer>();
-		lineStartPositions = new ArrayList<Integer>();
+		branchLocStack = new Stack<>();
+		branchNoteStack = new Stack<>();
+		branchOptimismStack = new Stack<>();
+		lineStartPositions = new ArrayList<>();
 	}
 
 	private HashMap<String,EARInstruction> getInstructionSet() {
@@ -101,7 +82,7 @@ public class EARCompiler {
 		//Split into individual instructions
 		String[] instructions = EARCode.split("(\\r?\\n)+");
 
-		output += currentNote.toString()+" ";
+		output += currentNote + " ";
 
 		for (int i=0; i<instructions.length; i++) {
 			String compiledInstruction = "";
@@ -175,16 +156,19 @@ public class EARCompiler {
 		//Set optimisim
 		optimism = -1;
 
-		//Add correct notes to output code THIS CODE IS SHIT AND GROSS
-		output += currentNote.getPrev().toString()+" ";
-		if (currentNote.ordinal()<currentNote.getPrev().ordinal()) {
-			output += currentNote.getPrev().getPrev().toString()+" ";
-			output += currentNote.getPrev().getPrev().getPrev().toString()+" ";
-			currentNote = currentNote.getPrev().getPrev().getPrev();
-		} else {
-			currentNote = currentNote.getPrev();
+		// Attempt to move left.
+        String note = scale.prevNote(currentNote);
+		output += note + " ";
+		if (currentNote.equals(scale.bottomNote())) {
+			// Oops, we were already at the bottom, so we know we wrapped and actually moved right.
+			// Move left twice to compensate.
+			note = scale.prevNote(note);
+			output += note + " ";
+			note = scale.prevNote(note);
+			output += note + " ";
 		}
 
+		currentNote = note;
 		return output;
 	}
 
@@ -200,16 +184,19 @@ public class EARCompiler {
 		//Set optimisim
 		optimism = 1;
 
-		//Add correct notes to output code THIS CODE IS SHIT AND GROSS
-		output += currentNote.getNext().toString()+" ";
-		if (currentNote.ordinal()>currentNote.getNext().ordinal()) {
-			output += currentNote.getNext().getNext().toString()+" ";
-			output += currentNote.getNext().getNext().getNext().toString()+" ";
-			currentNote = currentNote.getNext().getNext().getNext();
-		} else {
-			currentNote = currentNote.getNext();
+		// Attempt to move right.
+        String note = scale.nextNote(currentNote);
+		output += note + " ";
+		if (currentNote.equals(scale.topNote())) {
+			// Oops, we were already at the top, so we know we wrapped and actually moved left.
+			// Move right twice to compensate.
+			note = scale.nextNote(note);
+			output += note + " ";
+			note = scale.nextNote(note);
+			output += note + " ";
 		}
 
+		currentNote = note;
 		return output;
 	}
 
@@ -223,7 +210,7 @@ public class EARCompiler {
 			output += moveLeft() + moveRight();
 		}
 		optimism = 1;
-		output += currentNote.toString()+" ";
+		output += currentNote + " ";
 		return output;
 	}
 
@@ -237,7 +224,7 @@ public class EARCompiler {
 			output += moveRight() + moveLeft();
 		}
 		optimism = -1;
-		output += currentNote.toString()+" ";
+		output += currentNote + " ";
 		return output;
 	}
 
@@ -247,36 +234,36 @@ public class EARCompiler {
 	 * @param target
 	 * @return
 	 */
-	private String changeNoteTo(Note target) {
+	private String changeNoteTo(String target) {
 		String output = "";
 		int tempOptimism = 0;
-		if (currentNote==target) {
+		if (currentNote.equals(target)) {
 			return output;
 		}
 		//Move note away from ends
-		if (currentNote.ordinal()==0) {
-			currentNote = currentNote.getNext().getNext();
-			output += currentNote.toString()+" ";
-			currentNote = currentNote.getPrev();
-			output += currentNote.toString()+" ";
+		if (currentNote.equals(scale.bottomNote())) {
+			currentNote = scale.nextNote(scale.nextNote(currentNote));
+			output += currentNote + " ";
+			currentNote = scale.prevNote(currentNote);
+			output += currentNote + " ";
 		}
-		if (currentNote.ordinal()==Note.values().length-1) {
-			currentNote = currentNote.getPrev().getPrev();
-			output += currentNote.toString()+" ";
-			currentNote = currentNote.getNext();
-			output += currentNote.toString()+" ";
+		if (currentNote.equals(scale.topNote())) {
+			currentNote = scale.prevNote(scale.prevNote(currentNote));
+			output += currentNote + " ";
+			currentNote = scale.nextNote(currentNote);
+			output += currentNote + " ";
 		}
 
-		if (currentNote.ordinal()<target.ordinal()) {
-			output += currentNote.getPrev().toString()+" ";
+		int noteCompare = scale.compareNotes(currentNote, target);
+		if (noteCompare < 0) {
+			output += scale.prevNote(currentNote) + " ";
 			tempOptimism = 1;
-		}
-		if (currentNote.ordinal()>target.ordinal()) {
-			output += currentNote.getNext().toString()+" ";
+		} else if (noteCompare > 0) {
+			output += scale.nextNote(currentNote) + " ";
 			tempOptimism = -1;
 		}
 
-		output += target.toString()+" ";
+		output += target + " ";
 		currentNote = target;
 
 		//Now we're at target, but may have changed the optimism
@@ -284,15 +271,15 @@ public class EARCompiler {
 		//Note, optimism may be impossible if the target note is the highest/lowest
 		//in this case, we should throw an exception
 		if (tempOptimism < optimism) {
-			if (currentNote.ordinal()==Note.values().length-1) {
-				//Throw Exception!!
+			if (currentNote.equals(scale.topNote())) {
+				throw new RuntimeException("Impossible to be happy on top note");
 			}
 			output += moveLeft();
 			output += moveRight();
 		}
 		if (tempOptimism > optimism) {
-			if (currentNote.ordinal()==0) {
-				//Throw Exception!!
+			if (currentNote.equals(scale.bottomNote())) {
+				throw new RuntimeException("Impossible to be happy on bottom note");
 			}
 			output += moveRight();
 			output += moveLeft();
@@ -465,7 +452,7 @@ public class EARCompiler {
 			}
 			//ensure on same note as start of loop
 			//(to ensure same behaviour in each loop)
-			Note branchEntryNote = branchNoteStack.pop();
+			String branchEntryNote = branchNoteStack.pop();
 			output += changeNoteTo(branchEntryNote);
 
 			//exit branch
