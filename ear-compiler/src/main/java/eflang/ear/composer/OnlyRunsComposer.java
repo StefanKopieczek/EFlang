@@ -2,6 +2,8 @@ package eflang.ear.composer;
 
 import eflang.ear.Scale;
 
+import java.util.List;
+
 public class OnlyRunsComposer extends AbstractScaleComposer {
 
     public OnlyRunsComposer(Scale scale) {
@@ -10,7 +12,8 @@ public class OnlyRunsComposer extends AbstractScaleComposer {
 
     @Override
     public String getStartingNode() {
-        return scale.getNoteAt(scale.size() / 2);
+        List<String> notes = scale.notes();
+        return notes.get(notes.size() / 2);
     }
 
     @Override

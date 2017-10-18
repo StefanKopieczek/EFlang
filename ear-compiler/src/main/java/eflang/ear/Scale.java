@@ -1,5 +1,6 @@
 package eflang.ear;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,11 +41,9 @@ public class Scale {
         return Integer.compare(notes.indexOf(left), notes.indexOf(right));
     }
 
-    public int size() {
-        return notes.size();
-    }
-
-    public String getNoteAt(int index) {
-        return notes.get(index);
+    public List<String> notes() {
+        List<String> copyNotes = new ArrayList<>();
+        copyNotes.addAll(notes);
+        return copyNotes;
     }
 }

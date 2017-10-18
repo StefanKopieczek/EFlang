@@ -1,13 +1,9 @@
 package eflang.ear;
 
 import eflang.ear.composer.Composer;
-import eflang.ear.composer.OnlyRunsComposer;
+import eflang.ear.composer.GeometricComposer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Compiler for the EAR language. <br/>
@@ -36,7 +32,7 @@ public class EARCompiler {
     private ArrayList<Integer> lineStartPositions;
 
     public EARCompiler() {
-        this(new OnlyRunsComposer(Scales.CMajor));
+        this(new GeometricComposer(Scales.CMajor));
     }
 
     public EARCompiler(Composer composer) {
@@ -164,11 +160,12 @@ public class EARCompiler {
         optimism = -1;
 
         // Attempt to move left.
-        String note = composer.prevNote(currentNote);
+        String note = composer.lowerNote(currentNote);
         output += note + " ";
         if (currentNote.equals(composer.bottomNote())) {
             // Oops, we were already at the bottom, so we know we wrapped and actually moved right.
             // Move left twice to compensate.
+            // Do it carefully by stepping, using lowerNote could fail if we hit the bottom the first time.
             note = composer.prevNote(note);
             output += note + " ";
             note = composer.prevNote(note);
@@ -192,11 +189,12 @@ public class EARCompiler {
         optimism = 1;
 
         // Attempt to move right.
-        String note = composer.nextNote(currentNote);
+        String note = composer.higherNote(currentNote);
         output += note + " ";
         if (currentNote.equals(composer.topNote())) {
             // Oops, we were already at the top, so we know we wrapped and actually moved left.
             // Move right twice to compensate.
+            // Do it carefully by stepping, using higherNote could fail if we hit the top the first time.
             note = composer.nextNote(note);
             output += note + " ";
             note = composer.nextNote(note);
@@ -278,18 +276,18 @@ public class EARCompiler {
         //Note, optimism may be impossible if the target note is the highest/lowest
         //in this case, we should throw an exception
         if (tempOptimism < optimism) {
-            if (currentNote.equals(composer.topNote())) {
-                throw new RuntimeException("Impossible to be happy on top note");
-            }
-            output += moveLeft();
-            output += moveRight();
-        }
-        if (tempOptimism > optimism) {
             if (currentNote.equals(composer.bottomNote())) {
                 throw new RuntimeException("Impossible to be happy on bottom note");
             }
-            output += moveRight();
-            output += moveLeft();
+            output += composer.prevNote(currentNote) + " ";
+            output += currentNote + " ";
+        }
+        if (tempOptimism > optimism) {
+            if (currentNote.equals(composer.topNote())) {
+                throw new RuntimeException("Impossible to be sad on top note");
+            }
+            output += composer.nextNote(currentNote) + " ";
+            output += currentNote + " ";
         }
 
         return output;
