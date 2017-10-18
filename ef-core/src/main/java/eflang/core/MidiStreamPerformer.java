@@ -66,7 +66,7 @@ class MidiStreamPerformer implements Performer {
     }
 
     @Override
-    public void changeInstrument(byte instrumentCode) {    	
+    public void changeInstrument(byte instrumentCode) {
         instrument = instrumentCode;
         mPlayer.stream("I" + String.valueOf(instrument) + " ");
     }
