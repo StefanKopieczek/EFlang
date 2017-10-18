@@ -1,4 +1,4 @@
-package eflang.ear;
+package eflang.ear.composer;
 
 public interface Composer {
     String getStartingNode();

@@ -1,5 +1,8 @@
 package eflang.ear;
 
+import eflang.ear.composer.Composer;
+import eflang.ear.composer.OnlyRunsComposer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

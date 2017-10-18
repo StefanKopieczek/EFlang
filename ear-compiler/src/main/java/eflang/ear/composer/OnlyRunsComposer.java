@@ -1,4 +1,6 @@
-package eflang.ear;
+package eflang.ear.composer;
+
+import eflang.ear.Scale;
 
 public class OnlyRunsComposer extends AbstractScaleComposer {
 

@@ -10,7 +10,7 @@ public class Scale {
         this.notes = Arrays.asList(notes);
     }
 
-    String nextNote(String note) {
+    public String nextNote(String note) {
         int index = notes.indexOf(note) + 1;
         if (index == notes.size()) {
             return notes.get(0);
@@ -19,7 +19,7 @@ public class Scale {
         }
     }
 
-    String prevNote(String note) {
+    public String prevNote(String note) {
         int index = notes.indexOf(note) - 1;
         if (index == -1) {
             return notes.get(notes.size() - 1);
@@ -28,23 +28,23 @@ public class Scale {
         }
     }
 
-    String topNote() {
+    public String topNote() {
         return notes.get(notes.size() - 1);
     }
 
-    String bottomNote() {
+    public String bottomNote() {
         return notes.get(0);
     }
 
-    int compareNotes(String left, String right) {
+    public int compareNotes(String left, String right) {
         return Integer.compare(notes.indexOf(left), notes.indexOf(right));
     }
 
-    int size() {
+    public int size() {
         return notes.size();
     }
 
-    String getNoteAt(int index) {
+    public String getNoteAt(int index) {
         return notes.get(index);
     }
 }
