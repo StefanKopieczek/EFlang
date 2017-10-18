@@ -39,4 +39,12 @@ public class Scale {
     int compareNotes(String left, String right) {
         return Integer.compare(notes.indexOf(left), notes.indexOf(right));
     }
+
+    int size() {
+        return notes.size();
+    }
+
+    String getNoteAt(int index) {
+        return notes.get(index);
+    }
 }

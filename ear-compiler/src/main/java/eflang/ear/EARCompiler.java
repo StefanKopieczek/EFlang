@@ -15,8 +15,7 @@ import java.util.Stack;
 public class EARCompiler {
 	private HashMap<String,EARInstruction> instructionSet;
 
-	private Scale scale = Scales.CMajorPentatonic;
-	private String startingNote = "c4";
+	private Scale scale;
 
 	private int p; //Cell pointer
 	private String currentNote;
@@ -34,12 +33,17 @@ public class EARCompiler {
 	private ArrayList<Integer> lineStartPositions;
 
 	public EARCompiler() {
+		this(Scales.CMajor);
+	}
+
+	public EARCompiler(Scale scale) {
+		this.scale = scale;
 		resetState();
 	}
 
 	public void resetState() {
 		p=0;
-		currentNote = startingNote;
+		currentNote = scale.getNoteAt(scale.size() / 2);
 		optimism = 0;
 		instructionSet = getInstructionSet();
 		branchLocStack = new Stack<>();

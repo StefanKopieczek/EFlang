@@ -1,28 +1,20 @@
 package eflang.vibe;
 
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
+import eflang.core.Parser;
+import eflang.ear.EARCompiler;
+import eflang.ear.EARException;
+import eflang.ear.Scale;
+import eflang.lobe.LOBECompiler;
+import eflang.lobe.LobeCompilationException;
+import eflang.vibe.MainFrame.ControlButton;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
-
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-
-import eflang.vibe.MainFrame.ControlButton;
-
-import eflang.lobe.LOBECompiler;
-import eflang.lobe.LobeCompilationException;
-import eflang.ear.EARCompiler;
-import eflang.ear.EARException;
-import eflang.core.Parser;
 
 /**
  * This class manages the behind-the-scenes action of the IDE.
@@ -595,6 +587,13 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
 		mInstrument = instrumentCode;
 				
 		mParser.setInstrument(instrumentCode);
+	}
+
+	/**
+	 * Sets the scale to write the music in.
+	 */
+	public void setScale(Scale scale) {
+		mEARCompiler = new EARCompiler(scale);
 	}
 	
 	/**

@@ -1,36 +1,19 @@
 package eflang.vibe;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import eflang.ear.Scale;
+import eflang.ear.Scales;
+import eflang.malleus.EfToAbcConverter;
+import eflang.malleus.Scribe;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JSplitPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import eflang.malleus.EfToAbcConverter;
-import eflang.malleus.Scribe;
 
 /**
  * The main application frame.
@@ -412,6 +395,24 @@ public class MainFrame extends JFrame {
 			mController.setInstrument(mCode);
 		}
 	}
+
+	/**
+	 * An item in the scale selector submenu (Options > Scale).
+	 */
+	private class ScaleItem extends JMenuItem implements ActionListener {
+		private Scale mScale;
+
+		public ScaleItem(String name, Scale scale) {
+			super(name);
+			addActionListener(this);
+			mScale = scale;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			mController.setScale(mScale);
+		}
+	}
       
     // FROM HERE ON IS UI CREATION BULLSHIT
     // BE CAREFUL
@@ -626,8 +627,15 @@ public class MainFrame extends JFrame {
 		instrumentsMenu.add(new InstrumentItem("Piano", 0));
 		instrumentsMenu.add(new InstrumentItem("Pizzicato Strings", 45));
 		instrumentsMenu.add(new InstrumentItem("Sitar", 104));
-		
-		optionsMenu.add(instrumentsMenu);		
+
+		// Build the Scale selector.
+		JMenu scaleMenu = new JMenu("Scale");
+		scaleMenu.add(new ScaleItem("CMajor", Scales.CMajor));
+		scaleMenu.add(new ScaleItem("CMinor", Scales.CMinor));
+		scaleMenu.add(new ScaleItem("CMajorPentatonic", Scales.CMajorPentatonic));
+
+		optionsMenu.add(instrumentsMenu);
+		optionsMenu.add(scaleMenu);
 		return optionsMenu;
 	}
 	
