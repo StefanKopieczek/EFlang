@@ -1,15 +1,15 @@
 package eflang.lobe;
 
 public enum Operator {
-	ADD('+'),
-	SUB('-'),
-	MUL('*'),
-	DIV('/');
-	
-	public char mSymbol;
+    ADD('+'),
+    SUB('-'),
+    MUL('*'),
+    DIV('/');
 
-	private Operator(char symbol) {
-		mSymbol = symbol;
-	}
-	
+    public char mSymbol;
+
+    private Operator(char symbol) {
+        mSymbol = symbol;
+    }
+
 }

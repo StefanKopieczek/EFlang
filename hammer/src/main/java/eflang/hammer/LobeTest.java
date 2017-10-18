@@ -11,26 +11,26 @@ import eflang.ear.EARCompiler;
  */
 public class LobeTest extends HammerTest {
 
-	public LobeTest(String name, String code) {
-		super(name, code);
-		LOBECompiler lobeCompiler = new LOBECompiler();
-		EARCompiler earCompiler = new EARCompiler();
+    public LobeTest(String name, String code) {
+        super(name, code);
+        LOBECompiler lobeCompiler = new LOBECompiler();
+        EARCompiler earCompiler = new EARCompiler();
 
-		try {
-			efCode = lobeCompiler.compile(efCode);
-		} catch (Exception e) {
-			failureMessage = "Failed to compile LOBE code. \n" + efCode;
-			setupFailed = true;
+        try {
+            efCode = lobeCompiler.compile(efCode);
+        } catch (Exception e) {
+            failureMessage = "Failed to compile LOBE code. \n" + efCode;
+            setupFailed = true;
                         return;
-		}
+        }
 
-		try {
-			efCode = earCompiler.compile(efCode);
-		} catch (Exception e) {
-			failureMessage = "Failed to compile EAR code. \n" + efCode;
-			setupFailed = true;
+        try {
+            efCode = earCompiler.compile(efCode);
+        } catch (Exception e) {
+            failureMessage = "Failed to compile EAR code. \n" + efCode;
+            setupFailed = true;
                         return;
-		}
-	}
+        }
+    }
 
 }

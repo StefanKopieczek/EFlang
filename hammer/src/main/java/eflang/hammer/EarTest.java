@@ -10,14 +10,14 @@ import eflang.ear.EARCompiler;
  */
 public class EarTest extends HammerTest {
 
-	public EarTest(String name, String code) {
-		super(name, code);
-		EARCompiler compiler = new EARCompiler();
-		try {
-			efCode = compiler.compile(efCode);
-		} catch (Exception e) {
-			failureMessage = "Failed to compile EAR code with error:\n" + e.getMessage();
-			setupFailed = true;
-		}
-	}
+    public EarTest(String name, String code) {
+        super(name, code);
+        EARCompiler compiler = new EARCompiler();
+        try {
+            efCode = compiler.compile(efCode);
+        } catch (Exception e) {
+            failureMessage = "Failed to compile EAR code with error:\n" + e.getMessage();
+            setupFailed = true;
+        }
+    }
 }
