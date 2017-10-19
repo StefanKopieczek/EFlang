@@ -100,6 +100,21 @@ public class HammerTest {
         return testPassed;
     }
 
+    public HammerTest giveInput(int input) {
+        mTasks.add(new InputTask(input));
+        return this;
+    }
+
+    public HammerTest expectOutput(int output) {
+        mTasks.add(new OutputTask(output));
+        return this;
+    }
+
+    public HammerTest reset() {
+        mTasks.add(new RestartTask());
+        return this;
+    }
+
     /**
      * Adds a task to the queue.
      * @param task - the task to add.
