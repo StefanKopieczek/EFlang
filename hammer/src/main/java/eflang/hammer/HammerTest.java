@@ -1,6 +1,7 @@
 package eflang.hammer;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 /**
  * A base ef test class.
@@ -11,7 +12,7 @@ public class HammerTest {
     /**
      * The earfuck code to use for this test.
      */
-    String efCode;
+    Supplier<String> codeSupplier;
 
     /**
      * The HammerFramework object to use to control the parser.
@@ -41,14 +42,14 @@ public class HammerTest {
      */
     String failureMessage = "";
 
-    public HammerTest(String name, String code, HammerFramework hammer) {
-        efCode = code;
+    public HammerTest(String name, Supplier<String> code, HammerFramework hammer) {
+        codeSupplier = code;
         mHammer = hammer;
         mTasks = new ArrayList<>();
         mName = name;
     }
 
-    public HammerTest(String name, String code) {
+    public HammerTest(String name, Supplier<String> code) {
         this(name, code, new HammerFramework());
     }
 
@@ -56,24 +57,19 @@ public class HammerTest {
         return mName;
     }
 
+    protected void initialize() {
+        // Override if initialization steps are necessary.
+    }
+
     /**
      * Runs the test.
      * @return Whether the test passed or not (true/false)
      */
-    public boolean run() {
-        boolean testPassed = true;
-
-        if (setupFailed) {
-            // We failed to set up the test, so return failure.
-            HammerLog.error(
-                    "== Test: " + mName + " failed to prepare ==");
-            HammerLog.error(failureMessage + "\n");
-            return false;
-        }
-
+    public void run() {
         HammerLog.info("== Running test: " + mName + " ==");
 
         // Set the piece playing.
+        String efCode = codeSupplier.get();
         mHammer.setPiece(efCode);
         mHammer.startPlaying();
 
@@ -93,11 +89,7 @@ public class HammerTest {
         mHammer.tearDown();
 
         // If we got this far, the test must have passed
-        if (testPassed) {
-            HammerLog.info("Test Passed!");
-        }
-        HammerLog.debug("");
-        return testPassed;
+        HammerLog.info("Test Passed!");
     }
 
     public HammerTest giveInput(int input) {

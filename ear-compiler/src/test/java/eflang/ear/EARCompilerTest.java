@@ -1,17 +1,22 @@
 package eflang.ear;
 
-import eflang.hammer.EarTest;
+import eflang.hammer.EarCodeSupplier;
+import eflang.hammer.HammerTest;
 import org.junit.jupiter.api.Test;
 
 class EARCompilerTest {
 
     @Test
     void testMov() {
-        new EarTest("Basic MOV test", code(
+        earTest("Basic MOV test", code(
                 "MOV 5 0",
-                "OUT @0"))
-                .expectOutput(4)
+                "OUT 0"))
+                .expectOutput(5)
                 .run();
+    }
+
+    private HammerTest earTest(String name, String code) {
+        return new HammerTest(name, new EarCodeSupplier(code));
     }
 
     private String code(CharSequence... lines) {
