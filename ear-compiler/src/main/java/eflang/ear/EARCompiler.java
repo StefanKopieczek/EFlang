@@ -160,9 +160,9 @@ public class EARCompiler {
         optimism = -1;
 
         if (currentNote.equals(composer.bottomNote())) {
-            // Oops, we were already at the bottom, so jump up to the top and then move left to compensate.
+            // Oops, we were already at the bottom, so jump up at least 2 and then move left to compensate.
             // Do it carefully by stepping, using lowerNote could fail if we hit the bottom.
-            currentNote = composer.topNote();
+            currentNote = composer.higherNote(composer.nextNote(currentNote));
             output += currentNote + " ";
             currentNote = composer.prevNote(currentNote);
             output += currentNote + " ";
@@ -188,7 +188,7 @@ public class EARCompiler {
         if (currentNote.equals(composer.topNote())) {
             // Oops, we were already at the top, so jump down to the bottom and then move right to compensate.
             // Do it carefully by stepping, using higherNote could fail if we hit the bottom.
-            currentNote = composer.bottomNote();
+            currentNote = composer.lowerNote(composer.prevNote(currentNote));
             output += currentNote + " ";
             currentNote = composer.nextNote(currentNote);
             output += currentNote + " ";
