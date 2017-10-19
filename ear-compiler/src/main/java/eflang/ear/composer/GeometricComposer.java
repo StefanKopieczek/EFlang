@@ -36,8 +36,7 @@ public class GeometricComposer extends AbstractScaleComposer {
         List<String> higherNotes = notes.subList(index + 1, notes.size());
 
         if (higherNotes.isEmpty()) {
-            // Legacy behavior requires we wrap when we hit the top.
-            return scale.bottomNote();
+            throw new RuntimeException("Already at the highest note");
         }
 
         return selectNote(higherNotes);
@@ -51,8 +50,7 @@ public class GeometricComposer extends AbstractScaleComposer {
         List<String> lowerNotes = notes.subList(0, index);
 
         if (lowerNotes.isEmpty()) {
-            // Legacy behavior requires we wrap when we hit the bottom.
-            return scale.topNote();
+            throw new RuntimeException("Already at the lowest note");
         }
 
         // Reverse order so we select nearest notes with higher probability.

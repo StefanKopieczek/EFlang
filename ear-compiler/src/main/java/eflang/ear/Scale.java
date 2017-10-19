@@ -14,7 +14,7 @@ public class Scale {
     public String nextNote(String note) {
         int index = notes.indexOf(note) + 1;
         if (index == notes.size()) {
-            return notes.get(0);
+            throw new RuntimeException("This is the highest note");
         } else {
             return notes.get(index);
         }
@@ -23,7 +23,7 @@ public class Scale {
     public String prevNote(String note) {
         int index = notes.indexOf(note) - 1;
         if (index == -1) {
-            return notes.get(notes.size() - 1);
+            throw new RuntimeException("This is the lowest note");
         } else {
             return notes.get(index);
         }
