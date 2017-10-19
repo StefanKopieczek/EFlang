@@ -4,6 +4,8 @@ import eflang.core.Parser;
 import eflang.ear.EARCompiler;
 import eflang.ear.EARException;
 import eflang.ear.Scale;
+import eflang.ear.Scales;
+import eflang.ear.composer.GeometricComposer;
 import eflang.lobe.LOBECompiler;
 import eflang.lobe.LobeCompilationException;
 import eflang.vibe.MainFrame.ControlButton;
@@ -129,7 +131,7 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      */
     public VibeController(MainFrame frame) {
         mFrame = frame;
-        mEARCompiler = new EARCompiler();
+        mEARCompiler = new EARCompiler(new GeometricComposer(Scales.CMajor));
         mLOBECompiler = new LOBECompiler();
         mOpenFilePath = null;
         mParser = new Parser(mInstrument);
@@ -583,7 +585,7 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      * Sets the scale to write the music in.
      */
     public void setScale(Scale scale) {
-        mEARCompiler = new EARCompiler(scale);
+        mEARCompiler = new EARCompiler(new GeometricComposer(scale));
     }
 
     /**

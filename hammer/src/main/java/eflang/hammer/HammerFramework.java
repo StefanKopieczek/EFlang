@@ -39,8 +39,8 @@ public class HammerFramework implements IoManager {
     public HammerFramework() {
         mParser = new Parser(new NullPerformer());
         mParser.setIoManager(this);
-        mOutput = new SynchronousQueue<Integer>();
-        mInput = new SynchronousQueue<Integer>();
+        mOutput = new SynchronousQueue<>();
+        mInput = new SynchronousQueue<>();
     }
 
     public void resetParser() {

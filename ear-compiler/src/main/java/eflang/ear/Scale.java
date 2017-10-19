@@ -1,5 +1,6 @@
 package eflang.ear;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,41 +11,39 @@ public class Scale {
         this.notes = Arrays.asList(notes);
     }
 
-    String nextNote(String note) {
+    public String nextNote(String note) {
         int index = notes.indexOf(note) + 1;
         if (index == notes.size()) {
-            return notes.get(0);
+            throw new RuntimeException("This is the highest note");
         } else {
             return notes.get(index);
         }
     }
 
-    String prevNote(String note) {
+    public String prevNote(String note) {
         int index = notes.indexOf(note) - 1;
         if (index == -1) {
-            return notes.get(notes.size() - 1);
+            throw new RuntimeException("This is the lowest note");
         } else {
             return notes.get(index);
         }
     }
 
-    String topNote() {
+    public String topNote() {
         return notes.get(notes.size() - 1);
     }
 
-    String bottomNote() {
+    public String bottomNote() {
         return notes.get(0);
     }
 
-    int compareNotes(String left, String right) {
+    public int compareNotes(String left, String right) {
         return Integer.compare(notes.indexOf(left), notes.indexOf(right));
     }
 
-    int size() {
-        return notes.size();
-    }
-
-    String getNoteAt(int index) {
-        return notes.get(index);
+    public List<String> notes() {
+        List<String> copyNotes = new ArrayList<>();
+        copyNotes.addAll(notes);
+        return copyNotes;
     }
 }
