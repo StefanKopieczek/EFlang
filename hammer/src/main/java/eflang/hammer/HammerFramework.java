@@ -190,22 +190,11 @@ public class HammerFramework implements IoManager {
      * @param condition - A boolean condition which should be true.
      * @return Whether the assertion was true/false.
      */
-    public boolean hammerAssert(String descriptor, boolean condition) {
+    public boolean hammerAssert(String descriptor, boolean condition) throws HammerException {
         if (!condition) {
-            HammerLog.error("Assertion Failed: " + descriptor);
-            printStackTrace();
+            throw new HammerException("Assertion Failed: " + descriptor);
         }
         return condition;
-    }
-
-    private void printStackTrace() {
-        StackTraceElement[] stack = (new Throwable()).getStackTrace();
-
-        HammerLog.error("Call Stack:");
-        for (StackTraceElement ele : stack) {
-            HammerLog.error(ele.toString());
-        }
-        HammerLog.error("");
     }
 
     /**

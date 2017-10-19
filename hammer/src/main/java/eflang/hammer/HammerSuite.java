@@ -39,12 +39,13 @@ public class HammerSuite {
         HammerLog.setPrintLevel(HammerLog.LogLevel.NONE);
 
         for (HammerTest test : mTests) {
-            if (test.run()) {
+            try {
+                test.run();
                 System.out.print('.');
-            }
-            else {
+            } catch (Exception e) {
                 System.out.print('F');
                 failedTests.add(test);
+                HammerLog.exception(e);
             }
         }
 

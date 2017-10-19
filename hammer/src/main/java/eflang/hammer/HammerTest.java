@@ -1,7 +1,6 @@
 package eflang.hammer;
 
 import java.util.ArrayList;
-import java.io.IOException;
 
 /**
  * A base ef test class.
@@ -83,10 +82,11 @@ public class HammerTest {
         // If it fails (i.e. the output doesn't match expected) return
         // failure.
         for (TestTask task : mTasks) {
-            if (!task.execute(mHammer)) {
+            try {
+                task.execute(mHammer);
+            } catch (Exception e) {
                 HammerLog.info("Test Failed!");
-                testPassed = false;
-                break;
+                throw new HammerException("Test failed", e);
             }
         }
 
@@ -129,7 +129,7 @@ public class HammerTest {
      *
      */
     public interface TestTask {
-        boolean execute(HammerFramework hammer);
+        void execute(HammerFramework hammer) throws Exception;
     }
 
     /**
@@ -146,18 +146,12 @@ public class HammerTest {
             this.expected = expected;
         }
 
-        public boolean execute(HammerFramework hammer) {
-            try {
-                int output = hammer.waitAndGetOutput();
-                return hammer.hammerAssert(
-                        "Expected: " + String.valueOf(expected) +
-                        "  Got: " + String.valueOf(output), 
-                        output == expected);
-            }
-            catch (IOException e) {
-                HammerLog.error(e.getMessage());
-                return false;
-            }
+        public void execute(HammerFramework hammer) throws Exception {
+            int output = hammer.waitAndGetOutput();
+            hammer.hammerAssert(
+                    "Expected: " + String.valueOf(expected) +
+                    "  Got: " + String.valueOf(output),
+                    output == expected);
         }
     }
 
@@ -173,14 +167,8 @@ public class HammerTest {
             this.value = value;
         }
 
-        public boolean execute(HammerFramework hammer) {
-            try {
-                hammer.waitAndSendInput(value);
-            } catch (IOException e) {
-                HammerLog.error(e.getMessage());
-                return false;
-            }
-            return true;
+        public void execute(HammerFramework hammer) throws Exception{
+            hammer.waitAndSendInput(value);
         }
     }
 
@@ -194,11 +182,10 @@ public class HammerTest {
         RestartTask() {
         }
 
-        public boolean execute(HammerFramework hammer) {
+        public void execute(HammerFramework hammer) {
             hammer.tearDown();
             hammer.resetParser();
             hammer.startPlaying();
-            return true;
         }
     }
 }
