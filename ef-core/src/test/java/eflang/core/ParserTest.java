@@ -35,4 +35,11 @@ class ParserTest {
                 .expectOutput(12)
                 .run();
     }
+
+    @Test
+    void testSkipLoop() {
+        new HammerTest("Loop gets skipped if initial cell is 0", "c4 d4 ( d4 d4 d4 d4 ) r")
+                .expectOutput(0)
+                .run();
+    }
 }
