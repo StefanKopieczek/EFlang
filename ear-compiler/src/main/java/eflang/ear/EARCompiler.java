@@ -770,17 +770,7 @@ public class EARCompiler {
     private EARInstruction MOV = new EARInstruction(
             "MOV\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
         public String compile(String[] args) {
-            StringBuilder output = new StringBuilder();
-
-            //Zero all target cells
-            for (int i=1; i<args.length; i++) {
-                output.append(ZERO.compile(new String[]{args[i]}));
-            }
-
-            //Move the cell to be copied to the working cell & all targets
-            output.append(ADD.compile(args));
-
-            return output.toString();
+            return compileOperation(new Move(), parseArgs(args));
         }
     };
 }
