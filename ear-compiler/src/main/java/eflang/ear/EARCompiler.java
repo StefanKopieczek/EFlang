@@ -2,9 +2,7 @@ package eflang.ear;
 
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
-import eflang.ear.operation.Goto;
-import eflang.ear.operation.Operation;
-import eflang.ear.operation.Zero;
+import eflang.ear.operation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -377,13 +375,7 @@ public class EARCompiler {
                 output.append(ensureSad());
                 break;
 
-            case INPUT:
-                output.append(ensureSad());
-                output.append("r ");
-                break;
-
-            case OUTPUT:
-                output.append(ensureHappy());
+            case REST:
                 output.append("r ");
                 break;
         }
@@ -442,19 +434,7 @@ public class EARCompiler {
      */
     private EARInstruction IN = new EARInstruction("IN\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
-            String output = "";
-            if (args.length!=0){
-                //goto cell
-                output += GOTO.compile(args);
-            }
-
-            //ensure pessimism
-            output += ensureSad();
-
-            //take input
-            output += "r ";
-
-            return output;
+            return compileOperation(new Input(), parseArgs(args));
         }
     };
 
@@ -465,19 +445,7 @@ public class EARCompiler {
      */
     private EARInstruction OUT = new EARInstruction("OUT\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
-            String output = "";
-            if (args.length!=0){
-                //goto cell
-                output += GOTO.compile(args);
-            }
-
-            //ensure optimism
-            output += ensureHappy();
-
-            //give output
-            output += "r ";
-
-            return output;
+            return compileOperation(new Output(), parseArgs(args));
         }
     };
 
