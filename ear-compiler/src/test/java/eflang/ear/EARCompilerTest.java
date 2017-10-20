@@ -172,6 +172,20 @@ class EARCompilerTest {
                 .run();
     }
 
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testComments(Composer composer) {
+        earTest("Comments", composer, code(
+                "// This is a test.",
+                "MOV 5 1",
+                "// that comments don't",
+                "// break the code",
+                "OUT 1",
+                "// good luck!"))
+                .expectOutput(5)
+                .run();
+    }
+
     private HammerTest earTest(String name, Composer composer, String code) {
         return new HammerTest(name, new EarCodeSupplier(code, composer));
     }
