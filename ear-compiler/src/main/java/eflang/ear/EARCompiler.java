@@ -457,20 +457,7 @@ public class EARCompiler {
      */
     private EARInstruction WHILE = new EARInstruction("WHILE\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
-            String output = "";
-            if (args.length!=0){
-                //goto cell
-                output += GOTO.compile(args);
-            }
-
-            output += "( ";
-
-            //Store where we were when we came in
-            branchLocStack.push(p);
-            branchNoteStack.push(currentNote);
-            branchOptimismStack.push(optimism);
-
-            return output;
+            return compileOperation(new While(), parseArgs(args));
         }
     };
 
@@ -482,25 +469,7 @@ public class EARCompiler {
      */
     private EARInstruction ENDWHILE = new EARInstruction("ENDWHILE") {
         public String compile(String[] args) {
-            String output = "";
-            int branchExitPoint = branchLocStack.pop();
-
-            //return to branch exit point
-            output += GOTO.compile(new String[]{String.valueOf(branchExitPoint)});
-
-            //ensure optimism same as start of loop
-            int branchEntryOptimism = branchOptimismStack.pop();
-            output += setOptimism(branchEntryOptimism);
-
-            //ensure on same note as start of loop
-            //(to ensure same behaviour in each loop)
-            String branchEntryNote = branchNoteStack.pop();
-            output += changeNoteTo(branchEntryNote);
-
-            //exit branch
-            output += ") ";
-
-            return output;
+            return compileOperation(new EndWhile(), parseArgs(args));
         }
     };
 
