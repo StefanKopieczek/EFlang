@@ -39,42 +39,39 @@ public class Divide implements Operation {
             // Now do the division.
             instructions.addAll(cellDivideCell(
                     numerator.getValue(), denominator.getValue(), tgt.getValue(),
-                    flag.getValue(), w2.getValue(), w3.getValue(), w4.getValue(), w5.getValue()));
+                    w2.getValue(), w3.getValue(), w4.getValue(), w5.getValue()));
 
             return instructions;
         }
     }
 
     private List<Instruction> cellDivideCell(
-            int numerator, int denominator, int tgt, int flag, int w2, int w3, int w4, int w5) {
+            int numerator, int denominator, int tgt, int denominator_backup, int hitZeroFlag, int w4, int w5) {
         List<Instruction> instructions = new ArrayList<>();
 
         // Zero the target cell.
         instructions.addAll((new Zero()).compile(Argument.constant(tgt)));
 
         // Zero all working cells.
-        instructions.addAll((new Zero()).compile(Argument.constant(w2)));
-        instructions.addAll((new Zero()).compile(Argument.constant(w3)));
+        instructions.addAll((new Zero()).compile(Argument.constant(denominator_backup)));
+        instructions.addAll((new Zero()).compile(Argument.constant(hitZeroFlag)));
         instructions.addAll((new Zero()).compile(Argument.constant(w4)));
         instructions.addAll((new Zero()).compile(Argument.constant(w5)));
 
-        // Set flag which will tell us if one number hits 0.
-        instructions.addAll((new Move()).compile(Argument.constant(1), Argument.constant(flag)));
-
-        // Store denominator in w2.
+        // Store denominator in denominator_backup.
         instructions.addAll((new Copy()).compile(
                 Argument.cell(denominator),
-                Argument.constant(w2),
+                Argument.constant(denominator_backup),
                 Argument.constant(w4)
         ));
 
         // While numerator not 0.
         instructions.addAll((new While()).compile(Argument.cell(numerator)));
 
-        // Using w3 as the flag.  Think original flag is unused.
-        instructions.addAll((new Move()).compile(Argument.constant(1), Argument.constant(w3)));
+        // Keep a flag which will tell us if one of the cells hits 0 so we can break the loop without going negative.
+        instructions.addAll((new Move()).compile(Argument.constant(1), Argument.constant(hitZeroFlag)));
 
-        instructions.addAll((new While()).compile(Argument.cell(w3)));
+        instructions.addAll((new While()).compile(Argument.cell(hitZeroFlag)));
 
         // Subtract one from each.
         instructions.addAll((new Subtract()).compile(
@@ -97,9 +94,9 @@ public class Divide implements Operation {
         instructions.addAll((new Zero()).compile(Argument.cell(w4)));
         instructions.addAll((new EndWhile()).compile());
 
-        // This loop uses that to switch off the flag in w3 only if the numerator was 0.
+        // This loop uses that to switch off the hitZeroFlag only if the numerator was 0.
         instructions.addAll((new While()).compile(Argument.cell(w5)));
-        instructions.addAll((new Zero()).compile(Argument.cell(w3)));
+        instructions.addAll((new Zero()).compile(Argument.cell(hitZeroFlag)));
         instructions.addAll((new Zero()).compile(Argument.cell(w5)));
         instructions.addAll((new EndWhile()).compile());
 
@@ -119,11 +116,11 @@ public class Divide implements Operation {
 
         // This loop uses that to set the flag, increment the answer and reset the denominator if the numerator was 0.
         instructions.addAll((new While()).compile(Argument.cell(w5)));
-        instructions.addAll((new Zero()).compile(Argument.cell(w3)));
+        instructions.addAll((new Zero()).compile(Argument.cell(hitZeroFlag)));
         instructions.addAll((new Zero()).compile(Argument.cell(w5)));
-        instructions.addAll((new Add()).compile(Argument.constant(1), Argument.constant(tgt )));
+        instructions.addAll((new Add()).compile(Argument.constant(1), Argument.constant(tgt)));
         instructions.addAll((new Copy()).compile(
-                Argument.cell(w2),
+                Argument.cell(denominator_backup),
                 Argument.constant(denominator),
                 Argument.constant(w4)
         ));
