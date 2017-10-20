@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
  *
  */
 public class EARCompiler {
-    private HashMap<String,EARInstruction> instructionSet;
-
     private Composer composer;
 
     private int p; //Cell pointer
@@ -43,36 +41,18 @@ public class EARCompiler {
     }
 
     private void resetState() {
-        p=0;
+        p = 0;
         currentNote = composer.getStartingNode();
         optimism = 0;
-        instructionSet = getInstructionSet();
         branchLocStack = new Stack<>();
         branchNoteStack = new Stack<>();
         branchOptimismStack = new Stack<>();
         lineStartPositions = new ArrayList<>();
     }
 
-    private HashMap<String,EARInstruction> getInstructionSet() {
-        HashMap<String,EARInstruction> instructions = new HashMap<>();
-        instructions.put("GOTO", GOTO);
-        instructions.put("IN", IN);
-        instructions.put("OUT", OUT);
-        instructions.put("ADD", ADD);
-        instructions.put("SUB", SUB);
-        instructions.put("MUL", MUL);
-        instructions.put("DIV", DIV);
-        instructions.put("WHILE", WHILE);
-        instructions.put("ENDWHILE", ENDWHILE);
-        instructions.put("ZERO", ZERO);
-        instructions.put("COPY",COPY);
-        instructions.put("MOV",MOV);
-
-        return instructions;
-    }
-
     /**
      * Compiles provided EARCode into an EF program
+     *
      * @param EARCode full program code.
      * @return String containing EF program
      */
@@ -81,7 +61,7 @@ public class EARCompiler {
         StringBuilder output = new StringBuilder();
 
         //Discard comments (OLD COMMENT STYLE = "\\([^\\)]*\\)")
-        EARCode = EARCode.replaceAll("//.*\\n","\n");
+        EARCode = EARCode.replaceAll("//.*\\n", "\n");
 
         //Split into individual instructions
         String[] instructions = EARCode.split("(\\r?\\n)+");
@@ -92,7 +72,7 @@ public class EARCompiler {
         output.append(currentNote);
         output.append(" ");
 
-        for (int i=0; i<instructions.length; i++) {
+        for (int i = 0; i < instructions.length; i++) {
             String instruction = instructions[i].replaceAll(" +", " ");
             instruction = instruction.replaceAll("^ +", "");
             if (instruction.equals("")) {
@@ -118,8 +98,10 @@ public class EARCompiler {
     }
 
     //Some convenience methods, not accessible to the EAR programmer directly
+
     /**
      * Safely moves the pointer one to the left.
+     *
      * @return The EF code to make that happen.
      */
     private String moveLeft() {
@@ -146,6 +128,7 @@ public class EARCompiler {
 
     /**
      * Safely moves the pointer one to the right.
+     *
      * @return The EF code to make that happen.
      */
     private String moveRight() {
@@ -172,10 +155,10 @@ public class EARCompiler {
 
     private String goTo(int cell) {
         StringBuilder output = new StringBuilder();
-        while (p<cell) {
+        while (p < cell) {
             output.append(moveRight());
         }
-        while (p>cell) {
+        while (p > cell) {
             output.append(moveLeft());
         }
         return output.toString();
@@ -211,6 +194,7 @@ public class EARCompiler {
 
     /**
      * Safely adds one to current cell
+     *
      * @return The EF code to make it happen
      */
     private String increment() {
@@ -222,6 +206,7 @@ public class EARCompiler {
 
     /**
      * Safely adds one to current cell
+     *
      * @return The EF code to make it happen
      */
     private String decrement() {
@@ -234,6 +219,7 @@ public class EARCompiler {
     /**
      * Changes current note to specified target note
      * without changing the pointer/optimism
+     *
      * @param target note to change to
      * @return compiled EF code
      */
@@ -283,27 +269,6 @@ public class EARCompiler {
         return output;
     }
 
-    public class EARInstruction{
-        private String signature;
-
-        EARInstruction(String sig) {
-            signature = sig;
-        }
-
-        /**
-         * Checks if the given arg string is of the correct signature.
-         * @param args arg string to check
-         * @return True/False
-         */
-        boolean checkArgs(String args) {
-            return args.matches(signature);
-        }
-
-        public String compile(String[] args){
-            return "";
-        }
-    }
-
     // Compile from intermediate instructions.
     private String compileInstruction(Instruction instruction) {
         StringBuilder output = new StringBuilder();
@@ -349,13 +314,6 @@ public class EARCompiler {
                 break;
         }
         return output.toString();
-    }
-
-    private String compileOperation(Operation op, List<Argument> args) {
-        return String.join(" ",
-                op.compile(args).stream()
-                        .map(instruction -> compileInstruction(instruction))
-                        .collect(Collectors.toList()));
     }
 
     private String compileCommand(Command cmd) {
@@ -418,171 +376,4 @@ public class EARCompiler {
                 throw new RuntimeException("Unknown opCode: " + opCode);
         }
     }
-
-    //Defines all the instructions
-
-    /**
-     * Moves the pointer to specified cell.
-     * e.g.
-     * GOTO 5;
-     */
-    private EARInstruction GOTO = new EARInstruction("GOTO\\s+-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Goto(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Resets target cell to zero
-     * e.g.
-     * ZERO 5;
-     */
-    private EARInstruction ZERO = new EARInstruction("ZERO\\s+-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Zero(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Takes input to target cell
-     * e.g.
-     * IN 5;
-     */
-    private EARInstruction IN = new EARInstruction("IN\\s+-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Input(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Outputs target cell.
-     * e.g.
-     * OUT 5;
-     */
-    private EARInstruction OUT = new EARInstruction("OUT\\s+-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Output(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Begins a loop conditional on the target cell.
-     * Should be matched with an WHILE
-     * e.g.
-     * WHILE 5;
-     */
-    private EARInstruction WHILE = new EARInstruction("WHILE\\s+-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new While(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Returns to start of loop if conditioned cell is non-0
-     * Conditioned cell chosen by previous maching IF.
-     * e.g.
-     * REPIF;
-     */
-    private EARInstruction ENDWHILE = new EARInstruction("ENDWHILE") {
-        public String compile(String[] args) {
-            return compileOperation(new EndWhile(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Adds the value of the first argument (use @ for a pointer)
-     * to the cells given by the remaining arguments (as many as you like)
-     * THE SUMMAND IS DESTROYED (zeroed)
-     * e.g.
-     * ADD @5 2 3 4;
-     * Adds the value in cell 5 to cells 2, 3 and 4.
-     */
-    private EARInstruction ADD = new EARInstruction(
-            "ADD\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Add(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Subtracts the value of the first argument (use @ for a pointer)
-     * from the cells given by the remaining arguments (as many as you like)
-     * THE SUBTRACTAND IS DESTROYED (zeroed)
-     * e.g.
-     * SUB @5 2 3 4;
-     * Subtracts the value in cell 5 from cells 2, 3 and 4.
-     */
-    private EARInstruction SUB = new EARInstruction(
-            "SUB\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Subtract(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Multiplies two values into the given cell.
-     * The final argument specifies a working cell
-     * THE TWO MULTIPLICANDS ARE DESTROYED (zeroed).
-     * THE WORKING CELL IS NOT ZEROED
-     * e.g.
-     * MUL @5 @3 1 0
-     * Multiplies cell 5 with cell 3, stores the answer in cell 1,
-     * and uses cell 0 for working.
-     */
-    private EARInstruction MUL = new EARInstruction(
-            "MUL\\s+((@|@-)?\\d+\\s*){2}-?\\d+\\s+-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Multiply(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Divides the first argument by the second, and puts the result
-     * in the cell specified by the third argument.
-     * The final arguments specify working cells (6 in total)
-     * THE TWO DIVISANDS ARE DESTROYED (zeroed).
-     * By an awesome coincidence, the numerator will be left as the remainder.
-     * THE WORKING CELLS ARE NOT ZEROED
-     * e.g.
-     * DIV @5 @3 1 0 2 4 6 7
-     * Divides cell 5 by cell 3, stores the answer in cell 1,
-     * and uses cells 0, 2, 4, 6 and 7 for working.
-     */
-    private EARInstruction DIV = new EARInstruction(
-            "DIV\\s+((@|@-)?\\d+\\s*){2}(-?\\d+\\s+){6}-?\\d+") {
-        public String compile(String[] args) {
-            return compileOperation(new Divide(), parseArgs(args));
-        }
-    };
-
-
-    /**
-     * Copies one cell into all the given targets.
-     * Uses the final argument as a working cell.
-     * Note: Working cell is not used if value is absolute.
-     * DOES NOT DESTROY THE ORIGINAL
-     * e.g.
-     * COPY @2 3 4 5;
-     * Copies cell 2 into cells 3 & 4, using cell 5 as working space.
-     */
-    private EARInstruction COPY = new EARInstruction(
-            "COPY\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)+-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Copy(), parseArgs(args));
-        }
-    };
-
-    /**
-     * Moves one cell into all the given targets.
-     * DESTROYS ORIGINAL
-     * e.g.
-     * MOV @2 3 4;
-     * Moves cell 2 into cells 3 & 4.
-     */
-    private EARInstruction MOV = new EARInstruction(
-            "MOV\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
-        public String compile(String[] args) {
-            return compileOperation(new Move(), parseArgs(args));
-        }
-    };
 }
