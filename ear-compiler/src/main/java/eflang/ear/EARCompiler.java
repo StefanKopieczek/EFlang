@@ -61,27 +61,18 @@ public class EARCompiler {
         resetState();
         List<String> output = new ArrayList<>();
 
-        //Discard comments (OLD COMMENT STYLE = "\\([^\\)]*\\)")
-        EARCode = EARCode.replaceAll("//.*\\n", "\n");
-
-        //Split into individual instructions
-        String[] instructions = EARCode.split("(\\r?\\n)+");
-
+        List<Command> commands = EARParser.parse(EARCode);
         output.add(currentNote);
 
-        for (int i = 0; i < instructions.length; i++) {
+        commands.forEach(cmd -> {
             lineStartPositions.add(output.size());
+            List<String> notes = cmd.compile().stream()
+                    .map(this::compileInstruction)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
 
-            String instruction = instructions[i].replaceAll(" +", " ");
-            instruction = instruction.replaceAll("^ +", "");
-            if (instruction.equals("")) {
-                continue;
-            }
-
-            Command cmd = EARParser.parseLine(instruction);
-            List<String> notes = compileCommand(cmd);
             output.addAll(notes);
-        }
+        });
 
         return String.join(" ", output);
     }
@@ -131,13 +122,6 @@ public class EARCompiler {
                 break;
         }
         return output;
-    }
-
-    private List<String> compileCommand(Command cmd) {
-        return cmd.getOperation().compile(cmd.getArguments()).stream()
-                        .map(this::compileInstruction)
-                        .flatMap(List::stream)
-                        .collect(Collectors.toList());
     }
 
     public ArrayList<Integer> getCommandStartPositions() {
