@@ -403,6 +403,46 @@ public class EARCompiler {
         }
     }
 
+    private static Command parseLine(String line) {
+        List<String> tokens = Arrays.asList(line.split(" "));
+        List<Argument> args = tokens.subList(1, tokens.size()).stream()
+                .map(EARCompiler::parseArg)
+                .collect(Collectors.toList());
+
+        return Command.of(lookupOperation(tokens.get(0)), args);
+    }
+
+    private static Operation lookupOperation(String opCode) {
+        switch (opCode) {
+            case "ADD":
+                return new Add();
+            case "COPY":
+                return new Copy();
+            case "DIV":
+                return new Divide();
+            case "ENDWHILE":
+                return new EndWhile();
+            case "GOTO":
+                return new Goto();
+            case "IN":
+                return new Input();
+            case "MOV":
+                return new Move();
+            case "MUL":
+                return new Multiply();
+            case "OUT":
+                return new Output();
+            case "SUB":
+                return new Subtract();
+            case "WHILE":
+                return new While();
+            case "ZERO":
+                return new Zero();
+            default:
+                throw new RuntimeException("Unknown opCode: " + opCode);
+        }
+    }
+
     //Defines all the instructions
 
     /**
