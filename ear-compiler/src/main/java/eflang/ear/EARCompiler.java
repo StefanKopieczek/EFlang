@@ -199,16 +199,41 @@ public class EARCompiler {
         return output;
     }
 
+    private String ensureHappy() {
+        return setOptimism(1);
+    }
+
+    private String ensureSad() {
+        return setOptimism(-1);
+    }
+
+    /**
+     * Set optimism without changing pointer location.
+     * Note may change.
+     */
+    private String setOptimism(int targetOptimism) {
+        String output = "";
+
+        if (optimism < targetOptimism) {
+            // Need to get happy.
+            output += moveLeft() + moveRight() + " ";
+        }
+
+        if (optimism > targetOptimism) {
+            // Need to get sad.
+            output += moveRight() + moveLeft() + " ";
+        }
+
+        return output;
+    }
+
     /**
      * Safely adds one to current cell
      * @return The EF code to make it happen
      */
     private String increment() {
         String output = "";
-        if (optimism!=1) {
-            output += moveLeft() + moveRight();
-        }
-        optimism = 1;
+        output += ensureHappy();
         output += currentNote + " ";
         return output;
     }
@@ -219,10 +244,7 @@ public class EARCompiler {
      */
     private String decrement() {
         String output = "";
-        if (optimism!=-1) {
-            output += moveRight() + moveLeft();
-        }
-        optimism = -1;
+        output += ensureSad();
         output += currentNote + " ";
         return output;
     }
@@ -235,7 +257,8 @@ public class EARCompiler {
      */
     private String changeNoteTo(String target) {
         String output = "";
-        int tempOptimism = 0;
+        int targetOptimism = optimism;
+
         if (currentNote.equals(target)) {
             return output;
         }
@@ -245,14 +268,12 @@ public class EARCompiler {
             output += currentNote + " ";
             currentNote = composer.prevNote(currentNote);
             output += currentNote + " ";
-            tempOptimism = -1;
         }
         if (currentNote.equals(composer.topNote())) {
             currentNote = composer.prevNote(composer.prevNote(currentNote));
             output += currentNote + " ";
             currentNote = composer.nextNote(currentNote);
             output += currentNote + " ";
-            tempOptimism = 1;
         }
 
         int noteCompare = composer.compareNotes(currentNote, target);
@@ -260,35 +281,22 @@ public class EARCompiler {
             output += composer.prevNote(currentNote) + " ";
             output += target + " ";
             currentNote = target;
-            tempOptimism = 1;
         } else if (noteCompare > 0) {
             output += composer.nextNote(currentNote) + " ";
             output += target + " ";
             currentNote = target;
-            tempOptimism = -1;
         }
 
-
-        //Now we're at target, but may have changed the optimism
-        //here we restore optimism
-        //Note, optimism may be impossible if the target note is the highest/lowest
-        //in this case, we should throw an exception
-        if (tempOptimism < optimism) {
-            // Should be happy, but we're sad.
-            if (currentNote.equals(composer.bottomNote())) {
-                throw new RuntimeException("Impossible to be happy on bottom note");
-            }
-            output += composer.prevNote(currentNote) + " ";
-            output += currentNote + " ";
+        // Manually restore optimism if necessary.
+        if (optimism < targetOptimism) {
+            // Need to get happy.
+            output += moveLeft() + target + " ";
+        } else if (optimism > targetOptimism) {
+            // Need to get sad.
+            output += moveRight() + target + " ";
         }
-        if (tempOptimism > optimism) {
-            // Should be sad but we're happy.
-            if (currentNote.equals(composer.topNote())) {
-                throw new RuntimeException("Impossible to be sad on top note");
-            }
-            output += composer.nextNote(currentNote) + " ";
-            output += currentNote + " ";
-        }
+        optimism = targetOptimism;
+        currentNote = target;
 
         return output;
     }
@@ -347,9 +355,7 @@ public class EARCompiler {
 
             output += GOTO.compile(args);
             //Ensure pessimism (this way the loop can just be 1 instruction)
-            if (optimism != -1) {
-                output += moveRight() + moveLeft();
-            }
+            output += ensureSad();
             output += "( ";
             output += decrement();
             output += ") ";
@@ -371,10 +377,8 @@ public class EARCompiler {
             }
 
             //ensure pessimism
-            if (optimism!=-1) {
-                output += moveRight();
-                output += moveLeft();
-            }
+            output += ensureSad();
+
             //take input
             output += "r ";
 
@@ -396,10 +400,8 @@ public class EARCompiler {
             }
 
             //ensure optimism
-            if (optimism!=1) {
-                output += moveLeft();
-                output += moveRight();
-            }
+            output += ensureHappy();
+
             //give output
             output += "r ";
 
@@ -445,16 +447,11 @@ public class EARCompiler {
 
             //return to branch exit point
             output += GOTO.compile(new String[]{String.valueOf(branchExitPoint)});
+
             //ensure optimism same as start of loop
             int branchEntryOptimism = branchOptimismStack.pop();
-            if (branchEntryOptimism<optimism) {
-                output += moveRight();
-                output += moveLeft();
-            }
-            if (branchEntryOptimism>optimism) {
-                output += moveLeft();
-                output += moveRight();
-            }
+            output += setOptimism(branchEntryOptimism);
+
             //ensure on same note as start of loop
             //(to ensure same behaviour in each loop)
             String branchEntryNote = branchNoteStack.pop();
