@@ -499,59 +499,7 @@ public class EARCompiler {
     private EARInstruction SUB = new EARInstruction(
             "SUB\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)*-?\\d+\\s*") {
         public String compile(String[] args) {
-            StringBuilder output = new StringBuilder();
-            int amount;
-
-            //Parse & sort list of target cells
-            ArrayList<Integer> targets = new ArrayList<>();
-            for (String s : Arrays.copyOfRange(args, 1, args.length)) {
-                targets.add(Integer.parseInt(s));
-            }
-            Collections.sort(targets);
-
-            //If given pointer
-            if (args[0].charAt(0)=='@') { //If pointer
-                //Goto summand cell
-                output.append(GOTO.compile(new String[]{args[0].substring(1)}));
-                //Ensure pessimism
-                if (optimism!=-1) {
-                    output.append(moveRight());
-                    output.append(moveLeft());
-                }
-                //Until cell is 0
-                output.append(WHILE.compile(new String[]{args[0].substring(1)}));
-                output.append(decrement());
-
-                //for each target cell
-                for (int index : targets) {
-                    //Goto target cell
-                    output.append(GOTO.compile(new String[]{String.valueOf(index)}));
-                    output.append(decrement());
-                }
-                //Return to summand cell
-                output.append(GOTO.compile(new String[]{args[0].substring(1)}));
-                //Ensure pessimism
-                if (optimism!=-1) {
-                    output.append(moveRight());
-                    output.append(moveLeft());
-                }
-
-                //end loop
-                output.append(ENDWHILE.compile(new String[]{}));
-            }
-            else { //If given absolute
-                amount = Integer.parseInt(args[0]);
-                //for each target cell
-                for (int index : targets) {
-                    //Goto target cell
-                    output.append(GOTO.compile(new String[]{String.valueOf(index)}));
-                    for (int i=0;i<amount;i++) {
-                        output.append(decrement());
-                    }
-
-                }
-            }
-            return output.toString();
+            return compileOperation(new Subtract(), parseArgs(args));
         }
     };
 
