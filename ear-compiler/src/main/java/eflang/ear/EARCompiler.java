@@ -92,6 +92,60 @@ public class EARCompiler {
         return output.toString();
     }
 
+    // Compile from intermediate instructions.
+    private String compileInstruction(Instruction instruction) {
+        StringBuilder output = new StringBuilder();
+        switch (instruction.getType()) {
+            case GOTO:
+                output.append(goTo(instruction.getValue()));
+                break;
+
+            case INCREMENT:
+                output.append(increment());
+                break;
+
+            case DECREMENT:
+                output.append(decrement());
+                break;
+
+            case START_LOOP:
+                branchLocStack.push(p);
+                branchNoteStack.push(currentNote);
+                branchOptimismStack.push(optimism);
+                output.append("( ");
+                break;
+
+            case END_LOOP:
+                // Ensure same pointer location, optimism and note as start of loop.
+                // The order here is important due to the guarantees each of these operations provides.
+                output.append(goTo(branchLocStack.pop()));
+                output.append(setOptimism(branchOptimismStack.pop()));
+                output.append(changeNoteTo(branchNoteStack.pop()));
+                output.append(") ");
+                break;
+
+            case ENSURE_HAPPY:
+                output.append(ensureHappy());
+                break;
+
+            case ENSURE_SAD:
+                output.append(ensureSad());
+                break;
+
+            case REST:
+                output.append("r ");
+                break;
+        }
+        return output.toString();
+    }
+
+    private String compileCommand(Command cmd) {
+        return String.join(" ",
+                cmd.getOperation().compile(cmd.getArguments()).stream()
+                        .map(this::compileInstruction)
+                        .collect(Collectors.toList()));
+    }
+
     public ArrayList<Integer> getCommandStartPositions() {
         return lineStartPositions;
     }
@@ -266,59 +320,5 @@ public class EARCompiler {
         currentNote = target;
 
         return output;
-    }
-
-    // Compile from intermediate instructions.
-    private String compileInstruction(Instruction instruction) {
-        StringBuilder output = new StringBuilder();
-        switch (instruction.getType()) {
-            case GOTO:
-                output.append(goTo(instruction.getValue()));
-                break;
-
-            case INCREMENT:
-                output.append(increment());
-                break;
-
-            case DECREMENT:
-                output.append(decrement());
-                break;
-
-            case START_LOOP:
-                branchLocStack.push(p);
-                branchNoteStack.push(currentNote);
-                branchOptimismStack.push(optimism);
-                output.append("( ");
-                break;
-
-            case END_LOOP:
-                // Ensure same pointer location, optimism and note as start of loop.
-                // The order here is important due to the guarantees each of these operations provides.
-                output.append(goTo(branchLocStack.pop()));
-                output.append(setOptimism(branchOptimismStack.pop()));
-                output.append(changeNoteTo(branchNoteStack.pop()));
-                output.append(") ");
-                break;
-
-            case ENSURE_HAPPY:
-                output.append(ensureHappy());
-                break;
-
-            case ENSURE_SAD:
-                output.append(ensureSad());
-                break;
-
-            case REST:
-                output.append("r ");
-                break;
-        }
-        return output.toString();
-    }
-
-    private String compileCommand(Command cmd) {
-        return String.join(" ",
-                cmd.getOperation().compile(cmd.getArguments()).stream()
-                        .map(instruction -> compileInstruction(instruction))
-                        .collect(Collectors.toList()));
     }
 }
