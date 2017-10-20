@@ -80,7 +80,7 @@ class EARCompilerTest {
     }
 
     @Test
-    void testMultiplyConstant() {
+    void testMultiplyConstantByCell() {
         earTest("MUL constants", code(
                 "MOV 3 1",
                 "MUL 4 @1 2 3",
@@ -93,7 +93,7 @@ class EARCompilerTest {
     }
 
     @Test
-    void testMultiplyCells() {
+    void testMultiplyCellByCell() {
         earTest("MUL cells", code(
                 "MOV 3 1",
                 "MOV 4 0",
