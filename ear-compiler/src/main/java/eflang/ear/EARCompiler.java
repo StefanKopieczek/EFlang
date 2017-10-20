@@ -1,9 +1,13 @@
 package eflang.ear;
 
+import com.google.common.collect.ImmutableList;
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
+import eflang.ear.operation.Goto;
+import eflang.ear.operation.Operation;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Compiler for the EAR language. <br/>
@@ -199,6 +203,17 @@ public class EARCompiler {
         return output;
     }
 
+    private String goTo(int cell) {
+        StringBuilder output = new StringBuilder();
+        while (p<cell) {
+            output.append(moveRight());
+        }
+        while (p>cell) {
+            output.append(moveLeft());
+        }
+        return output.toString();
+    }
+
     private String ensureHappy() {
         return setOptimism(1);
     }
@@ -322,6 +337,58 @@ public class EARCompiler {
         }
     }
 
+    // Compile from intermediate instructions.
+    private String compileInstruction(Instruction instruction) {
+        StringBuilder output = new StringBuilder();
+        switch (instruction.getType()) {
+            case GOTO:
+                output.append(goTo(instruction.getValue()));
+                break;
+
+            case INCREMENT:
+                output.append(increment());
+                break;
+
+            case DECREMENT:
+                output.append(decrement());
+                break;
+
+            case START_LOOP:
+                branchLocStack.push(p);
+                branchNoteStack.push(currentNote);
+                branchOptimismStack.push(optimism);
+                output.append("( ");
+                break;
+
+            case END_LOOP:
+                // Ensure same pointer location, optimism and note as start of loop.
+                // The order here is important due to the guarantees each of these operations provides.
+                output.append(goTo(branchLocStack.pop()));
+                output.append(setOptimism(branchOptimismStack.pop()));
+                output.append(changeNoteTo(branchNoteStack.pop()));
+                output.append(") ");
+                break;
+
+            case INPUT:
+                output.append(ensureSad());
+                output.append("r ");
+                break;
+
+            case OUTPUT:
+                output.append(ensureHappy());
+                output.append("r ");
+                break;
+        }
+        return output.toString();
+    }
+
+    private String compileOperation(Operation op, List<Argument> args) {
+        return String.join(" ",
+                op.compile(args).stream()
+                        .map(instruction -> compileInstruction(instruction))
+                        .collect(Collectors.toList()));
+    }
+
     //Defines all the instructions
 
     /**
@@ -332,15 +399,9 @@ public class EARCompiler {
     private EARInstruction GOTO = new EARInstruction("GOTO\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
             int destination = Integer.parseInt(args[0]);
-            StringBuilder output = new StringBuilder();
-
-            while (p<destination) {
-                output.append(moveRight());
-            }
-            while (p>destination) {
-                output.append(moveLeft());
-            }
-            return output.toString();
+            Operation op = new Goto();
+            List<Argument> arguments = ImmutableList.of(Argument.constant(destination));
+            return compileOperation(op, arguments);
         }
     };
 
