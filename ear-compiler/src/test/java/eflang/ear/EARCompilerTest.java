@@ -17,7 +17,8 @@ class EARCompilerTest {
         return Stream.of(
                 new OnlyRunsComposer(Scales.CMajor),
                 new GeometricComposer(Scales.GMajor),
-                new SadisticComposer(Scales.CMajorPentatonic)
+                new SadisticComposer(Scales.CMajorPentatonic),
+                new GeometricComposer(new Scale("c3", "c4", "c5"))
         );
     }
 
