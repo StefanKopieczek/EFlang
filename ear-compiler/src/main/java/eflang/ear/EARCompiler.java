@@ -269,12 +269,14 @@ public class EARCompiler {
             output.add(currentNote);
             currentNote = composer.prevNote(currentNote);
             output.add(currentNote);
+            optimism = -1;
         }
         if (currentNote.equals(composer.topNote())) {
             currentNote = composer.prevNote(composer.prevNote(currentNote));
             output.add(currentNote);
             currentNote = composer.nextNote(currentNote);
             output.add(currentNote);
+            optimism = 1;
         }
 
         int noteCompare = composer.compareNotes(currentNote, target);
@@ -282,10 +284,12 @@ public class EARCompiler {
             output.add(composer.prevNote(currentNote));
             output.add(target);
             currentNote = target;
+            optimism = 1;
         } else if (noteCompare > 0) {
             output.add(composer.nextNote(currentNote));
             output.add(target);
             currentNote = target;
+            optimism = -1;
         }
 
         // Manually restore optimism if necessary.
@@ -293,10 +297,12 @@ public class EARCompiler {
             // Need to get happy.
             output.addAll(moveLeft());
             output.add(target);
+            p += 1;
         } else if (optimism > targetOptimism) {
             // Need to get sad.
             output.addAll(moveRight());
             output.add(target);
+            p -= 1;
         }
         optimism = targetOptimism;
         currentNote = target;

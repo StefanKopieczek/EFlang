@@ -1,14 +1,30 @@
 package eflang.ear;
 
+import eflang.ear.composer.Composer;
+import eflang.ear.composer.GeometricComposer;
+import eflang.ear.composer.OnlyRunsComposer;
+import eflang.ear.composer.SadisticComposer;
 import eflang.hammer.EarCodeSupplier;
 import eflang.hammer.HammerTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 class EARCompilerTest {
 
-    @Test
-    void testInputOutput() {
-        earTest("Input and output", code(
+    static Stream<Composer> composerProvider() {
+        return Stream.of(
+                new OnlyRunsComposer(Scales.CMajor),
+                new GeometricComposer(Scales.GMajor),
+                new SadisticComposer(Scales.CMajorPentatonic)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testInputOutput(Composer composer) {
+        earTest("Input and output", composer, code(
                 "IN 3",
                 "OUT 3"))
                 .giveInput(7)
@@ -16,18 +32,20 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testMov() {
-        earTest("Basic MOV test", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testMov(Composer composer) {
+        earTest("Basic MOV test", composer, code(
                 "MOV 5 0",
                 "OUT 0"))
                 .expectOutput(5)
                 .run();
     }
 
-    @Test
-    void testAddConstant() {
-        earTest("ADD constants", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testAddConstant(Composer composer) {
+        earTest("ADD constants", composer, code(
                 "MOV 5 0",
                 "ADD 2 0",
                 "OUT 0",
@@ -38,9 +56,10 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testAddCell() {
-        earTest("Add cells", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testAddCell(Composer composer) {
+        earTest("Add cells", composer, code(
                 "MOV 5 0",
                 "MOV 2 1",
                 "ADD @0 1",
@@ -52,9 +71,10 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testSubtractConstant() {
-        earTest("SUB constants", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testSubtractConstant(Composer composer) {
+        earTest("SUB constants", composer, code(
                 "MOV 5 0",
                 "SUB 2 0",
                 "OUT 0",
@@ -65,9 +85,10 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testSubtractCells() {
-        earTest("SUB cells", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testSubtractCells(Composer composer) {
+        earTest("SUB cells", composer, code(
                 "MOV 5 1",
                 "MOV 2 0",
                 "SUB @0 1",
@@ -79,9 +100,10 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testMultiplyConstantByCell() {
-        earTest("MUL constants", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testMultiplyConstantByCell(Composer composer) {
+        earTest("MUL constants", composer, code(
                 "MOV 3 1",
                 "MUL 4 @1 2 3",
                 "OUT 2",
@@ -92,9 +114,10 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testMultiplyCellByCell() {
-        earTest("MUL cells", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testMultiplyCellByCell(Composer composer) {
+        earTest("MUL cells", composer, code(
                 "MOV 3 1",
                 "MOV 4 0",
                 "MUL @0 @1 2 3",
@@ -106,9 +129,10 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testDivideConstant() {
-        earTest("DIV constant", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testDivideConstant(Composer composer) {
+        earTest("DIV constant", composer, code(
                 "DIV 7 3 2 3 4 5 6 7 8",
                 "OUT 2",
                 "MOV 7 0",
@@ -122,9 +146,10 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testDivideCells() {
-        earTest("DIV cells", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testDivideCells(Composer composer) {
+        earTest("DIV cells", composer, code(
                 "MOV 7 0",
                 "MOV 2 1",
                 "DIV @0 @1 2 3 4 5 6 7 8",
@@ -133,9 +158,10 @@ class EARCompilerTest {
                 .run();
     }
 
-    @Test
-    void testZero() {
-        earTest("ZERO", code(
+    @ParameterizedTest
+    @MethodSource("composerProvider")
+    void testZero(Composer composer) {
+        earTest("ZERO", composer, code(
                 "MOV 5 1",
                 "OUT 1",
                 "ZERO 1",
@@ -145,8 +171,8 @@ class EARCompilerTest {
                 .run();
     }
 
-    private HammerTest earTest(String name, String code) {
-        return new HammerTest(name, new EarCodeSupplier(code));
+    private HammerTest earTest(String name, Composer composer, String code) {
+        return new HammerTest(name, new EarCodeSupplier(code, composer));
     }
 
     private String code(CharSequence... lines) {
