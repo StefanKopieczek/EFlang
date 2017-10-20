@@ -1,10 +1,10 @@
 package eflang.ear;
 
-import com.google.common.collect.ImmutableList;
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
 import eflang.ear.operation.Goto;
 import eflang.ear.operation.Operation;
+import eflang.ear.operation.Zero;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -369,6 +369,14 @@ public class EARCompiler {
                 output.append(") ");
                 break;
 
+            case ENSURE_HAPPY:
+                output.append(ensureHappy());
+                break;
+
+            case ENSURE_SAD:
+                output.append(ensureSad());
+                break;
+
             case INPUT:
                 output.append(ensureSad());
                 output.append("r ");
@@ -389,6 +397,20 @@ public class EARCompiler {
                         .collect(Collectors.toList()));
     }
 
+    private static List<Argument> parseArgs(String[] args) {
+        return Arrays.asList(args).stream()
+                .map(EARCompiler::parseArg)
+                .collect(Collectors.toList());
+    }
+
+    private static Argument parseArg(String arg) {
+        if (arg.startsWith("@")) {
+            return Argument.cell(Integer.parseInt(arg.substring(1)));
+        } else {
+            return Argument.constant(Integer.parseInt(arg));
+        }
+    }
+
     //Defines all the instructions
 
     /**
@@ -398,10 +420,7 @@ public class EARCompiler {
      */
     private EARInstruction GOTO = new EARInstruction("GOTO\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
-            int destination = Integer.parseInt(args[0]);
-            Operation op = new Goto();
-            List<Argument> arguments = ImmutableList.of(Argument.constant(destination));
-            return compileOperation(op, arguments);
+            return compileOperation(new Goto(), parseArgs(args));
         }
     };
 
@@ -412,15 +431,7 @@ public class EARCompiler {
      */
     private EARInstruction ZERO = new EARInstruction("ZERO\\s+-?\\d+\\s*") {
         public String compile(String[] args) {
-            String output = "";
-
-            output += GOTO.compile(args);
-            //Ensure pessimism (this way the loop can just be 1 instruction)
-            output += ensureSad();
-            output += "( ";
-            output += decrement();
-            output += ") ";
-            return output;
+            return compileOperation(new Zero(), parseArgs(args));
         }
     };
 

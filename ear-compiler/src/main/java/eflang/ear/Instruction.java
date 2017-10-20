@@ -2,7 +2,7 @@ package eflang.ear;
 
 public class Instruction {
     public enum Type {
-        GOTO, INCREMENT, DECREMENT, START_LOOP, END_LOOP, INPUT, OUTPUT
+        GOTO, INCREMENT, DECREMENT, START_LOOP, END_LOOP, ENSURE_HAPPY, ENSURE_SAD, INPUT, OUTPUT
     }
 
     private Type type;
@@ -43,6 +43,14 @@ public class Instruction {
 
     public static Instruction endLoop() {
         return new Instruction(Type.END_LOOP);
+    }
+
+    public static Instruction ensureHappy() {
+        return new Instruction(Type.ENSURE_HAPPY);
+    }
+
+    public static Instruction ensureSad() {
+        return new Instruction(Type.ENSURE_SAD);
     }
 
     public static Instruction input() {
