@@ -3,7 +3,9 @@ package eflang.ear;
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +59,7 @@ public class EARCompiler {
      */
     public String compile(String EARCode) throws EARException {
         resetState();
-        StringBuilder output = new StringBuilder();
+        List<String> output = new ArrayList<>();
 
         //Discard comments (OLD COMMENT STYLE = "\\([^\\)]*\\)")
         EARCode = EARCode.replaceAll("//.*\\n", "\n");
@@ -65,13 +67,11 @@ public class EARCompiler {
         //Split into individual instructions
         String[] instructions = EARCode.split("(\\r?\\n)+");
 
-        // Keep track of how many EF notes we've output.
-        int numNotes = 0;
-
-        output.append(currentNote);
-        output.append(" ");
+        output.add(currentNote);
 
         for (int i = 0; i < instructions.length; i++) {
+            lineStartPositions.add(output.size());
+
             String instruction = instructions[i].replaceAll(" +", " ");
             instruction = instruction.replaceAll("^ +", "");
             if (instruction.equals("")) {
@@ -79,71 +79,65 @@ public class EARCompiler {
             }
 
             Command cmd = EARParser.parseLine(instruction);
-            String compiledCmd = compileCommand(cmd);
-
-            //calculate how many commands into the EF code we are
-            //Add it to the array of start positions
-            lineStartPositions.add(numNotes);
-
-            numNotes += compiledCmd.split(" ").length;
-
-            output.append(compiledCmd);
+            List<String> notes = compileCommand(cmd);
+            output.addAll(notes);
         }
-        return output.toString();
+
+        return String.join(" ", output);
     }
 
     // Compile from intermediate instructions.
-    private String compileInstruction(Instruction instruction) {
-        StringBuilder output = new StringBuilder();
+    private List<String> compileInstruction(Instruction instruction) {
+        List<String> output = new ArrayList<>();
         switch (instruction.getType()) {
             case GOTO:
-                output.append(goTo(instruction.getValue()));
+                output.addAll(goTo(instruction.getValue()));
                 break;
 
             case INCREMENT:
-                output.append(increment());
+                output.addAll(increment());
                 break;
 
             case DECREMENT:
-                output.append(decrement());
+                output.addAll(decrement());
                 break;
 
             case START_LOOP:
                 branchLocStack.push(p);
                 branchNoteStack.push(currentNote);
                 branchOptimismStack.push(optimism);
-                output.append("( ");
+                output.add("(");
                 break;
 
             case END_LOOP:
                 // Ensure same pointer location, optimism and note as start of loop.
                 // The order here is important due to the guarantees each of these operations provides.
-                output.append(goTo(branchLocStack.pop()));
-                output.append(setOptimism(branchOptimismStack.pop()));
-                output.append(changeNoteTo(branchNoteStack.pop()));
-                output.append(") ");
+                output.addAll(goTo(branchLocStack.pop()));
+                output.addAll(setOptimism(branchOptimismStack.pop()));
+                output.addAll(changeNoteTo(branchNoteStack.pop()));
+                output.add(")");
                 break;
 
             case ENSURE_HAPPY:
-                output.append(ensureHappy());
+                output.addAll(ensureHappy());
                 break;
 
             case ENSURE_SAD:
-                output.append(ensureSad());
+                output.addAll(ensureSad());
                 break;
 
             case REST:
-                output.append("r ");
+                output.add("r");
                 break;
         }
-        return output.toString();
+        return output;
     }
 
-    private String compileCommand(Command cmd) {
-        return String.join(" ",
-                cmd.getOperation().compile(cmd.getArguments()).stream()
+    private List<String> compileCommand(Command cmd) {
+        return cmd.getOperation().compile(cmd.getArguments()).stream()
                         .map(this::compileInstruction)
-                        .collect(Collectors.toList()));
+                        .flatMap(List::stream)
+                        .collect(Collectors.toList());
     }
 
     public ArrayList<Integer> getCommandStartPositions() {
@@ -157,8 +151,8 @@ public class EARCompiler {
      *
      * @return The EF code to make that happen.
      */
-    private String moveLeft() {
-        String output = "";
+    private List<String> moveLeft() {
+        List<String> output = new ArrayList<>();
 
         //Decrement pointer
         p--;
@@ -169,13 +163,13 @@ public class EARCompiler {
             // Oops, we were already at the bottom, so jump up at least 2 and then move left to compensate.
             // Do it carefully by stepping, using lowerNote could fail if we hit the bottom.
             currentNote = composer.higherNote(composer.nextNote(currentNote));
-            output += currentNote + " ";
+            output.add(currentNote);
             currentNote = composer.prevNote(currentNote);
-            output += currentNote + " ";
+            output.add(currentNote);
         }
 
         currentNote = composer.lowerNote(currentNote);
-        output += currentNote + " ";
+        output.add(currentNote);
         return output;
     }
 
@@ -184,8 +178,8 @@ public class EARCompiler {
      *
      * @return The EF code to make that happen.
      */
-    private String moveRight() {
-        String output = "";
+    private List<String> moveRight() {
+        List<String> output = new ArrayList<>();
 
         //Increment pointer
         p++;
@@ -196,32 +190,32 @@ public class EARCompiler {
             // Oops, we were already at the top, so jump down to the bottom and then move right to compensate.
             // Do it carefully by stepping, using higherNote could fail if we hit the bottom.
             currentNote = composer.lowerNote(composer.prevNote(currentNote));
-            output += currentNote + " ";
+            output.add(currentNote);
             currentNote = composer.nextNote(currentNote);
-            output += currentNote + " ";
+            output.add(currentNote);
         }
 
         currentNote = composer.higherNote(currentNote);
-        output += currentNote + " ";
+        output.add(currentNote);
         return output;
     }
 
-    private String goTo(int cell) {
-        StringBuilder output = new StringBuilder();
+    private List<String> goTo(int cell) {
+        List<String> output = new ArrayList<>();
         while (p < cell) {
-            output.append(moveRight());
+            output.addAll(moveRight());
         }
         while (p > cell) {
-            output.append(moveLeft());
+            output.addAll(moveLeft());
         }
-        return output.toString();
+        return output;
     }
 
-    private String ensureHappy() {
+    private List<String> ensureHappy() {
         return setOptimism(1);
     }
 
-    private String ensureSad() {
+    private List<String> ensureSad() {
         return setOptimism(-1);
     }
 
@@ -229,17 +223,19 @@ public class EARCompiler {
      * Set optimism without changing pointer location.
      * Note may change.
      */
-    private String setOptimism(int targetOptimism) {
-        String output = "";
+    private List<String> setOptimism(int targetOptimism) {
+        List<String> output = new ArrayList<>();
 
         if (optimism < targetOptimism) {
             // Need to get happy.
-            output += moveLeft() + moveRight() + " ";
+            output.addAll(moveLeft());
+            output.addAll(moveRight());
         }
 
         if (optimism > targetOptimism) {
             // Need to get sad.
-            output += moveRight() + moveLeft() + " ";
+            output.addAll(moveRight());
+            output.addAll(moveLeft());
         }
 
         return output;
@@ -250,10 +246,10 @@ public class EARCompiler {
      *
      * @return The EF code to make it happen
      */
-    private String increment() {
-        String output = "";
-        output += ensureHappy();
-        output += currentNote + " ";
+    private List<String> increment() {
+        List<String> output = new ArrayList<>();
+        output.addAll(ensureHappy());
+        output.add(currentNote);
         return output;
     }
 
@@ -262,10 +258,10 @@ public class EARCompiler {
      *
      * @return The EF code to make it happen
      */
-    private String decrement() {
-        String output = "";
-        output += ensureSad();
-        output += currentNote + " ";
+    private List<String> decrement() {
+        List<String> output = new ArrayList<>();
+        output.addAll(ensureSad());
+        output.add(currentNote);
         return output;
     }
 
@@ -276,8 +272,8 @@ public class EARCompiler {
      * @param target note to change to
      * @return compiled EF code
      */
-    private String changeNoteTo(String target) {
-        String output = "";
+    private List<String> changeNoteTo(String target) {
+        List<String> output = new ArrayList<>();
         int targetOptimism = optimism;
 
         if (currentNote.equals(target)) {
@@ -286,35 +282,37 @@ public class EARCompiler {
         //Move note away from ends
         if (currentNote.equals(composer.bottomNote())) {
             currentNote = composer.nextNote(composer.nextNote(currentNote));
-            output += currentNote + " ";
+            output.add(currentNote);
             currentNote = composer.prevNote(currentNote);
-            output += currentNote + " ";
+            output.add(currentNote);
         }
         if (currentNote.equals(composer.topNote())) {
             currentNote = composer.prevNote(composer.prevNote(currentNote));
-            output += currentNote + " ";
+            output.add(currentNote);
             currentNote = composer.nextNote(currentNote);
-            output += currentNote + " ";
+            output.add(currentNote);
         }
 
         int noteCompare = composer.compareNotes(currentNote, target);
         if (noteCompare < 0) {
-            output += composer.prevNote(currentNote) + " ";
-            output += target + " ";
+            output.add(composer.prevNote(currentNote));
+            output.add(target);
             currentNote = target;
         } else if (noteCompare > 0) {
-            output += composer.nextNote(currentNote) + " ";
-            output += target + " ";
+            output.add(composer.nextNote(currentNote));
+            output.add(target);
             currentNote = target;
         }
 
         // Manually restore optimism if necessary.
         if (optimism < targetOptimism) {
             // Need to get happy.
-            output += moveLeft() + target + " ";
+            output.addAll(moveLeft());
+            output.add(target);
         } else if (optimism > targetOptimism) {
             // Need to get sad.
-            output += moveRight() + target + " ";
+            output.addAll(moveRight());
+            output.add(target);
         }
         optimism = targetOptimism;
         currentNote = target;
