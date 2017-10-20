@@ -93,53 +93,22 @@ public class EARCompiler {
         output.append(" ");
 
         for (int i=0; i<instructions.length; i++) {
-            String compiledInstruction = "";
             String instruction = instructions[i].replaceAll(" +", " ");
             instruction = instruction.replaceAll("^ +", "");
-            if (!instruction.equals("")) {
-                String[] parsedInstruction = instruction.split(" ");
-
-                String[] args = Arrays.copyOfRange(parsedInstruction, 1,
-                                                parsedInstruction.length);
-                String opcode = parsedInstruction[0];
-
-                EARInstruction command = instructionSet.get(opcode);
-
-                //Check opcode actually generated a command
-                if (command==null) {
-                    String message = "Invalid opcode at instruction "+i+":";
-                    if (i>0) {
-                        message += "\n"+(i-1)+": "+instructions[i-1];
-                    }
-                    message += "\n"+i+": "+instruction;
-                    if (i<instructions.length-1) {
-                        message += "\n"+(i+1)+": "+instructions[i+1];
-                    }
-                    throw new EARInvalidOpcodeException(message);
-                }
-
-                //Check validity of command and throw helpful error message
-                if (!command.checkArgs(instruction)) {
-                    String message = "Invalid instruction signature at instruction "+i+":";
-                    if (i>0) {
-                        message += "\n"+(i-1)+": "+instructions[i-1];
-                    }
-                    message += "\n"+i+": "+instruction;
-                    if (i<instructions.length-1) {
-                        message += "\n"+(i+1)+": "+instructions[i+1];
-                    }
-                    throw new EARInvalidSignatureException(message);
-                }
-                compiledInstruction = command.compile(args);
+            if (instruction.equals("")) {
+                continue;
             }
+
+            Command cmd = parseLine(instruction);
+            String compiledCmd = compileCommand(cmd);
 
             //calculate how many commands into the EF code we are
             //Add it to the array of start positions
             lineStartPositions.add(numNotes);
 
-            numNotes += compiledInstruction.split(" ").length;
+            numNotes += compiledCmd.split(" ").length;
 
-            output.append(compiledInstruction);
+            output.append(compiledCmd);
         }
         return output.toString();
     }
@@ -385,6 +354,13 @@ public class EARCompiler {
     private String compileOperation(Operation op, List<Argument> args) {
         return String.join(" ",
                 op.compile(args).stream()
+                        .map(instruction -> compileInstruction(instruction))
+                        .collect(Collectors.toList()));
+    }
+
+    private String compileCommand(Command cmd) {
+        return String.join(" ",
+                cmd.getOperation().compile(cmd.getArguments()).stream()
                         .map(instruction -> compileInstruction(instruction))
                         .collect(Collectors.toList()));
     }
