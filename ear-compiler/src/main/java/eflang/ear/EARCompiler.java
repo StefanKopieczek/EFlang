@@ -732,31 +732,7 @@ public class EARCompiler {
     private EARInstruction COPY = new EARInstruction(
             "COPY\\s+(@|@-)?\\d+\\s+(-?\\d+\\s+)+-?\\d+\\s*") {
         public String compile(String[] args) {
-            StringBuilder output = new StringBuilder();
-
-            //If copying an absolute, use MOV, it's faster
-            if (args[0].charAt(0)!='@') {
-                String[] movArgs = Arrays.copyOfRange(args, 0, args.length-1);
-                output.append(MOV.compile(movArgs));
-                return output.toString();
-            }
-
-            //Zero the working cell
-            output.append(ZERO.compile(new String[]{args[args.length-1]}));
-            //Zero all target cells
-            for (int i=1; i<args.length-1; i++) {
-                output.append(ZERO.compile(new String[]{args[i]}));
-            }
-
-            //Move the cell to be copied to the working cell & all targets
-            output.append(ADD.compile(args));
-
-            //Move it back from the working cell to the original if it was a reference.
-            if (args[0].charAt(0)=='@') {
-                output.append(ADD.compile(new String[] {"@"+args[args.length-1],args[0].substring(1)}));
-            }
-
-            return output.toString();
+            return compileOperation(new Copy(), parseArgs(args));
         }
     };
 
