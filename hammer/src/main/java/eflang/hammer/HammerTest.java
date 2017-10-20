@@ -1,7 +1,7 @@
 package eflang.hammer;
 
 import java.util.ArrayList;
-import java.io.IOException;
+import java.util.function.Supplier;
 
 /**
  * A base ef test class.
@@ -12,7 +12,7 @@ public class HammerTest {
     /**
      * The earfuck code to use for this test.
      */
-    String efCode;
+    Supplier<String> codeSupplier;
 
     /**
      * The HammerFramework object to use to control the parser.
@@ -42,14 +42,14 @@ public class HammerTest {
      */
     String failureMessage = "";
 
-    public HammerTest(String name, String code, HammerFramework hammer) {
-        efCode = code;
+    public HammerTest(String name, Supplier<String> code, HammerFramework hammer) {
+        codeSupplier = code;
         mHammer = hammer;
         mTasks = new ArrayList<>();
         mName = name;
     }
 
-    public HammerTest(String name, String code) {
+    public HammerTest(String name, Supplier<String> code) {
         this(name, code, new HammerFramework());
     }
 
@@ -57,24 +57,19 @@ public class HammerTest {
         return mName;
     }
 
+    protected void initialize() {
+        // Override if initialization steps are necessary.
+    }
+
     /**
      * Runs the test.
      * @return Whether the test passed or not (true/false)
      */
-    public boolean run() {
-        boolean testPassed = true;
-
-        if (setupFailed) {
-            // We failed to set up the test, so return failure.
-            HammerLog.error(
-                    "== Test: " + mName + " failed to prepare ==");
-            HammerLog.error(failureMessage + "\n");
-            return false;
-        }
-
+    public void run() {
         HammerLog.info("== Running test: " + mName + " ==");
 
         // Set the piece playing.
+        String efCode = codeSupplier.get();
         mHammer.setPiece(efCode);
         mHammer.startPlaying();
 
@@ -83,21 +78,33 @@ public class HammerTest {
         // If it fails (i.e. the output doesn't match expected) return
         // failure.
         for (TestTask task : mTasks) {
-            if (!task.execute(mHammer)) {
+            try {
+                task.execute(mHammer);
+            } catch (Exception e) {
                 HammerLog.info("Test Failed!");
-                testPassed = false;
-                break;
+                throw new HammerException("Test failed", e);
             }
         }
 
         mHammer.tearDown();
 
         // If we got this far, the test must have passed
-        if (testPassed) {
-            HammerLog.info("Test Passed!");
-        }
-        HammerLog.debug("");
-        return testPassed;
+        HammerLog.info("Test Passed!");
+    }
+
+    public HammerTest giveInput(int input) {
+        mTasks.add(new InputTask(input));
+        return this;
+    }
+
+    public HammerTest expectOutput(int output) {
+        mTasks.add(new OutputTask(output));
+        return this;
+    }
+
+    public HammerTest reset() {
+        mTasks.add(new RestartTask());
+        return this;
     }
 
     /**
@@ -114,7 +121,7 @@ public class HammerTest {
      *
      */
     public interface TestTask {
-        boolean execute(HammerFramework hammer);
+        void execute(HammerFramework hammer) throws Exception;
     }
 
     /**
@@ -131,18 +138,12 @@ public class HammerTest {
             this.expected = expected;
         }
 
-        public boolean execute(HammerFramework hammer) {
-            try {
-                int output = hammer.waitAndGetOutput();
-                return hammer.hammerAssert(
-                        "Expected: " + String.valueOf(expected) +
-                        "  Got: " + String.valueOf(output), 
-                        output == expected);
-            }
-            catch (IOException e) {
-                HammerLog.error(e.getMessage());
-                return false;
-            }
+        public void execute(HammerFramework hammer) throws Exception {
+            int output = hammer.waitAndGetOutput();
+            hammer.hammerAssert(
+                    "Expected: " + String.valueOf(expected) +
+                    "  Got: " + String.valueOf(output),
+                    output == expected);
         }
     }
 
@@ -158,14 +159,8 @@ public class HammerTest {
             this.value = value;
         }
 
-        public boolean execute(HammerFramework hammer) {
-            try {
-                hammer.waitAndSendInput(value);
-            } catch (IOException e) {
-                HammerLog.error(e.getMessage());
-                return false;
-            }
-            return true;
+        public void execute(HammerFramework hammer) throws Exception{
+            hammer.waitAndSendInput(value);
         }
     }
 
@@ -179,11 +174,10 @@ public class HammerTest {
         RestartTask() {
         }
 
-        public boolean execute(HammerFramework hammer) {
+        public void execute(HammerFramework hammer) {
             hammer.tearDown();
             hammer.resetParser();
             hammer.startPlaying();
-            return true;
         }
     }
 }

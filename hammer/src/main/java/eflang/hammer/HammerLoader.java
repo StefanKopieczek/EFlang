@@ -1,11 +1,8 @@
 package eflang.hammer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,7 +80,7 @@ public class HammerLoader {
 
         String name = null;
         TestType type = TestType.EF;
-        String code;
+        final String code;
         String sourceFile = null;
         ArrayList<String> IOs = new ArrayList<>();
 
@@ -164,8 +161,7 @@ public class HammerLoader {
                 br.close();
             }
             catch (FileNotFoundException e) {
-                cantFindSource = true;
-                code = "";
+                throw new RuntimeException(e);
             }
         } else {
             code = builder.toString();
@@ -173,16 +169,19 @@ public class HammerLoader {
 
         HammerLog.log("Test code: " + code, HammerLog.LogLevel.DEV);
 
+        Supplier<String> codeSupplier;
         switch (type) {
         case EAR:
-            test = new EarTest(name, code);
+            codeSupplier = new EarCodeSupplier(code);
             break;
         case LOBE:
-            test = new LobeTest(name, code);
+            codeSupplier = new LobeCodeSupplier(code);
             break;
         default:
-            test = new HammerTest(name, code);
+            codeSupplier = () -> code;
         }
+
+        test = new HammerTest(name, codeSupplier);
 
         if (cantFindSource) {
             test.setupFailed = true;

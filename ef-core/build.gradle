@@ -2,6 +2,7 @@ apply plugin: 'application'
 
 dependencies {
     compile name: 'jfugue-4.0.3'
+    testCompile project(':hammer')
 }
 
 mainClassName = 'eflang.core.Main'

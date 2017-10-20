@@ -2,12 +2,26 @@ task wrapper(type: Wrapper) {
     gradleVersion = '4.2.1'
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1'
+    }
+}
+
 allprojects {
     apply plugin: 'idea'
 }
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'org.junit.platform.gradle.plugin'
+
+    ext.junitPlatformVersion = '1.0.1'
+    ext.junitJupiterVersion  = '5.0.1'
 
     repositories {
       flatDir {
@@ -15,5 +29,14 @@ subprojects {
       }
 
       mavenCentral()
+    }
+
+    dependencies {
+        // JUnit Jupiter API and TestEngine implementation
+        testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+        testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+
+        // Only needed to run tests in an (IntelliJ) IDE(A) that bundles an older version
+        testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
     }
 }

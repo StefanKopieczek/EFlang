@@ -1,9 +1,6 @@
 package eflang.hammer;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * A logging class for HAMMER.
@@ -153,5 +150,17 @@ public class HammerLog {
      */
     public static void error(String text) {
         log(text, LogLevel.ERROR);
+    }
+
+    /**
+     * Logs the given exception, plus stacktrace.
+     * @param e exception to log
+     */
+    public static void exception(Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String stacktrace = sw.toString();
+        error(stacktrace);
     }
 }
