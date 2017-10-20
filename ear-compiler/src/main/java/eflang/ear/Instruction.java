@@ -56,4 +56,8 @@ public class Instruction {
     public static Instruction rest() {
         return new Instruction(Type.REST);
     }
+
+    public String toString() {
+        return String.format("%s(%d)", type, value);
+    }
 }

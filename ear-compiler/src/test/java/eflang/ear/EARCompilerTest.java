@@ -109,12 +109,15 @@ class EARCompilerTest {
     @Test
     void testDivideConstant() {
         earTest("DIV constant", code(
-                "MOV 7 1",
-                "DIV @1 2 2 3 4 5 6 7 8",
+                "DIV 7 3 2 3 4 5 6 7 8",
+                "OUT 2",
+                "MOV 7 0",
+                "DIV @0 3 2 3 4 5 6 7 8",
                 "OUT 2",
                 "DIV @2 5 1 3 4 5 6 7 8",
                 "OUT 2"))
-                .expectOutput(3)
+                .expectOutput(2)
+                .expectOutput(2)
                 .expectOutput(0)
                 .run();
     }
