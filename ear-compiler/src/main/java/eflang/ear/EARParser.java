@@ -1,5 +1,6 @@
 package eflang.ear;
 
+import eflang.ear.core.Command;
 import eflang.ear.core.InstructionParser;
 
 import java.util.Arrays;

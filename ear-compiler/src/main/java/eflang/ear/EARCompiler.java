@@ -2,6 +2,8 @@ package eflang.ear;
 
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
+import eflang.ear.core.Command;
+import eflang.ear.core.Scales;
 import eflang.ear.core.StatefulInstructionCompiler;
 
 import java.util.ArrayList;

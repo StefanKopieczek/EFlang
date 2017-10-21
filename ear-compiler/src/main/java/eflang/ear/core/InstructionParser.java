@@ -1,7 +1,5 @@
 package eflang.ear.core;
 
-import eflang.ear.Argument;
-import eflang.ear.Command;
 import eflang.ear.operation.*;
 
 import java.util.Arrays;

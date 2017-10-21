@@ -1,4 +1,4 @@
-package eflang.ear;
+package eflang.ear.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,7 +7,7 @@ import java.util.List;
 public class Scale {
     private List<String> notes;
 
-    Scale(String... notes) {
+    public Scale(String... notes) {
         this.notes = Arrays.asList(notes);
     }
 

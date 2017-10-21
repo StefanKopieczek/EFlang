@@ -4,6 +4,8 @@ import eflang.ear.composer.Composer;
 import eflang.ear.composer.GeometricComposer;
 import eflang.ear.composer.OnlyRunsComposer;
 import eflang.ear.composer.SadisticComposer;
+import eflang.ear.core.Scale;
+import eflang.ear.core.Scales;
 import eflang.hammer.EarCodeSupplier;
 import eflang.hammer.HammerTest;
 import org.junit.jupiter.params.ParameterizedTest;

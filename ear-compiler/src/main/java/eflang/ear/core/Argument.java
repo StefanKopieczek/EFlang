@@ -1,4 +1,4 @@
-package eflang.ear;
+package eflang.ear.core;
 
 public class Argument {
     public enum Type {

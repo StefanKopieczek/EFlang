@@ -1,7 +1,7 @@
 package eflang.ear.operation;
 
 import com.google.common.collect.ImmutableList;
-import eflang.ear.Argument;
+import eflang.ear.core.Argument;
 import eflang.ear.core.Instruction;
 
 import java.util.List;

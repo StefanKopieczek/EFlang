@@ -1,6 +1,6 @@
 package eflang.ear.composer;
 
-import eflang.ear.Scale;
+import eflang.ear.core.Scale;
 
 import java.util.Collections;
 import java.util.List;

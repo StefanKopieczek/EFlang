@@ -1,6 +1,6 @@
 package eflang.ear.composer;
 
-import eflang.ear.Scale;
+import eflang.ear.core.Scale;
 
 public abstract class AbstractScaleComposer implements Composer {
     protected Scale scale;
