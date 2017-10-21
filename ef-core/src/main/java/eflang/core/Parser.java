@@ -70,18 +70,13 @@ public class Parser {
     private float mNoteDuration;
 
     /**
-     * This array contains all the musical tokens that the program is
-     * currently executing. Tokens can be one of:
+     * This source provides the musical tokens the parser will execute.
+     * Tokens can be one of:
      *  - Musical notes (valid forms e.g.: C, F, Bb, C4, A#5)
      *  - Rests (written as 'r')
      *  - Brackets '(' or ')'. Notes inside brackets are played double-time.
      */
-    private String[] mComposition;
-
-    /**
-     * Current place in the music.
-     */
-    private int mPlace;
+    private MusicSource mComposition;
 
     /**
      * The last note played.
@@ -97,7 +92,7 @@ public class Parser {
      * characters' positions so that we can return to that position in the code
      * when we want to replay a section.
      */
-    private Stack<Integer> mBrackets;
+    private Stack<Long> mBrackets;
 
     /**
      * Bracketed sections are skipped if the ambiance value of the current
@@ -131,10 +126,12 @@ public class Parser {
         mMentalState = 0;
         mExcitement = INITIAL_ATTACK_VALUE;
         mNoteDuration = 0.25f;
+        if (mComposition != null) {
+            mComposition.seek(0);
+        }
 
         mAwaitingInput = new CountDownLatch(0);
 
-        mPlace = 0;
         mPreviousNote = null;
         mBracketsSkipped = 0;
         mBrackets = new Stack<>();
@@ -154,15 +151,15 @@ public class Parser {
      * Should only be called ONCE, BEFORE execution.
      * @param piece String of EF Code
      */
-    public void giveMusic(String piece) {
-        mComposition = piece.split("\\s+");
+    public void giveMusic(MusicSource piece) {
+        mComposition = piece;
     }
 
     /**
      * Perform the whole piece
      */
     public void perform() {
-        while (mPlace < mComposition.length) {
+        while (mComposition.hasNext()) {
             stepForward();
         }
 
@@ -171,7 +168,7 @@ public class Parser {
 
 
     public void stepForward() {
-        String command = mComposition[mPlace];
+        String command = mComposition.next();
         executeCommand(command);
         try {
             mAwaitingInput.await();
@@ -179,7 +176,6 @@ public class Parser {
         catch (InterruptedException e) {
             return;
         }
-        mPlace++;
     }
 
     /**
@@ -202,7 +198,7 @@ public class Parser {
                 // audience isn't bored when we finish this section, we can
                 // re-play it.
                 mNoteDuration /= 2;
-                mBrackets.push(mPlace);
+                mBrackets.push(mComposition.getPos());
             }
             return;
         }
@@ -219,13 +215,13 @@ public class Parser {
                 // We resume normal tempo; and if the audience isn't bored
                 // we skip back to the start of the section and play it
                 // again!
-                Integer startPlace = mBrackets.pop();
+                long startPlace = mBrackets.pop();
                 mNoteDuration *= 2;
                 if (mAmbiance.get(mMentalState) != 0) {
                     // Skip back to just before the opening bracket at the
                     // start of this section - we increment by one at the
                     // start of the loop anyway.
-                    mPlace = startPlace - 1;
+                    mComposition.seek(startPlace - 1);
                 }
             }
             return;
@@ -363,12 +359,12 @@ public class Parser {
     /**
      * Returns the piece we are currently playing.
      */
-    public String[] getPiece() {
+    public MusicSource getPiece() {
         return mComposition;
     }
 
-    public int getPlace() {
-        return mPlace;
+    public long getPlace() {
+        return mComposition.getPos();
     }
 
     public int getPointer() {

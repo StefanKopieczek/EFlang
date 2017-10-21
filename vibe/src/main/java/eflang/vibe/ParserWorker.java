@@ -12,7 +12,7 @@ import java.util.List;
  * @author Ryan Norris
  *
  */
-public class ParserWorker extends SwingWorker<Void,Integer> {
+public class ParserWorker extends SwingWorker<Void,Long> {
     private VibeController mController;
 
     public ParserWorker(VibeController controller) {
@@ -23,8 +23,7 @@ public class ParserWorker extends SwingWorker<Void,Integer> {
     public Void doInBackground() {
         while (!this.isCancelled()) {
             //If we've reached the end of the piece, stop playback.
-            if (mController.getParser().getPlace() >=
-                    mController.getParser().getPiece().length) {
+            if (!mController.getParser().getPiece().hasNext()) {
                 mController.stop();
                 break;
             }
@@ -40,9 +39,9 @@ public class ParserWorker extends SwingWorker<Void,Integer> {
     }
 
     @Override
-    protected void process(List<Integer> indices) {
+    protected void process(List<Long> indices) {
         //Get EF command index
-        int currentEFCommand = indices.get(indices.size()-1);
+        long currentEFCommand = indices.get(indices.size()-1);
         //Get EAR command index
         int currentEARLine = 0;
         ArrayList<Integer> earLineStartPositions =

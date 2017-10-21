@@ -1,10 +1,9 @@
 package eflang.vibe;
 
-import java.awt.Color;
-
-import javax.swing.JTextPane;
+import javax.swing.*;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
+import java.awt.*;
 
 public class CodePane extends JTextPane {
     private char mDivider;
@@ -22,7 +21,7 @@ public class CodePane extends JTextPane {
         return mDivider;
     }
 
-    public void setCurrentCommandIndex(int i) {
+    public void setCurrentCommandIndex(long i) {
         Style style = this.addStyle("Redtext", null);
         StyleConstants.setForeground(style, Color.red);
         Style noStyle = this.addStyle("NoStyle", null);
