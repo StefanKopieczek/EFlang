@@ -1,7 +1,7 @@
 package eflang.hammer;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
+import java.util.List;
 
 /**
  * A base ef test class.
@@ -10,14 +10,15 @@ import java.util.function.Supplier;
  */
 public class HammerTest {
     /**
-     * The earfuck code to use for this test.
+     * The code to use for this test.
      */
-    Supplier<String> codeSupplier;
+    private String code;
+
 
     /**
-     * The HammerFramework object to use to control the parser.
+     * The type of this test.
      */
-    private HammerFramework mHammer;
+    private TestType type;
 
     /**
      * A list of IO tasks to be performed in this test.
@@ -42,54 +43,27 @@ public class HammerTest {
      */
     String failureMessage = "";
 
-    public HammerTest(String name, Supplier<String> code, HammerFramework hammer) {
-        codeSupplier = code;
-        mHammer = hammer;
-        mTasks = new ArrayList<>();
-        mName = name;
-    }
-
-    public HammerTest(String name, Supplier<String> code) {
-        this(name, code, new HammerFramework());
+    public HammerTest(String name, TestType type, String code) {
+        this.mName = name;
+        this.type = type;
+        this.code = code;
+        this.mTasks = new ArrayList<>();
     }
 
     public String getName() {
         return mName;
     }
 
-    protected void initialize() {
-        // Override if initialization steps are necessary.
+    public TestType getType() {
+        return type;
     }
 
-    /**
-     * Runs the test.
-     * @return Whether the test passed or not (true/false)
-     */
-    public void run() {
-        HammerLog.info("== Running test: " + mName + " ==");
+    public String getCode() {
+        return code;
+    }
 
-        // Set the piece playing.
-        String efCode = codeSupplier.get();
-        mHammer.setPiece(efCode);
-        mHammer.startPlaying();
-
-        // For each IO task we have, execute it (either give input,
-        // or check output).
-        // If it fails (i.e. the output doesn't match expected) return
-        // failure.
-        for (TestTask task : mTasks) {
-            try {
-                task.execute(mHammer);
-            } catch (Exception e) {
-                HammerLog.info("Test Failed!");
-                throw new HammerException("Test failed", e);
-            }
-        }
-
-        mHammer.tearDown();
-
-        // If we got this far, the test must have passed
-        HammerLog.info("Test Passed!");
+    public List<TestTask> getTasks() {
+        return mTasks;
     }
 
     public HammerTest giveInput(int input) {
@@ -105,14 +79,6 @@ public class HammerTest {
     public HammerTest reset() {
         mTasks.add(new RestartTask());
         return this;
-    }
-
-    /**
-     * Adds a task to the queue.
-     * @param task - the task to add.
-     */
-    public void addTask(TestTask task) {
-        mTasks.add(task);
     }
 
     /**

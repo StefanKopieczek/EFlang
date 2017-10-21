@@ -34,4 +34,8 @@ public class SadisticComposer extends AbstractScaleComposer {
         }
         return scale.bottomNote();
     }
+
+    public String toString() {
+        return String.format("SadisticComposer (%s)", scale);
+    }
 }

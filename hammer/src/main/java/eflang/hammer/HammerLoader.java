@@ -2,9 +2,11 @@ package eflang.hammer;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.function.Supplier;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class HammerLoader {
 
@@ -15,7 +17,7 @@ public class HammerLoader {
      * @return the HammerSuite loaded from the given directory
      * @throws IOException upon failure to load the folder or any file within it.
      */
-    public static HammerSuite loadSuite(File folder) throws IOException {
+    public HammerSuite loadSuite(File folder) throws IOException {
         // Check we were given a directory
         if (!folder.isDirectory()) {
             HammerLog.error("ERROR: Path to load must be a directory.");
@@ -46,22 +48,37 @@ public class HammerLoader {
 
         HammerLog.info("Loading HAMMER test suite: " + suiteName);
 
-        File[] files = folder.listFiles();
+        loadTestsFromDirectory(folder).forEach(suite::addTest);
 
-        for (File file : files) {
-            // Only try to load .test files
-            if (getFileExtension(file).equals("test")) {
-                HammerLog.info("Loading test: " + file.getName());
-                HammerTest test = loadTest(file);
-                suite.addTest(test);
-            }
-        }
         HammerLog.info("");
         return suite;
     }
 
-    public static HammerSuite loadSuite(String path) throws IOException {
+    public HammerSuite loadSuite(String path) throws IOException {
         return loadSuite(new File(path));
+    }
+
+    public List<HammerTest> loadTestsFromDirectory(File testDir) {
+        if (!testDir.isDirectory()) {
+            throw new RuntimeException("Not a directory");
+        }
+        File[] testFiles = testDir.listFiles((File dir, String name) -> name.endsWith(".test"));
+
+        if (testFiles == null) {
+            throw new RuntimeException("Not a directory, or IO Exception");
+        }
+
+        return Arrays.stream(testFiles)
+                .map(this::mustLoadTest)
+                .collect(Collectors.toList());
+    }
+
+    public HammerTest mustLoadTest(File file) {
+        try {
+            return loadTest(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -70,7 +87,7 @@ public class HammerLoader {
      * @return the loaded HammerTest
      * @throws IOException upon failure to read the file
      */
-    public static HammerTest loadTest(File file) throws IOException {
+    public HammerTest loadTest(File file) throws IOException {
         if (!file.isFile()) {
             HammerLog.error("ERROR: Not a file.");
             return null;
@@ -80,7 +97,7 @@ public class HammerLoader {
 
         String name = null;
         TestType type = TestType.EF;
-        final String code;
+        String code;
         String sourceFile = null;
         ArrayList<String> IOs = new ArrayList<>();
 
@@ -161,7 +178,8 @@ public class HammerLoader {
                 br.close();
             }
             catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
+                cantFindSource = true;
+                code = "";
             }
         } else {
             code = builder.toString();
@@ -169,19 +187,7 @@ public class HammerLoader {
 
         HammerLog.log("Test code: " + code, HammerLog.LogLevel.DEV);
 
-        Supplier<String> codeSupplier;
-        switch (type) {
-        case EAR:
-            codeSupplier = new EarCodeSupplier(code);
-            break;
-        case LOBE:
-            codeSupplier = new LobeCodeSupplier(code);
-            break;
-        default:
-            codeSupplier = () -> code;
-        }
-
-        test = new HammerTest(name, codeSupplier);
+        test = new HammerTest(name, type, code);
 
         if (cantFindSource) {
             test.setupFailed = true;
@@ -198,17 +204,17 @@ public class HammerLoader {
                 int value = Integer.parseInt(split[1]);
                 switch (split[0]) {
                 case ">":
-                    test.addTask(new HammerTest.InputTask(value));
+                    test.giveInput(value);
                     break;
                 case "<":
-                    test.addTask(new HammerTest.OutputTask(value));
+                    test.expectOutput(value);
                     break;
                 }
             }
             else if (split.length >= 1) {
                 switch (split[0]) {
                 case "=":
-                    test.addTask(new HammerTest.RestartTask());
+                    test.reset();
                     break;
                 }
             }
@@ -217,25 +223,8 @@ public class HammerLoader {
         return test;
     }
 
-    public static HammerTest loadTest(String filename) throws IOException {
+    public HammerTest loadTest(String filename) throws IOException {
         return loadTest(new File(filename));
     }
 
-    private static String getFileExtension(File file) {
-        String extension = "";
-        String name = file.getName();
-        String[] split = name.split("\\.");
-
-        if (split.length > 1) {
-            extension = split[split.length - 1];
-        }
-
-        return extension;
-    }
-
-    private enum TestType {
-        EF,
-        EAR,
-        LOBE
-    }
 }

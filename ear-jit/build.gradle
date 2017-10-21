@@ -1,8 +1,10 @@
 apply plugin: 'application'
 
 dependencies {
+    compile project(':ef-core')
     compile project(':ear-core')
+
     testCompile project(':hammer')
 }
 
-mainClassName = 'eflang.ear.compiler.Main'
+mainClassName = 'eflang.ear.jit.Main'

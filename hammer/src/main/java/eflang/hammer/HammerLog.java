@@ -26,7 +26,7 @@ public class HammerLog {
     /**
      * Messages with level above this will be printed to stdout.
      */
-    private static LogLevel PRINT_LEVEL = LogLevel.INFO;
+    private static LogLevel PRINT_LEVEL = LogLevel.NONE;
 
     /**
      * Messages with level above this will be logged to LOG_FILE.

@@ -1,14 +1,19 @@
 package eflang.ear.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Scale {
+    private String name;
     private List<String> notes;
 
-    public Scale(String... notes) {
-        this.notes = Arrays.asList(notes);
+    public Scale(List<String> notes) {
+        this("unnamed", notes);
+    }
+
+    public Scale(String name, List<String> notes) {
+        this.name = name;
+        this.notes = notes;
     }
 
     public String nextNote(String note) {
@@ -45,5 +50,9 @@ public class Scale {
         List<String> copyNotes = new ArrayList<>();
         copyNotes.addAll(notes);
         return copyNotes;
+    }
+
+    public String toString() {
+        return name;
     }
 }
