@@ -2,10 +2,10 @@ package eflang.vibe;
 
 import eflang.core.Parser;
 import eflang.core.StringMusicSource;
-import eflang.ear.EARCompiler;
-import eflang.ear.EARException;
-import eflang.ear.Scale;
-import eflang.ear.Scales;
+import eflang.ear.compiler.EARCompiler;
+import eflang.ear.core.EARException;
+import eflang.ear.core.Scale;
+import eflang.ear.core.Scales;
 import eflang.ear.composer.GeometricComposer;
 import eflang.lobe.LOBECompiler;
 import eflang.lobe.LobeCompilationException;

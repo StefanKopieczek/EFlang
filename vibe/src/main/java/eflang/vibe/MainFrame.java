@@ -1,7 +1,7 @@
 package eflang.vibe;
 
-import eflang.ear.Scale;
-import eflang.ear.Scales;
+import eflang.ear.core.Scale;
+import eflang.ear.core.Scales;
 import eflang.malleus.EfToAbcConverter;
 import eflang.malleus.Scribe;
 
