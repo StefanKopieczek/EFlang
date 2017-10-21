@@ -1,4 +1,4 @@
-package eflang.ear;
+package eflang.ear.compiler;
 
 import eflang.ear.core.Command;
 import eflang.ear.core.InstructionParser;

@@ -1,6 +1,5 @@
 package eflang.hammer;
 
-import eflang.ear.EARCompiler;
 import eflang.lobe.LOBECompiler;
 
 import java.util.function.Supplier;

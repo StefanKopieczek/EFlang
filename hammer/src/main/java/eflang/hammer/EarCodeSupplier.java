@@ -1,6 +1,6 @@
 package eflang.hammer;
 
-import eflang.ear.EARCompiler;
+import eflang.ear.compiler.EARCompiler;
 import eflang.ear.core.Scales;
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;

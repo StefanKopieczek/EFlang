@@ -1,4 +1,4 @@
-package eflang.ear;
+package eflang.ear.compiler;
 
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
