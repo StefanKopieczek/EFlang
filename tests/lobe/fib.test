@@ -1,0 +1,24 @@
+[Name]
+Fibonacci
+
+[Type]
+LOBE
+
+[Code]
+a = 0
+b = 1
+while b <= 13
+print b
+temp = b
+b = a + b
+a = temp
+endwhile
+
+[Test]
+< 1
+< 1
+< 2
+< 3
+< 5
+< 8
+< 13
