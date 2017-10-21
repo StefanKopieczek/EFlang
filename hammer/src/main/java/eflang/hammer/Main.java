@@ -7,6 +7,8 @@ public class Main {
     public static void main(String[] args) {
         String testPath;
 
+        HammerLog.setPrintLevel(HammerLog.LogLevel.INFO);
+
         HammerLoader loader = new HammerLoader();
 
         HammerLog.wipeLog();
