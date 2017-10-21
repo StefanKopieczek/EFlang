@@ -5,24 +5,22 @@ import eflang.ear.core.Instruction;
 import eflang.ear.core.InstructionParser;
 import eflang.ear.core.StatefulInstructionCompiler;
 import eflang.ear.jit.EARInstructionMusicSource;
+import eflang.hammer.CodeConverter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class EarJitCodeSupplier implements Supplier<MusicSource> {
+public class EarJitCodeConverter implements CodeConverter {
     private Composer composer;
-    private String earCode;
 
-    public EarJitCodeSupplier(Composer composer, String earCode) {
+    public EarJitCodeConverter(Composer composer) {
         this.composer = composer;
-        this.earCode = earCode;
     }
 
     @Override
-    public MusicSource get() {
-        List<Instruction> instructions = Arrays.asList(earCode.split("(\\r?\\n)+")).stream()
+    public MusicSource apply(String code) {
+        List<Instruction> instructions = Arrays.asList(code.split("(\\r?\\n)+")).stream()
                 .map(InstructionParser::parseLine)
                 .map(Command::compile)
                 .flatMap(List::stream)

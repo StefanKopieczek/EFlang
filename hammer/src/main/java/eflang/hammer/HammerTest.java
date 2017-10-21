@@ -1,10 +1,7 @@
 package eflang.hammer;
 
-import eflang.core.MusicSource;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * A base ef test class.
@@ -13,9 +10,15 @@ import java.util.function.Supplier;
  */
 public class HammerTest {
     /**
-     * The earfuck code to use for this test.
+     * The code to use for this test.
      */
-    private Supplier<MusicSource> codeSupplier;
+    private String code;
+
+
+    /**
+     * The type of this test.
+     */
+    private TestType type;
 
     /**
      * A list of IO tasks to be performed in this test.
@@ -40,22 +43,23 @@ public class HammerTest {
      */
     String failureMessage = "";
 
-    public HammerTest(String name, Supplier<MusicSource> code, HammerFramework hammer) {
-        codeSupplier = code;
-        mTasks = new ArrayList<>();
-        mName = name;
-    }
-
-    public HammerTest(String name, Supplier<MusicSource> code) {
-        this(name, code, new HammerFramework());
+    public HammerTest(String name, TestType type, String code) {
+        this.mName = name;
+        this.type = type;
+        this.code = code;
+        this.mTasks = new ArrayList<>();
     }
 
     public String getName() {
         return mName;
     }
 
-    public MusicSource getCode() {
-        return codeSupplier.get();
+    public TestType getType() {
+        return type;
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public List<TestTask> getTasks() {

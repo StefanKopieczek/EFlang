@@ -1,34 +1,14 @@
 package eflang.hammer;
 
-import eflang.core.MusicSource;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class HammerLoader {
-
-    private Function<String, Supplier<MusicSource>> efCodeSupplierFactory = EFCodeSupplier::new;
-    private Function<String, Supplier<MusicSource>> earCodeSupplierFactory = EarCodeSupplier::new;
-    private Function<String, Supplier<MusicSource>> lobeCodeSupplierFactory = LobeCodeSupplier::new;
-
-    public void setEfCodeSupplierFactory(Function<String, Supplier<MusicSource>> efCodeSupplierFactory) {
-        this.efCodeSupplierFactory = efCodeSupplierFactory;
-    }
-
-    public void setEarCodeSupplierFactory(Function<String, Supplier<MusicSource>> earCodeSupplierFactory) {
-        this.earCodeSupplierFactory = earCodeSupplierFactory;
-    }
-
-    public void setLobeCodeSupplierFactory(Function<String, Supplier<MusicSource>> lobeCodeSupplierFactory) {
-        this.lobeCodeSupplierFactory = lobeCodeSupplierFactory;
-    }
 
     /**
      * Loads the given directory as a HammerSuite by looking
@@ -207,22 +187,7 @@ public class HammerLoader {
 
         HammerLog.log("Test code: " + code, HammerLog.LogLevel.DEV);
 
-        Supplier<MusicSource> codeSupplier;
-        switch (type) {
-            case EAR:
-                codeSupplier = earCodeSupplierFactory.apply(code);
-                break;
-            case LOBE:
-                codeSupplier = lobeCodeSupplierFactory.apply(code);
-                break;
-            case EF:
-                codeSupplier = efCodeSupplierFactory.apply(code);
-                break;
-            default:
-                throw new RuntimeException("Unknown test type: " + type);
-        }
-
-        test = new HammerTest(name, codeSupplier);
+        test = new HammerTest(name, type, code);
 
         if (cantFindSource) {
             test.setupFailed = true;
@@ -262,21 +227,4 @@ public class HammerLoader {
         return loadTest(new File(filename));
     }
 
-    private static String getFileExtension(File file) {
-        String extension = "";
-        String name = file.getName();
-        String[] split = name.split("\\.");
-
-        if (split.length > 1) {
-            extension = split[split.length - 1];
-        }
-
-        return extension;
-    }
-
-    private enum TestType {
-        EF,
-        EAR,
-        LOBE
-    }
 }
