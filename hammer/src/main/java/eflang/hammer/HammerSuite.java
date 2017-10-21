@@ -1,6 +1,7 @@
 package eflang.hammer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A collection of HAMMER tests to be run in one go.
@@ -9,7 +10,7 @@ import java.util.ArrayList;
  */
 public class HammerSuite {
     private String mName;
-    private ArrayList<HammerTest> mTests;
+    private List<HammerTest> mTests;
 
     public HammerSuite(String name) {
         mName = name;
@@ -29,6 +30,7 @@ public class HammerSuite {
      */
     public void run() {
         ArrayList<HammerTest> failedTests = new ArrayList<>();
+        HammerRunner runner = new HammerRunner();
 
         HammerLog.info("  === Running HAMMER suite: " + mName + " ===");
 
@@ -38,16 +40,16 @@ public class HammerSuite {
         HammerLog.LogLevel prevLevel = HammerLog.getPrintLevel();
         HammerLog.setPrintLevel(HammerLog.LogLevel.NONE);
 
-        for (HammerTest test : mTests) {
+        mTests.forEach(test -> {
             try {
-                test.run();
+                runner.run(test);
                 System.out.print('.');
             } catch (Exception e) {
                 System.out.print('F');
                 failedTests.add(test);
                 HammerLog.exception(e);
             }
-        }
+        });
 
         int numTests = mTests.size();
         int failures = failedTests.size();

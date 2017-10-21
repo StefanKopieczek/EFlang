@@ -3,14 +3,11 @@ package eflang.hammer;
 import eflang.core.MusicSource;
 
 public class HammerRunner {
-    private HammerFramework hammer;
-
-    public HammerRunner() {
-        this.hammer = new HammerFramework();
-    }
 
     public void run(HammerTest test) {
         HammerLog.info("== Running test: " + test.getName() + " ==");
+
+        HammerFramework hammer = new HammerFramework();
 
         // Set the piece playing.
         MusicSource source = test.getCode();

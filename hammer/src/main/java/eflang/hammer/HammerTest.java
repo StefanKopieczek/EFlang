@@ -15,12 +15,7 @@ public class HammerTest {
     /**
      * The earfuck code to use for this test.
      */
-    Supplier<MusicSource> codeSupplier;
-
-    /**
-     * The HammerFramework object to use to control the parser.
-     */
-    private HammerFramework mHammer;
+    private Supplier<MusicSource> codeSupplier;
 
     /**
      * A list of IO tasks to be performed in this test.
@@ -47,7 +42,6 @@ public class HammerTest {
 
     public HammerTest(String name, Supplier<MusicSource> code, HammerFramework hammer) {
         codeSupplier = code;
-        mHammer = hammer;
         mTasks = new ArrayList<>();
         mName = name;
     }
@@ -68,19 +62,6 @@ public class HammerTest {
         return mTasks;
     }
 
-    protected void initialize() {
-        // Override if initialization steps are necessary.
-    }
-
-    /**
-     * Runs the test.
-     * @return Whether the test passed or not (true/false)
-     */
-    public void run() {
-        HammerRunner runner = new HammerRunner();
-        runner.run(this);
-    }
-
     public HammerTest giveInput(int input) {
         mTasks.add(new InputTask(input));
         return this;
@@ -94,14 +75,6 @@ public class HammerTest {
     public HammerTest reset() {
         mTasks.add(new RestartTask());
         return this;
-    }
-
-    /**
-     * Adds a task to the queue.
-     * @param task - the task to add.
-     */
-    public void addTask(TestTask task) {
-        mTasks.add(task);
     }
 
     /**

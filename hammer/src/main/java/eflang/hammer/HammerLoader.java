@@ -239,17 +239,17 @@ public class HammerLoader {
                 int value = Integer.parseInt(split[1]);
                 switch (split[0]) {
                 case ">":
-                    test.addTask(new HammerTest.InputTask(value));
+                    test.giveInput(value);
                     break;
                 case "<":
-                    test.addTask(new HammerTest.OutputTask(value));
+                    test.expectOutput(value);
                     break;
                 }
             }
             else if (split.length >= 1) {
                 switch (split[0]) {
                 case "=":
-                    test.addTask(new HammerTest.RestartTask());
+                    test.reset();
                     break;
                 }
             }
