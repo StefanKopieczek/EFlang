@@ -9,7 +9,7 @@ public class StringMusicSource implements MusicSource {
     private int pos;
 
     public StringMusicSource(String music) {
-        this.notes = Arrays.asList(music.split(" \\+"));
+        this.notes = Arrays.asList(music.split("\\s+"));
         this.pos = 0;
     }
 

@@ -1,6 +1,7 @@
 package eflang.vibe;
 
 import eflang.core.Parser;
+import eflang.core.StringMusicSource;
 import eflang.ear.EARCompiler;
 import eflang.ear.EARException;
 import eflang.ear.Scale;
@@ -438,7 +439,7 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
         }
         mFrame.clearConsole();
         mPlayState = PlayState.PLAYING;
-        mParser.giveMusic(EFCode);
+        mParser.giveMusic(new StringMusicSource(EFCode));
         mParser.setInstrument(mInstrument);
         mWorker = new ParserWorker(this);
         mWorker.execute();
@@ -490,12 +491,9 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
             return;
         }
         if (mPlayState==PlayState.STOPPED) {
-            mParser.refreshState();
+            mParser.giveMusic(new StringMusicSource(mFrame.getEFCode()));
         }
         setPlayState(PlayState.PLAYING);
-        if (mParser.getPiece().length==0) {
-            mParser.giveMusic(mFrame.getEFCode());
-        }
         mStepWorker = new StepForwardWorker(this);
         mStepWorker.execute();
     }

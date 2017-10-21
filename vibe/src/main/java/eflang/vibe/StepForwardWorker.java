@@ -23,8 +23,7 @@ public class StepForwardWorker extends SwingWorker<Void, Integer> {
     @Override
     public Void doInBackground() {
         //If we've reached the end of the piece, stop playback.
-        if (mController.getParser().getPlace() >=
-                mController.getParser().getPiece().length) {
+        if (!mController.getParser().getPiece().hasNext()) {
             mController.stop();
             return null;
         }

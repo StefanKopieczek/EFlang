@@ -23,8 +23,7 @@ public class ParserWorker extends SwingWorker<Void,Integer> {
     public Void doInBackground() {
         while (!this.isCancelled()) {
             //If we've reached the end of the piece, stop playback.
-            if (mController.getParser().getPlace() >=
-                    mController.getParser().getPiece().length) {
+            if (!mController.getParser().getPiece().hasNext()) {
                 mController.stop();
                 break;
             }

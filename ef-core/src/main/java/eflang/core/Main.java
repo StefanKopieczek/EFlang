@@ -9,7 +9,7 @@ public class Main {
         System.out.println("Done!");
 
         System.out.print("Handing music to performer...");
-        efParser.giveMusic(efCode);
+        efParser.giveMusic(new StringMusicSource(efCode));
         System.out.println("Done!");
 
         System.out.println("Performing...");

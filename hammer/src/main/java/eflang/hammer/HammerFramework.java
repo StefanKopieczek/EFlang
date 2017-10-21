@@ -3,6 +3,7 @@ package eflang.hammer;
 import eflang.core.IoManager;
 import eflang.core.NullPerformer;
 import eflang.core.Parser;
+import eflang.core.StringMusicSource;
 
 import java.io.IOException;
 import java.util.concurrent.SynchronousQueue;
@@ -53,7 +54,7 @@ public class HammerFramework implements IoManager {
      * @param efCode - A valid ef piece as a String.
      */
     public void setPiece(String efCode) {
-        mParser.giveMusic(efCode);
+        mParser.giveMusic(new StringMusicSource(efCode));
     }
 
     /**
@@ -216,10 +217,9 @@ public class HammerFramework implements IoManager {
         public void run() {
             isRunning = true;
             while (isRunning) {
-                if (mParser.getPlace() < mParser.getPiece().length) {
+                if (mParser.getPiece().hasNext()) {
                     mParser.stepForward();
-                }
-                else {
+                } else {
                     isRunning = false;
                 }
             }
