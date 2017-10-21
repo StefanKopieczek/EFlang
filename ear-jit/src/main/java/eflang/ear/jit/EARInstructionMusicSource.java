@@ -1,10 +1,10 @@
 package eflang.ear.jit;
 
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
 import eflang.core.MusicSource;
 import eflang.ear.core.Instruction;
 import eflang.ear.core.StatefulInstructionCompiler;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,7 +18,7 @@ class EARInstructionMusicSource implements MusicSource {
     EARInstructionMusicSource(StatefulInstructionCompiler instructionCompiler, List<Instruction> instructions) {
         this.instructionCompiler = instructionCompiler;
         this.instructions = instructions;
-        this.compiledInstruction = Iterators.empty();
+        this.compiledInstruction = Collections.emptyIterator();
     }
 
     @Override
