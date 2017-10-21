@@ -17,7 +17,7 @@ public class HammerTest {
         HammerLoader loader = new HammerLoader();
         Composer composer = new GeometricComposer(Scales.BluesMinor);
         loader.setEarCodeSupplierFactory(code -> new EarJitCodeSupplier(composer, code));
-        return loader.loadTestsFromDirectory(new File("tests/ear")).stream()
+        return loader.loadTestsFromDirectory(new File("../tests/ear")).stream()
                 .map(hammerTest -> dynamicTest(hammerTest.getName(), hammerTest::run));
     }
 
