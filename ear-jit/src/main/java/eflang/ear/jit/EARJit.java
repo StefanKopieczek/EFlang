@@ -13,9 +13,11 @@ import java.util.stream.Collectors;
 
 public class EARJit {
     private Composer composer;
+    private Performer performer;
 
-    public EARJit(Composer composer) {
+    public EARJit(Composer composer, Performer performer) {
         this.composer = composer;
+        this.performer = performer;
     }
 
     public void run(String earCode) {
@@ -27,7 +29,6 @@ public class EARJit {
 
         StatefulInstructionCompiler instructionCompiler = new StatefulInstructionCompiler(composer);
         MusicSource source = new EARInstructionMusicSource(instructionCompiler, instructions);
-        Performer performer = new NullPerformer();
         Parser efParser = new Parser(performer);
         efParser.giveMusic(source);
         efParser.perform();
