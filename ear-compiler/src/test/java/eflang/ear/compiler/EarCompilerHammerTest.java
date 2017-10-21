@@ -1,4 +1,4 @@
-package eflang.ear;
+package eflang.ear.compiler;
 
 import com.google.common.collect.ImmutableList;
 import eflang.ear.composer.Composer;
