@@ -1,6 +1,8 @@
 package eflang.ear.jit;
 
 import eflang.core.MidiStreamPerformer;
+import eflang.core.Performer;
+import eflang.ear.composer.Composer;
 import eflang.ear.composer.GeometricComposer;
 import eflang.ear.core.Scales;
 
@@ -19,10 +21,12 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        EARJit jit = new EARJit(
-                new GeometricComposer(Scales.GMajor),
-                new MidiStreamPerformer((byte)0)
-        );
+        Composer composer = new GeometricComposer(Scales.CMajorPentatonic);
+
+        Performer performer = new MidiStreamPerformer((byte)0);
+        performer.setTempo(200);
+
+        EARJit jit = new EARJit(composer, performer);
         jit.run(earCode);
     }
 }
