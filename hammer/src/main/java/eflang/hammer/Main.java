@@ -7,6 +7,8 @@ public class Main {
     public static void main(String[] args) {
         String testPath;
 
+        HammerLoader loader = new HammerLoader();
+
         HammerLog.wipeLog();
 
         if (args.length >= 1) {
@@ -28,7 +30,7 @@ public class Main {
             HammerLog.setPrintLevel(HammerLog.LogLevel.ERROR);
             HammerSuite loadedSuite = null;
             try {
-                loadedSuite = HammerLoader.loadSuite(file);
+                loadedSuite = loader.loadSuite(file);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

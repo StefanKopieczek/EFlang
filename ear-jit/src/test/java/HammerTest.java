@@ -1,3 +1,6 @@
+import eflang.ear.composer.Composer;
+import eflang.ear.composer.GeometricComposer;
+import eflang.ear.core.Scales;
 import eflang.hammer.HammerLoader;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
@@ -11,7 +14,10 @@ public class HammerTest {
 
     @TestFactory
     Stream<DynamicTest> hammerTests() {
-        return HammerLoader.loadTestsFromDirectory(new File("tests/ear")).stream()
+        HammerLoader loader = new HammerLoader();
+        Composer composer = new GeometricComposer(Scales.BluesMinor);
+        loader.setEarCodeSupplierFactory(code -> new EarJitCodeSupplier(composer, code));
+        return loader.loadTestsFromDirectory(new File("tests/ear")).stream()
                 .map(hammerTest -> dynamicTest(hammerTest.getName(), hammerTest::run));
     }
 

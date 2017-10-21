@@ -6,12 +6,29 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class HammerLoader {
+
+    private Function<String, Supplier<MusicSource>> efCodeSupplierFactory = EFCodeSupplier::new;
+    private Function<String, Supplier<MusicSource>> earCodeSupplierFactory = EarCodeSupplier::new;
+    private Function<String, Supplier<MusicSource>> lobeCodeSupplierFactory = LobeCodeSupplier::new;
+
+    public void setEfCodeSupplierFactory(Function<String, Supplier<MusicSource>> efCodeSupplierFactory) {
+        this.efCodeSupplierFactory = efCodeSupplierFactory;
+    }
+
+    public void setEarCodeSupplierFactory(Function<String, Supplier<MusicSource>> earCodeSupplierFactory) {
+        this.earCodeSupplierFactory = earCodeSupplierFactory;
+    }
+
+    public void setLobeCodeSupplierFactory(Function<String, Supplier<MusicSource>> lobeCodeSupplierFactory) {
+        this.lobeCodeSupplierFactory = lobeCodeSupplierFactory;
+    }
 
     /**
      * Loads the given directory as a HammerSuite by looking
@@ -20,7 +37,7 @@ public class HammerLoader {
      * @return the HammerSuite loaded from the given directory
      * @throws IOException upon failure to load the folder or any file within it.
      */
-    public static HammerSuite loadSuite(File folder) throws IOException {
+    public HammerSuite loadSuite(File folder) throws IOException {
         // Check we were given a directory
         if (!folder.isDirectory()) {
             HammerLog.error("ERROR: Path to load must be a directory.");
@@ -51,25 +68,17 @@ public class HammerLoader {
 
         HammerLog.info("Loading HAMMER test suite: " + suiteName);
 
-        File[] files = folder.listFiles();
+        loadTestsFromDirectory(folder).forEach(suite::addTest);
 
-        for (File file : files) {
-            // Only try to load .test files
-            if (getFileExtension(file).equals("test")) {
-                HammerLog.info("Loading test: " + file.getName());
-                HammerTest test = loadTest(file);
-                suite.addTest(test);
-            }
-        }
         HammerLog.info("");
         return suite;
     }
 
-    public static HammerSuite loadSuite(String path) throws IOException {
+    public HammerSuite loadSuite(String path) throws IOException {
         return loadSuite(new File(path));
     }
 
-    public static List<HammerTest> loadTestsFromDirectory(File testDir) {
+    public List<HammerTest> loadTestsFromDirectory(File testDir) {
         if (!testDir.isDirectory()) {
             throw new RuntimeException("Not a directory");
         }
@@ -80,11 +89,11 @@ public class HammerLoader {
         }
 
         return Arrays.stream(testFiles)
-                .map(HammerLoader::mustLoadTest)
+                .map(this::mustLoadTest)
                 .collect(Collectors.toList());
     }
 
-    public static HammerTest mustLoadTest(File file) {
+    public HammerTest mustLoadTest(File file) {
         try {
             return loadTest(file);
         } catch (IOException e) {
@@ -98,7 +107,7 @@ public class HammerLoader {
      * @return the loaded HammerTest
      * @throws IOException upon failure to read the file
      */
-    public static HammerTest loadTest(File file) throws IOException {
+    public HammerTest loadTest(File file) throws IOException {
         if (!file.isFile()) {
             HammerLog.error("ERROR: Not a file.");
             return null;
@@ -201,13 +210,13 @@ public class HammerLoader {
         Supplier<MusicSource> codeSupplier;
         switch (type) {
             case EAR:
-                codeSupplier = new EarCodeSupplier(code);
+                codeSupplier = earCodeSupplierFactory.apply(code);
                 break;
             case LOBE:
-                codeSupplier = new LobeCodeSupplier(code);
+                codeSupplier = lobeCodeSupplierFactory.apply(code);
                 break;
             case EF:
-                codeSupplier = new EFCodeSupplier(code);
+                codeSupplier = efCodeSupplierFactory.apply(code);
                 break;
             default:
                 throw new RuntimeException("Unknown test type: " + type);
@@ -249,7 +258,7 @@ public class HammerLoader {
         return test;
     }
 
-    public static HammerTest loadTest(String filename) throws IOException {
+    public HammerTest loadTest(String filename) throws IOException {
         return loadTest(new File(filename));
     }
 

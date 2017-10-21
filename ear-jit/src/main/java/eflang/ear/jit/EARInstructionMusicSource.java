@@ -9,13 +9,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-class EARInstructionMusicSource implements MusicSource {
+public class EARInstructionMusicSource implements MusicSource {
     private StatefulInstructionCompiler instructionCompiler;
     private List<Instruction> instructions;
     private Iterator<String> compiledInstruction;
     private long pos;
 
-    EARInstructionMusicSource(StatefulInstructionCompiler instructionCompiler, List<Instruction> instructions) {
+    public EARInstructionMusicSource(StatefulInstructionCompiler instructionCompiler, List<Instruction> instructions) {
         this.instructionCompiler = instructionCompiler;
         this.instructions = instructions;
         this.compiledInstruction = Collections.emptyIterator();
@@ -56,7 +56,7 @@ class EARInstructionMusicSource implements MusicSource {
 
     private void compileNextInstruction() {
         while (!compiledInstruction.hasNext()) {
-            if (pos > instructions.size()) {
+            if (pos >= instructions.size()) {
                 throw new NoSuchElementException();
             }
             compiledInstruction = instructionCompiler.compileInstruction(instructions.get((int)pos)).iterator();

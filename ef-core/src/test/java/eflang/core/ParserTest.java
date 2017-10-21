@@ -44,6 +44,6 @@ class ParserTest {
     }
 
     private HammerTest hammer(String name, String code) {
-        return new HammerTest(name, () -> code);
+        return new HammerTest(name, () -> new StringMusicSource(code));
     }
 }
