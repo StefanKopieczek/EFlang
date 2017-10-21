@@ -19,7 +19,7 @@ public class GeometricComposer extends AbstractScaleComposer {
     public GeometricComposer(Scale scale, double p) {
         super(scale);
         this.p = p;
-        this.random = new Random();
+        this.random = new Random(1);
     }
 
     @Override
