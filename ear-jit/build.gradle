@@ -1,0 +1,7 @@
+apply plugin: 'application'
+
+dependencies {
+    compile project(':ear-core')
+}
+
+mainClassName = 'eflang.ear.jit.Main'
