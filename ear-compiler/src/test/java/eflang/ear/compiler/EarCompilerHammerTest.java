@@ -28,7 +28,7 @@ class EarCompilerHammerTest {
                 new OnlyRunsComposer(Scales.CMajor),
                 new GeometricComposer(Scales.BluesMinor),
                 new SadisticComposer(Scales.CMajorPentatonic),
-                new GeometricComposer(new Scale("c4", "e4", "g4"))
+                new GeometricComposer(new Scale("3 Notes", ImmutableList.of("c4", "e4", "g4")))
         );
 
         List<HammerTest> tests = loader.loadTestsFromDirectory(new File("../tests/ear"));

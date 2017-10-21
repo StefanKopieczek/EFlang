@@ -26,4 +26,7 @@ public class OnlyRunsComposer extends AbstractScaleComposer {
         return prevNote(note);
     }
 
+    public String toString() {
+        return String.format("OnlyRunsComposer (%s)", scale);
+    }
 }

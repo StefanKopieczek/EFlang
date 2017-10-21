@@ -70,4 +70,8 @@ public class GeometricComposer extends AbstractScaleComposer {
         // Didn't select any.  Default to a basic step up.
         return notes.get(0);
     }
+
+    public String toString() {
+        return String.format("GeometricComposer (%s)", scale);
+    }
 }
