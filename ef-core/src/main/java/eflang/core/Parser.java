@@ -92,7 +92,7 @@ public class Parser {
      * characters' positions so that we can return to that position in the code
      * when we want to replay a section.
      */
-    private Stack<Integer> mBrackets;
+    private Stack<Long> mBrackets;
 
     /**
      * Bracketed sections are skipped if the ambiance value of the current
@@ -215,7 +215,7 @@ public class Parser {
                 // We resume normal tempo; and if the audience isn't bored
                 // we skip back to the start of the section and play it
                 // again!
-                Integer startPlace = mBrackets.pop();
+                long startPlace = mBrackets.pop();
                 mNoteDuration *= 2;
                 if (mAmbiance.get(mMentalState) != 0) {
                     // Skip back to just before the opening bracket at the
@@ -363,7 +363,7 @@ public class Parser {
         return mComposition;
     }
 
-    public int getPlace() {
+    public long getPlace() {
         return mComposition.getPos();
     }
 

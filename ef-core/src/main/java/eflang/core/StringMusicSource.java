@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 
 public class StringMusicSource implements MusicSource {
     private List<String> notes;
-    private int pos;
+    private long pos;
 
     public StringMusicSource(String music) {
         this.notes = Arrays.asList(music.split("\\s+"));
@@ -14,12 +14,12 @@ public class StringMusicSource implements MusicSource {
     }
 
     @Override
-    public int getPos() {
+    public long getPos() {
         return pos;
     }
 
     @Override
-    public void seek(int newPos) {
+    public void seek(long newPos) {
         pos = newPos;
     }
 
@@ -34,6 +34,6 @@ public class StringMusicSource implements MusicSource {
             throw new NoSuchElementException("No notes remaining");
         }
 
-        return notes.get(pos++);
+        return notes.get((int)pos++);
     }
 }

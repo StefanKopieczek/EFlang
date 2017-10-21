@@ -12,7 +12,7 @@ import java.util.List;
  * @author Ryan Norris
  *
  */
-public class ParserWorker extends SwingWorker<Void,Integer> {
+public class ParserWorker extends SwingWorker<Void,Long> {
     private VibeController mController;
 
     public ParserWorker(VibeController controller) {
@@ -39,9 +39,9 @@ public class ParserWorker extends SwingWorker<Void,Integer> {
     }
 
     @Override
-    protected void process(List<Integer> indices) {
+    protected void process(List<Long> indices) {
         //Get EF command index
-        int currentEFCommand = indices.get(indices.size()-1);
+        long currentEFCommand = indices.get(indices.size()-1);
         //Get EAR command index
         int currentEARLine = 0;
         ArrayList<Integer> earLineStartPositions =
