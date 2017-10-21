@@ -3,6 +3,7 @@ package eflang.hammer;
 import eflang.core.MusicSource;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -59,6 +60,14 @@ public class HammerTest {
         return mName;
     }
 
+    public MusicSource getCode() {
+        return codeSupplier.get();
+    }
+
+    public List<TestTask> getTasks() {
+        return mTasks;
+    }
+
     protected void initialize() {
         // Override if initialization steps are necessary.
     }
@@ -68,30 +77,8 @@ public class HammerTest {
      * @return Whether the test passed or not (true/false)
      */
     public void run() {
-        HammerLog.info("== Running test: " + mName + " ==");
-
-        // Set the piece playing.
-        MusicSource source = codeSupplier.get();
-        mHammer.setPiece(source);
-        mHammer.startPlaying();
-
-        // For each IO task we have, execute it (either give input,
-        // or check output).
-        // If it fails (i.e. the output doesn't match expected) return
-        // failure.
-        for (TestTask task : mTasks) {
-            try {
-                task.execute(mHammer);
-            } catch (Exception e) {
-                HammerLog.info("Test Failed!");
-                throw new HammerException("Test failed", e);
-            }
-        }
-
-        mHammer.tearDown();
-
-        // If we got this far, the test must have passed
-        HammerLog.info("Test Passed!");
+        HammerRunner runner = new HammerRunner();
+        runner.run(this);
     }
 
     public HammerTest giveInput(int input) {
