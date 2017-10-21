@@ -17,6 +17,7 @@ public class StatefulInstructionCompiler {
 
     public StatefulInstructionCompiler(Composer composer) {
         this.composer = composer;
+        resetState();
     }
 
     public void resetState() {

@@ -1,6 +1,7 @@
 apply plugin: 'application'
 
 dependencies {
+    compile project(':ef-core')
     compile project(':ear-core')
 }
 
