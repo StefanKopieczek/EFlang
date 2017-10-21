@@ -1,5 +1,6 @@
 package eflang.hammer;
 
+import eflang.core.MusicSource;
 import eflang.lobe.LOBECompiler;
 
 import java.util.function.Supplier;
@@ -10,14 +11,14 @@ import java.util.function.Supplier;
  * @author rynor_000
  *
  */
-public class LobeCodeSupplier implements Supplier<String> {
+public class LobeCodeSupplier implements Supplier<MusicSource> {
     private String lobeCode;
 
     public LobeCodeSupplier(String code) {
         this.lobeCode = code;
     }
 
-    public String get() {
+    public MusicSource get() {
         LOBECompiler lobeCompiler = new LOBECompiler();
 
         try {

@@ -1,10 +1,15 @@
 package eflang.hammer;
 
+import eflang.core.MusicSource;
+
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class HammerLoader {
 
@@ -64,6 +69,29 @@ public class HammerLoader {
         return loadSuite(new File(path));
     }
 
+    public static List<HammerTest> loadTestsFromDirectory(File testDir) {
+        if (!testDir.isDirectory()) {
+            throw new RuntimeException("Not a directory");
+        }
+        File[] testFiles = testDir.listFiles((File dir, String name) -> name.endsWith(".test"));
+
+        if (testFiles == null) {
+            throw new RuntimeException("Not a directory, or IO Exception");
+        }
+
+        return Arrays.stream(testFiles)
+                .map(HammerLoader::mustLoadTest)
+                .collect(Collectors.toList());
+    }
+
+    public static HammerTest mustLoadTest(File file) {
+        try {
+            return loadTest(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Loads a HammerTest from a file.
      * @param file file to load the test from
@@ -80,7 +108,7 @@ public class HammerLoader {
 
         String name = null;
         TestType type = TestType.EF;
-        final String code;
+        String code;
         String sourceFile = null;
         ArrayList<String> IOs = new ArrayList<>();
 
@@ -161,7 +189,8 @@ public class HammerLoader {
                 br.close();
             }
             catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
+                cantFindSource = true;
+                code = "";
             }
         } else {
             code = builder.toString();
@@ -169,16 +198,19 @@ public class HammerLoader {
 
         HammerLog.log("Test code: " + code, HammerLog.LogLevel.DEV);
 
-        Supplier<String> codeSupplier;
+        Supplier<MusicSource> codeSupplier;
         switch (type) {
-        case EAR:
-            codeSupplier = new EarCodeSupplier(code);
-            break;
-        case LOBE:
-            codeSupplier = new LobeCodeSupplier(code);
-            break;
-        default:
-            codeSupplier = () -> code;
+            case EAR:
+                codeSupplier = new EarCodeSupplier(code);
+                break;
+            case LOBE:
+                codeSupplier = new LobeCodeSupplier(code);
+                break;
+            case EF:
+                codeSupplier = new EFCodeSupplier(code);
+                break;
+            default:
+                throw new RuntimeException("Unknown test type: " + type);
         }
 
         test = new HammerTest(name, codeSupplier);

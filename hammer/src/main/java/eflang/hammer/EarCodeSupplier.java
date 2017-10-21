@@ -1,9 +1,11 @@
 package eflang.hammer;
 
+import eflang.core.MusicSource;
+import eflang.core.StringMusicSource;
 import eflang.ear.compiler.EARCompiler;
-import eflang.ear.core.Scales;
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
+import eflang.ear.core.Scales;
 
 import java.util.function.Supplier;
 
@@ -13,7 +15,7 @@ import java.util.function.Supplier;
  * @author rynor_000
  *
  */
-public class EarCodeSupplier implements Supplier<String> {
+public class EarCodeSupplier implements Supplier<MusicSource> {
     private String earCode;
     private Composer composer;
 
@@ -26,10 +28,10 @@ public class EarCodeSupplier implements Supplier<String> {
         this.composer = composer;
     }
 
-    public String get() {
+    public MusicSource get() {
         EARCompiler compiler = new EARCompiler(composer);
         try {
-            return compiler.compile(earCode);
+            return new StringMusicSource(compiler.compile(earCode));
         } catch (Exception e) {
             throw new RuntimeException("Failed to compile EAR code with error:\n" + e.getMessage());
         }

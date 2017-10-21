@@ -1,5 +1,7 @@
 package eflang.hammer;
 
+import eflang.core.MusicSource;
+
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
@@ -12,7 +14,7 @@ public class HammerTest {
     /**
      * The earfuck code to use for this test.
      */
-    Supplier<String> codeSupplier;
+    Supplier<MusicSource> codeSupplier;
 
     /**
      * The HammerFramework object to use to control the parser.
@@ -42,14 +44,14 @@ public class HammerTest {
      */
     String failureMessage = "";
 
-    public HammerTest(String name, Supplier<String> code, HammerFramework hammer) {
+    public HammerTest(String name, Supplier<MusicSource> code, HammerFramework hammer) {
         codeSupplier = code;
         mHammer = hammer;
         mTasks = new ArrayList<>();
         mName = name;
     }
 
-    public HammerTest(String name, Supplier<String> code) {
+    public HammerTest(String name, Supplier<MusicSource> code) {
         this(name, code, new HammerFramework());
     }
 
@@ -69,8 +71,8 @@ public class HammerTest {
         HammerLog.info("== Running test: " + mName + " ==");
 
         // Set the piece playing.
-        String efCode = codeSupplier.get();
-        mHammer.setPiece(efCode);
+        MusicSource source = codeSupplier.get();
+        mHammer.setPiece(source);
         mHammer.startPlaying();
 
         // For each IO task we have, execute it (either give input,
