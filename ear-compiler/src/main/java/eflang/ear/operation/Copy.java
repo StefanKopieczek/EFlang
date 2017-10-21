@@ -2,7 +2,7 @@ package eflang.ear.operation;
 
 import com.google.common.collect.ImmutableList;
 import eflang.ear.Argument;
-import eflang.ear.Instruction;
+import eflang.ear.core.Instruction;
 
 import java.util.ArrayList;
 import java.util.List;

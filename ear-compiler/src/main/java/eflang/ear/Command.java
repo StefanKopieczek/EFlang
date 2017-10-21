@@ -1,5 +1,6 @@
 package eflang.ear;
 
+import eflang.ear.core.Instruction;
 import eflang.ear.operation.Operation;
 
 import java.util.List;
