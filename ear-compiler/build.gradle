@@ -1,4 +1,4 @@
 
 dependencies {
-    testCompile project(':hammer')
+    compile project(':ear-core')
 }
