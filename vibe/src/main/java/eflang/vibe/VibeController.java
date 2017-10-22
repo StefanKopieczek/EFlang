@@ -601,7 +601,7 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      * Used by workers to do code highlighting.
      * @return
      */
-    public ArrayList<Integer> getHighLevelCommandStartPositions() {
+    public List<Integer> getHighLevelCommandStartPositions() {
         return mHighLevelLineStartPositions;
     }
 
