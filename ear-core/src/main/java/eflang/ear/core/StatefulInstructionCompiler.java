@@ -30,10 +30,6 @@ public class StatefulInstructionCompiler {
         new ArrayList<>();
     }
 
-    public String getStartingNote() {
-        return composer.getStartingNode();
-    }
-
     public List<String> compileInstruction(Instruction instruction) {
         List<String> output = new ArrayList<>();
 

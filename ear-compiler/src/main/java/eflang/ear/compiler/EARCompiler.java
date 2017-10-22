@@ -4,9 +4,13 @@ import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
 import eflang.ear.core.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Compiler for the EAR language. <br/>
@@ -49,7 +53,10 @@ public class EARCompiler {
         resetState();
         List<String> output = new ArrayList<>();
 
-        List<Command> commands = EARParser.parse(EARCode);
+        InputStream input = new ByteArrayInputStream(EARCode.getBytes(Charset.defaultCharset()));
+
+        CommandParser parser = CommandParser.defaultCommandParser();
+        Stream<Command> commands = InputSplitter.split(input).map(parser::parseCommand);
 
         commands.forEach(cmd -> {
             lineStartPositions.add(output.size());
