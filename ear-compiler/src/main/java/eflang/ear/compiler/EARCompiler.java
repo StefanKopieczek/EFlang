@@ -7,8 +7,8 @@ import eflang.ear.core.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  *
  */
 public class EARCompiler {
-    private StatefulInstructionCompiler statefulInstructionCompiler;
+    private Composer composer;
 
     /**
      * This stores the start position in the compiled EF code for each
@@ -27,20 +27,14 @@ public class EARCompiler {
      * Index = EAR command index
      * Value = first EF command index in the given EAR command
      */
-    private ArrayList<Integer> lineStartPositions;
+    private List<Long> lineStartPositions;
 
     public EARCompiler() {
         this(new OnlyRunsComposer(Scales.CMajor));
     }
 
     public EARCompiler(Composer composer) {
-        statefulInstructionCompiler = new StatefulInstructionCompiler(composer);
-        resetState();
-    }
-
-    private void resetState() {
-        statefulInstructionCompiler.resetState();
-        lineStartPositions = new ArrayList<>();
+        this.composer = composer;
     }
 
     /**
@@ -50,28 +44,32 @@ public class EARCompiler {
      * @return String containing EF program
      */
     public String compile(String EARCode) throws EARException {
-        resetState();
-        List<String> output = new ArrayList<>();
+        StatefulInstructionCompiler instructionCompiler = new StatefulInstructionCompiler(composer);
 
         InputStream input = new ByteArrayInputStream(EARCode.getBytes(Charset.defaultCharset()));
 
         CommandParser parser = CommandParser.defaultCommandParser();
         Stream<Command> commands = InputSplitter.split(input).map(parser::parseCommand);
 
-        commands.forEach(cmd -> {
-            lineStartPositions.add(output.size());
-            List<String> notes = cmd.compile().stream()
-                    .map(statefulInstructionCompiler::compileInstruction)
+        List<List<String>> notesPerCommand = commands.map(cmd ->
+            cmd.compile().stream()
+                    .map(instructionCompiler::compileInstruction)
                     .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                .collect(Collectors.toList())
+        ).collect(Collectors.toList());
 
-            output.addAll(notes);
-        });
+        AtomicLong accumulator = new AtomicLong(0);
+        lineStartPositions = notesPerCommand.stream()
+                .map(List::size)
+                .map(accumulator::addAndGet)
+                .collect(Collectors.toList());
+
+        List<String> output = notesPerCommand.stream().flatMap(List::stream).collect(Collectors.toList());
 
         return String.join(" ", output);
     }
 
-    public ArrayList<Integer> getCommandStartPositions() {
+    public List<Long> getCommandStartPositions() {
         return lineStartPositions;
     }
 
