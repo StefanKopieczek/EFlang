@@ -22,7 +22,7 @@ public class StatefulInstructionCompiler {
 
     public void resetState() {
         p = 0;
-        currentNote = composer.getStartingNode();
+        currentNote = null;
         optimism = 0;
         branchLocStack = new Stack<>();
         branchNoteStack = new Stack<>();
@@ -36,6 +36,13 @@ public class StatefulInstructionCompiler {
 
     public List<String> compileInstruction(Instruction instruction) {
         List<String> output = new ArrayList<>();
+
+        if (currentNote == null) {
+            // This is our first command, need to start somewhere.
+            currentNote = composer.getStartingNode();
+            output.add(currentNote);
+        }
+
         switch (instruction.getType()) {
             case GOTO:
                 output.addAll(goTo(instruction.getValue()));
