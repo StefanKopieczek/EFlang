@@ -13,6 +13,7 @@ public class EARParser {
 
     public static List<Command> parse(String earCode) {
         List<String> lines = Arrays.asList(earCode.split("(\\r?\\n)+"));
-        return lines.stream().map(CommandParser::parseCommand).collect(Collectors.toList());
+        CommandParser parser = CommandParser.defaultCommandParser();
+        return lines.stream().map(parser::parseCommand).collect(Collectors.toList());
     }
 }

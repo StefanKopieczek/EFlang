@@ -21,8 +21,9 @@ public class EARJit {
     }
 
     public void run(String earCode) {
+        CommandParser parser = CommandParser.defaultCommandParser();
         List<Instruction> instructions = Arrays.asList(earCode.split("(\\r?\\n)+")).stream()
-                .map(CommandParser::parseCommand)
+                .map(parser::parseCommand)
                 .map(Command::compile)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());

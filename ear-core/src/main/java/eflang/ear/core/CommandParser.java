@@ -2,16 +2,24 @@ package eflang.ear.core;
 
 import eflang.ear.operation.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CommandParser {
 
-    private CommandParser() {}
+    private Map<String, Supplier<Operation>> operationRegistry;
 
-    public static Command parseCommand(String line) {
+    public CommandParser() {
+        this.operationRegistry = new HashMap<>();
+    }
+
+    public CommandParser registerOperation(String opCode, Supplier<Operation> operationSupplier) {
+        this.operationRegistry.put(opCode, operationSupplier);
+        return this;
+    }
+
+    public Command parseCommand(String line) {
         line = line.trim();
         if ((line.equals("")) || (isComment(line))) {
             return Command.of(new Noop(), Collections.emptyList());
@@ -37,34 +45,27 @@ public class CommandParser {
         }
     }
 
-    private static Operation lookupOperation(String opCode) {
-        switch (opCode) {
-            case "ADD":
-                return new Add();
-            case "COPY":
-                return new Copy();
-            case "DIV":
-                return new Divide();
-            case "ENDWHILE":
-                return new EndWhile();
-            case "GOTO":
-                return new Goto();
-            case "IN":
-                return new Input();
-            case "MOV":
-                return new Move();
-            case "MUL":
-                return new Multiply();
-            case "OUT":
-                return new Output();
-            case "SUB":
-                return new Subtract();
-            case "WHILE":
-                return new While();
-            case "ZERO":
-                return new Zero();
-            default:
-                throw new RuntimeException("Unknown opCode: " + opCode);
+    private Operation lookupOperation(String opCode) {
+        if (operationRegistry.containsKey(opCode)) {
+            return operationRegistry.get(opCode).get();
+        } else {
+            throw new RuntimeException("Unknown opCode: " + opCode);
         }
+    }
+
+    public static CommandParser defaultCommandParser() {
+        return new CommandParser()
+                .registerOperation("ADD", Add::new)
+                .registerOperation("COPY", Copy::new)
+                .registerOperation("DIV", Divide::new)
+                .registerOperation("ENDWHILE", EndWhile::new)
+                .registerOperation("GOTO", Goto::new)
+                .registerOperation("IN", Input::new)
+                .registerOperation("MOV", Move::new)
+                .registerOperation("MUL", Multiply::new)
+                .registerOperation("OUT", Output::new)
+                .registerOperation("SUB", Subtract::new)
+                .registerOperation("WHILE", While::new)
+                .registerOperation("ZERO", Zero::new);
     }
 }
