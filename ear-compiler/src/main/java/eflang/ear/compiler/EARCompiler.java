@@ -21,14 +21,6 @@ import java.util.stream.Stream;
 public class EARCompiler {
     private Composer composer;
 
-    /**
-     * This stores the start position in the compiled EF code for each
-     * EAR command.
-     * Index = EAR command index
-     * Value = first EF command index in the given EAR command
-     */
-    private List<Long> lineStartPositions;
-
     public EARCompiler() {
         this(new OnlyRunsComposer(Scales.CMajor));
     }
@@ -43,7 +35,7 @@ public class EARCompiler {
      * @param EARCode full program code.
      * @return String containing EF program
      */
-    public String compile(String EARCode) throws EARException {
+    public EarCompilationResult compile(String EARCode) throws EARException {
         StatefulInstructionCompiler instructionCompiler = new StatefulInstructionCompiler(composer);
 
         InputStream input = new ByteArrayInputStream(EARCode.getBytes(Charset.defaultCharset()));
@@ -59,18 +51,13 @@ public class EARCompiler {
         ).collect(Collectors.toList());
 
         AtomicLong accumulator = new AtomicLong(0);
-        lineStartPositions = notesPerCommand.stream()
+        List<Long> lineStartPositions = notesPerCommand.stream()
                 .map(List::size)
                 .map(accumulator::getAndAdd)
                 .collect(Collectors.toList());
 
         List<String> output = notesPerCommand.stream().flatMap(List::stream).collect(Collectors.toList());
 
-        return String.join(" ", output);
+        return new EarCompilationResult(String.join(" ", output), lineStartPositions);
     }
-
-    public List<Long> getCommandStartPositions() {
-        return lineStartPositions;
-    }
-
 }

@@ -17,14 +17,14 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        String efCode;
+        EarCompilationResult result;
         EARCompiler compiler = new EARCompiler();
         try {
-            efCode = compiler.compile(earCode);
+             result = compiler.compile(earCode);
         } catch (EARException e) {
             throw new RuntimeException(e);
         }
 
-        System.out.print(efCode);
+        System.out.print(result.getEfCode());
     }
 }

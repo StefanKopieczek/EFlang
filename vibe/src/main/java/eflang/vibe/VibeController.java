@@ -3,6 +3,7 @@ package eflang.vibe;
 import eflang.core.Parser;
 import eflang.core.StringMusicSource;
 import eflang.ear.compiler.EARCompiler;
+import eflang.ear.compiler.EarCompilationResult;
 import eflang.ear.composer.GeometricComposer;
 import eflang.ear.core.EARException;
 import eflang.ear.core.Scale;
@@ -242,8 +243,9 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
         String EARCode = mFrame.getEARCode();
         if (mPlayState==PlayState.STOPPED) {
             try {
-                mFrame.setEFCode(mEARCompiler.compile(EARCode));
-                mEARLineStartPositions = mEARCompiler.getCommandStartPositions();
+                EarCompilationResult result = mEARCompiler.compile(EARCode);
+                mFrame.setEFCode(result.getEfCode());
+                mEARLineStartPositions = result.getLineStartPositions();
             } catch (EARException e) {
                 mFrame.setEFCode(e.getMessage());
             }

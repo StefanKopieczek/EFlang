@@ -3,6 +3,7 @@ package eflang.hammer;
 import eflang.core.MusicSource;
 import eflang.core.StringMusicSource;
 import eflang.ear.compiler.EARCompiler;
+import eflang.ear.compiler.EarCompilationResult;
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
 import eflang.ear.core.Scales;
@@ -27,7 +28,8 @@ public class EarCodeConverter implements CodeConverter {
     public MusicSource apply(String code) {
         EARCompiler compiler = new EARCompiler(composer);
         try {
-            return new StringMusicSource(compiler.compile(code));
+            EarCompilationResult result = compiler.compile(code);
+            return new StringMusicSource(result.getEfCode());
         } catch (Exception e) {
             throw new RuntimeException("Failed to compile EAR code with error", e);
         }
