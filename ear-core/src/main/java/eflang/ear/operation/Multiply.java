@@ -12,8 +12,6 @@ import java.util.List;
 public class Multiply implements Operation {
     @Override
     public List<Instruction> compile(List<Argument> args) {
-        assert args.size() == 4;
-
         Argument a0 = args.get(0);
         Argument a1 = args.get(1);
         Argument tgt = args.get(2);

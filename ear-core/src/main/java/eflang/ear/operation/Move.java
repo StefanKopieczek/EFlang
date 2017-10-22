@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 public class Move implements Operation {
     @Override
     public List<Instruction> compile(List<Argument> args) {
-        assert args.size() > 1;
-
         List<Instruction> instructions = new ArrayList<>();
 
         List<Integer> outputCells = args.subList(1, args.size()).stream()

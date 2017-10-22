@@ -10,8 +10,6 @@ import java.util.List;
 public class EndWhile implements Operation {
     @Override
     public List<Instruction> compile(List<Argument> args) {
-        assert args.size() == 0;
-
         return ImmutableList.of(
                 Instruction.endLoop()
         );

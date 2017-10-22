@@ -12,8 +12,6 @@ import java.util.List;
 public class Divide implements Operation {
     @Override
     public List<Instruction> compile(List<Argument> args) {
-        assert args.size() == 9;
-
         Argument numerator = args.get(0);
         Argument denominator = args.get(1);
         Argument tgt = args.get(2);

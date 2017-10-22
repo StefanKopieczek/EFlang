@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 public class Copy implements Operation {
     @Override
     public List<Instruction> compile(List<Argument> args) {
-        assert args.size() >= 3;
-
         switch (args.get(0).getType()) {
             case CONSTANT:
                 // If passed a constant arg, just use MOV since it's faster and has the same result.

@@ -13,8 +13,6 @@ import java.util.stream.Stream;
 public class Subtract implements Operation {
     @Override
     public List<Instruction> compile(List<Argument> args) {
-        assert args.size() > 1;
-
         List<Integer> outputCells = args.subList(1, args.size()).stream()
                 .map(Argument::getValue)
                 .collect(Collectors.toList());
