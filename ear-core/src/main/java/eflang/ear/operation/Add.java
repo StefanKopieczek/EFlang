@@ -1,6 +1,8 @@
 package eflang.ear.operation;
 
 import eflang.ear.core.Argument;
+import eflang.ear.core.ArgumentValidator;
+import eflang.ear.core.EARException;
 import eflang.ear.core.Instruction;
 
 import java.util.ArrayList;
@@ -11,8 +13,6 @@ import java.util.stream.Stream;
 public class Add implements Operation {
     @Override
     public List<Instruction> compile(List<Argument> args) {
-        assert args.size() > 1;
-
         List<Integer> outputCells = args.subList(1, args.size()).stream()
                 .map(Argument::getValue)
                 .collect(Collectors.toList());
@@ -51,5 +51,17 @@ public class Add implements Operation {
         }
 
         return instructions;
+    }
+
+    @Override
+    public void validateArgs(List<Argument> args) throws EARException {
+        Argument.validator()
+                .one(ArgumentValidator.Type.EITHER)
+                .many(ArgumentValidator.Type.CONSTANT)
+                .validate(args);
+    }
+
+    public String toString() {
+        return "ADD";
     }
 }

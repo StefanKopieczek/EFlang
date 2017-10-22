@@ -29,7 +29,7 @@ public class EarCodeConverter implements CodeConverter {
         try {
             return new StringMusicSource(compiler.compile(code));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to compile EAR code with error:\n" + e.getMessage());
+            throw new RuntimeException("Failed to compile EAR code with error", e);
         }
     }
 }

@@ -2,7 +2,7 @@ import eflang.core.MusicSource;
 import eflang.ear.composer.Composer;
 import eflang.ear.core.Command;
 import eflang.ear.core.Instruction;
-import eflang.ear.core.InstructionParser;
+import eflang.ear.core.CommandParser;
 import eflang.ear.core.StatefulInstructionCompiler;
 import eflang.ear.jit.EARInstructionMusicSource;
 import eflang.hammer.CodeConverter;
@@ -20,8 +20,9 @@ public class EarJitCodeConverter implements CodeConverter {
 
     @Override
     public MusicSource apply(String code) {
+        CommandParser parser = CommandParser.defaultCommandParser();
         List<Instruction> instructions = Arrays.asList(code.split("(\\r?\\n)+")).stream()
-                .map(InstructionParser::parseLine)
+                .map(parser::parseCommand)
                 .map(Command::compile)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
