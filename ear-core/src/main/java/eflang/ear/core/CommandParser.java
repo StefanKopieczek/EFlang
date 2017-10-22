@@ -11,7 +11,7 @@ public class CommandParser {
 
     private CommandParser() {}
 
-    public static Command parseLine(String line) {
+    public static Command parseCommand(String line) {
         line = line.trim();
         if ((line.equals("")) || (isComment(line))) {
             return Command.of(new Noop(), Collections.emptyList());

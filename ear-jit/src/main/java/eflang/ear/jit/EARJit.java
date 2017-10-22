@@ -22,7 +22,7 @@ public class EARJit {
 
     public void run(String earCode) {
         List<Instruction> instructions = Arrays.asList(earCode.split("(\\r?\\n)+")).stream()
-                .map(CommandParser::parseLine)
+                .map(CommandParser::parseCommand)
                 .map(Command::compile)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
