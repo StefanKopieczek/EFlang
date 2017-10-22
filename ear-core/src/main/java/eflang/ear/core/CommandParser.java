@@ -7,9 +7,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class InstructionParser {
+public class CommandParser {
 
-    private InstructionParser() {}
+    private CommandParser() {}
 
     public static Command parseLine(String line) {
         line = line.trim();
@@ -19,7 +19,7 @@ public class InstructionParser {
 
         List<String> tokens = Arrays.asList(line.split(" +"));
         List<Argument> args = tokens.subList(1, tokens.size()).stream()
-                .map(InstructionParser::parseArg)
+                .map(CommandParser::parseArg)
                 .collect(Collectors.toList());
 
         return Command.of(lookupOperation(tokens.get(0)), args);

@@ -1,7 +1,7 @@
 package eflang.ear.compiler;
 
 import eflang.ear.core.Command;
-import eflang.ear.core.InstructionParser;
+import eflang.ear.core.CommandParser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +13,6 @@ public class EARParser {
 
     public static List<Command> parse(String earCode) {
         List<String> lines = Arrays.asList(earCode.split("(\\r?\\n)+"));
-        return lines.stream().map(InstructionParser::parseLine).collect(Collectors.toList());
+        return lines.stream().map(CommandParser::parseLine).collect(Collectors.toList());
     }
 }
