@@ -61,7 +61,7 @@ public class EARCompiler {
         AtomicLong accumulator = new AtomicLong(0);
         lineStartPositions = notesPerCommand.stream()
                 .map(List::size)
-                .map(accumulator::addAndGet)
+                .map(accumulator::getAndAdd)
                 .collect(Collectors.toList());
 
         List<String> output = notesPerCommand.stream().flatMap(List::stream).collect(Collectors.toList());
