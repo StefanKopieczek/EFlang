@@ -2,14 +2,15 @@ package eflang.ear.compiler;
 
 import eflang.ear.composer.Composer;
 import eflang.ear.composer.OnlyRunsComposer;
-import eflang.ear.core.Command;
-import eflang.ear.core.EARException;
-import eflang.ear.core.Scales;
-import eflang.ear.core.StatefulInstructionCompiler;
+import eflang.ear.core.*;
 
-import java.util.ArrayList;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Compiler for the EAR language. <br/>
@@ -18,28 +19,14 @@ import java.util.stream.Collectors;
  *
  */
 public class EARCompiler {
-    private StatefulInstructionCompiler statefulInstructionCompiler;
-
-    /**
-     * This stores the start position in the compiled EF code for each
-     * EAR command.
-     * Index = EAR command index
-     * Value = first EF command index in the given EAR command
-     */
-    private ArrayList<Integer> lineStartPositions;
+    private Composer composer;
 
     public EARCompiler() {
         this(new OnlyRunsComposer(Scales.CMajor));
     }
 
     public EARCompiler(Composer composer) {
-        statefulInstructionCompiler = new StatefulInstructionCompiler(composer);
-        resetState();
-    }
-
-    private void resetState() {
-        statefulInstructionCompiler.resetState();
-        lineStartPositions = new ArrayList<>();
+        this.composer = composer;
     }
 
     /**
@@ -48,28 +35,29 @@ public class EARCompiler {
      * @param EARCode full program code.
      * @return String containing EF program
      */
-    public String compile(String EARCode) throws EARException {
-        resetState();
-        List<String> output = new ArrayList<>();
+    public EarCompilationResult compile(String EARCode) throws EARException {
+        StatefulInstructionCompiler instructionCompiler = new StatefulInstructionCompiler(composer);
 
-        List<Command> commands = EARParser.parse(EARCode);
-        output.add(statefulInstructionCompiler.getStartingNote());
+        InputStream input = new ByteArrayInputStream(EARCode.getBytes(Charset.defaultCharset()));
 
-        commands.forEach(cmd -> {
-            lineStartPositions.add(output.size());
-            List<String> notes = cmd.compile().stream()
-                    .map(statefulInstructionCompiler::compileInstruction)
+        CommandParser parser = CommandParser.defaultCommandParser();
+        Stream<Command> commands = InputSplitter.split(input).map(parser::parseCommand);
+
+        List<List<String>> notesPerCommand = commands.map(cmd ->
+            cmd.compile().stream()
+                    .map(instructionCompiler::compileInstruction)
                     .flatMap(List::stream)
-                    .collect(Collectors.toList());
+                .collect(Collectors.toList())
+        ).collect(Collectors.toList());
 
-            output.addAll(notes);
-        });
+        AtomicLong accumulator = new AtomicLong(0);
+        List<Long> lineStartPositions = notesPerCommand.stream()
+                .map(List::size)
+                .map(accumulator::getAndAdd)
+                .collect(Collectors.toList());
 
-        return String.join(" ", output);
+        List<String> output = notesPerCommand.stream().flatMap(List::stream).collect(Collectors.toList());
+
+        return new EarCompilationResult(String.join(" ", output), lineStartPositions);
     }
-
-    public ArrayList<Integer> getCommandStartPositions() {
-        return lineStartPositions;
-    }
-
 }

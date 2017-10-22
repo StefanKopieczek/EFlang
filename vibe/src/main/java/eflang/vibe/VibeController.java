@@ -3,10 +3,11 @@ package eflang.vibe;
 import eflang.core.Parser;
 import eflang.core.StringMusicSource;
 import eflang.ear.compiler.EARCompiler;
+import eflang.ear.compiler.EarCompilationResult;
+import eflang.ear.composer.GeometricComposer;
 import eflang.ear.core.EARException;
 import eflang.ear.core.Scale;
 import eflang.ear.core.Scales;
-import eflang.ear.composer.GeometricComposer;
 import eflang.lobe.LOBECompiler;
 import eflang.lobe.LobeCompilationException;
 import eflang.vibe.MainFrame.ControlButton;
@@ -18,6 +19,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class manages the behind-the-scenes action of the IDE.
@@ -93,14 +95,14 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      * of each EAR command. <br/>
      * Used for code highlighting.
      */
-    private ArrayList<Integer> mEARLineStartPositions;
+    private List<Long> mEARLineStartPositions;
 
     /**
      * This array contains the start positions (in terms of EAR commands)
      * of each High Level command. <br/>
      * Used for code highlighting.
      */
-    private ArrayList<Integer> mHighLevelLineStartPositions;
+    private List<Integer> mHighLevelLineStartPositions;
 
     /**
      * The instrument to use for playing notes.
@@ -241,8 +243,9 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
         String EARCode = mFrame.getEARCode();
         if (mPlayState==PlayState.STOPPED) {
             try {
-                mFrame.setEFCode(mEARCompiler.compile(EARCode));
-                mEARLineStartPositions = mEARCompiler.getCommandStartPositions();
+                EarCompilationResult result = mEARCompiler.compile(EARCode);
+                mFrame.setEFCode(result.getEfCode());
+                mEARLineStartPositions = result.getLineStartPositions();
             } catch (EARException e) {
                 mFrame.setEFCode(e.getMessage());
             }
@@ -591,7 +594,7 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      * Used by workers to do code highlighting.
      * @return
      */
-    public ArrayList<Integer> getEARCommandStartPositions() {
+    public List<Long> getEARCommandStartPositions() {
         return mEARLineStartPositions;
     }
 
@@ -600,7 +603,7 @@ public class VibeController implements ProgramTimer.TimerListener, ActionListene
      * Used by workers to do code highlighting.
      * @return
      */
-    public ArrayList<Integer> getHighLevelCommandStartPositions() {
+    public List<Integer> getHighLevelCommandStartPositions() {
         return mHighLevelLineStartPositions;
     }
 

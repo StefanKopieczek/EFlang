@@ -3,7 +3,6 @@ package eflang.vibe;
 import eflang.vibe.VibeController.VibeMode;
 
 import javax.swing.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ public class StepForwardWorker extends SwingWorker<Void, Long> {
         long currentEFCommand = indices.get(indices.size()-1);
         //Get EAR command index
         int currentEARLine = 0;
-        ArrayList<Integer> earLineStartPositions =
+        List<Long> earLineStartPositions =
                 mController.getEARCommandStartPositions();
         for (int i=0; i<earLineStartPositions.size(); i++) {
             if (earLineStartPositions.get(i) <= currentEFCommand) {
@@ -54,7 +53,7 @@ public class StepForwardWorker extends SwingWorker<Void, Long> {
 
         //Get High Level command index
         int currentHighLevelLine = 0;
-        ArrayList<Integer> highLevelLineStartPositions =
+        List<Integer> highLevelLineStartPositions =
                 mController.getHighLevelCommandStartPositions();
         for (int i=0; i<highLevelLineStartPositions.size(); i++) {
             if (highLevelLineStartPositions.get(i) <= currentEARLine) {

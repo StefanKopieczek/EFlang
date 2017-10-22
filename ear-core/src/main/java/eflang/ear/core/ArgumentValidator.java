@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArgumentValidator {
-    List<ArgSpec> argSpecs;
+    private List<ArgSpec> argSpecs;
 
     ArgumentValidator() {
         this.argSpecs = new ArrayList<>();
