@@ -15,4 +15,5 @@ public interface Operation {
     }
 
     void validateArgs(List<Argument> args) throws EARException;
+
 }

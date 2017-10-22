@@ -37,4 +37,23 @@ public class Command {
                 arguments.stream().map(Argument::toString).collect(Collectors.toList()));
         return String.format("%s %s", operation, argString);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof Command)) {
+            return false;
+        }
+
+        Command that = (Command) o;
+        return (this.operation.getClass() == that.operation.getClass()) && (this.arguments.equals(that.arguments));
+    }
+
+    @Override
+    public int hashCode() {
+        return this.operation.getClass().hashCode() ^ this.arguments.hashCode();
+    }
 }
