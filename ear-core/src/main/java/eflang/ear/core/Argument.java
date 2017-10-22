@@ -28,4 +28,16 @@ public class Argument {
     public static Argument cell(int value) {
         return new Argument(Type.CELL, value);
     }
+
+    public static ArgumentValidator validator() {
+        return new ArgumentValidator();
+    }
+
+    public String toString() {
+        if (type == Type.CELL) {
+            return String.format("@%d", value);
+        } else {
+            return String.format("%d", value);
+        }
+    }
 }

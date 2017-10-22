@@ -1,6 +1,8 @@
 package eflang.ear.operation;
 
 import eflang.ear.core.Argument;
+import eflang.ear.core.ArgumentValidator;
+import eflang.ear.core.EARException;
 import eflang.ear.core.Instruction;
 
 import java.util.ArrayList;
@@ -51,5 +53,17 @@ public class Add implements Operation {
         }
 
         return instructions;
+    }
+
+    @Override
+    public void validateArgs(List<Argument> args) throws EARException {
+        Argument.validator()
+                .one(ArgumentValidator.Type.EITHER)
+                .many(ArgumentValidator.Type.CONSTANT)
+                .validate(args);
+    }
+
+    public String toString() {
+        return "ADD";
     }
 }

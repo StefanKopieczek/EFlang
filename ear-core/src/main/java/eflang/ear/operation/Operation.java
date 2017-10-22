@@ -1,6 +1,7 @@
 package eflang.ear.operation;
 
 import eflang.ear.core.Argument;
+import eflang.ear.core.EARException;
 import eflang.ear.core.Instruction;
 
 import java.util.Arrays;
@@ -12,4 +13,6 @@ public interface Operation {
     default List<Instruction> compile(Argument... args) {
         return compile(Arrays.asList(args));
     }
+
+    void validateArgs(List<Argument> args) throws EARException;
 }
