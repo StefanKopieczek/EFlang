@@ -20,8 +20,9 @@ public class EarJitCodeConverter implements CodeConverter {
 
     @Override
     public MusicSource apply(String code) {
+        CommandParser parser = CommandParser.defaultCommandParser();
         List<Instruction> instructions = Arrays.asList(code.split("(\\r?\\n)+")).stream()
-                .map(CommandParser::parseCommand)
+                .map(parser::parseCommand)
                 .map(Command::compile)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
