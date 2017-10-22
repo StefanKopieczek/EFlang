@@ -1,13 +1,14 @@
 package eflang.ear.jit;
 
-import eflang.core.*;
+import eflang.core.MusicSource;
+import eflang.core.Parser;
+import eflang.core.Performer;
 import eflang.ear.composer.Composer;
-import eflang.ear.core.Command;
-import eflang.ear.core.Instruction;
-import eflang.ear.core.CommandParser;
-import eflang.ear.core.StatefulInstructionCompiler;
+import eflang.ear.core.*;
 
-import java.util.Arrays;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,8 @@ public class EARJit {
 
     public void run(String earCode) {
         CommandParser parser = CommandParser.defaultCommandParser();
-        List<Instruction> instructions = Arrays.asList(earCode.split("(\\r?\\n)+")).stream()
+        InputStream input = new ByteArrayInputStream(earCode.getBytes(Charset.defaultCharset()));
+        List<Instruction> instructions = InputSplitter.split(input)
                 .map(parser::parseCommand)
                 .map(Command::compile)
                 .flatMap(List::stream)
